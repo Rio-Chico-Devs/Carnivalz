@@ -66,7 +66,7 @@ dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': 
                             'sinistra': ferma('attesaSx', 'lato_sinistro_attesa', 40)},
                  'corda': ferma('corda', 'davanti_corda', 64),
                  'dorme': ferma('dorme', 'davanti_dorme', 40),
-                 'jojo': ferma('jojo', 'davanti_jojo', 72)}
+                 'jojo': ferma('jojo', 'davanti_jojo', 48)}
 # l'acqua: i dati per pixel, la tessera, il filo del ruscello; i pezzi con l'acqua a fotogrammi e la pozza
 with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f:
     acqua = json.load(f)

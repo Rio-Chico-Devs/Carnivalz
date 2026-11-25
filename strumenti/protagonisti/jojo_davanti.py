@@ -3,13 +3,11 @@ una mano sul fianco, l'altro braccio alzato accanto alla testa, lo sguardo minac
 (il disegno di Bru portato sulla griglia 40x74 e sulla tavolozza della ferma, con tre stelle e il braccio alzato piu'
 corto, lungo come quello della ferma: Bru, "il braccio destro nella ref e' troppo lungo". Si accorcia in proporzione,
 come nel disegno: l'avambraccio perde 3 righe, il braccio fra spalla e gomito 2, il gomito resta in fuori).
-L'animazione, 16 fotogrammi da 90 ms:
+L'animazione, 16 fotogrammi da 90 ms (le ゴ "menacing" ai lati c'erano e Bru le ha tolte):
 - l'aura: un alone viola intorno a lei, piu' chiaro attaccato al corpo, e fuori lingue di fiamma che salgono;
-- le ゴ ("menacing"): quattro katakana viola col contorno scuro, due per lato, che compaiono una dopo l'altra (il
-  primo fotogramma tutte chiare, come un lampo), salgono piano e tremano; ognuna sparisce per 4 fotogrammi e torna;
 - il respiro: il corpo sale di 1 pixel e torna giu', i piedi restano a terra (si allunga la coscia);
 - il ciuffo sventola nel vento dell'aura: le punte salgono di 1 pixel ogni due fotogrammi.
-Tela 72x84: lei sta a x 16, y 10 (le suole alla riga 82), ai lati c'e' posto per le ゴ.
+Tela 48x84: lei sta a x 4, y 10 (le suole alla riga 82), intorno c'e' posto per l'aura.
 uso: jojo_davanti.py davanti_jojo_posa.png striscia.png anteprima.gif foglio.png"""
 import math
 import sys
@@ -19,7 +17,7 @@ from PIL import Image
 
 src = np.asarray(Image.open(sys.argv[1]).convert('RGBA')).copy()
 H, W = src.shape[:2]
-TW, TH, OX, OY = 72, 84, 16, 10
+TW, TH, OX, OY = 48, 84, 4, 10
 N = 16
 DURATE = [90] * N
 CORPO = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
@@ -122,42 +120,6 @@ def aura(out, k):
     out[m] = sotto[m]
 
 
-# ---------------------------------------------------------------- le ゴ
-GO = ['......T.T',
-      '.....T.T.',
-      'TTTTTT...',
-      'MMMMMS...',
-      '....MS...',
-      '....MS...',
-      'MMMMMS...',
-      'SSSSSS...']
-GO_COL = {'T': (240, 160, 244), 'M': (196, 82, 206), 'S': (122, 38, 142)}
-CONTORNO = (40, 10, 52)
-# (x, y) dell'angolo in alto a sinistra (contorno compreso) e il fotogramma in cui compare
-GOS = [(1, 22, 0), (59, 14, 4), (4, 40, 8), (61, 32, 12)]
-VITA = 12
-TREMA = [0, 1, 0, -1]
-
-
-def go(out, x0, y0, lampo):
-    g = np.zeros((len(GO) + 2, len(GO[0]) + 2), object)
-    for j, r in enumerate(GO):
-        for i, ch in enumerate(r):
-            if ch != '.':
-                g[j + 1, i + 1] = 'T' if lampo else ch
-    for j in range(g.shape[0]):
-        for i in range(g.shape[1]):
-            if g[j, i] == 0 and any(g[jj, ii] not in (0, 'O') for jj in range(max(0, j - 1), min(g.shape[0], j + 2))
-                                    for ii in range(max(0, i - 1), min(g.shape[1], i + 2))):
-                g[j, i] = 'O'
-    for j in range(g.shape[0]):
-        for i in range(g.shape[1]):
-            if g[j, i] != 0 and 0 <= y0 + j < TH and 0 <= x0 + i < TW:
-                c = CONTORNO if g[j, i] == 'O' else GO_COL[g[j, i]]
-                out[y0 + j, x0 + i, :3] = c
-                out[y0 + j, x0 + i, 3] = 255
-
-
 fot = []
 for k in range(N):
     b = CORPO[k]
@@ -166,10 +128,6 @@ for k in range(N):
     posa(out, gambe, lambda r, x: lineare(r, 58, b, 63, 0))       # i piedi a terra
     posa(out, resto, lambda r, x: p if punta[r, x] else b)
     aura(out, k)
-    for i, (x0, y0, inizio) in enumerate(GOS):
-        eta = (k - inizio) % N
-        if eta < VITA:
-            go(out, x0 + TREMA[(k + i) % 4], y0 - eta // 4, eta == 0)
     fot.append(out)
 striscia = np.concatenate(fot, axis=1)
 Image.fromarray(striscia, 'RGBA').save(sys.argv[2])
