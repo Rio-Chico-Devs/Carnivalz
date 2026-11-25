@@ -1,7 +1,8 @@
 """Lei in posa JoJo, di fronte, dal disegno 107 di Bru ("animazione jojo posing aura farming menacing"): gambe larghe,
 una mano sul fianco, l'altro braccio alzato accanto alla testa, lo sguardo minaccioso. La posa e' davanti_jojo_posa.png
 (il disegno di Bru portato sulla griglia 40x74 e sulla tavolozza della ferma, con tre stelle e il braccio alzato piu'
-corto di 4 righe: Bru, "il braccio destro nella ref e' troppo lungo").
+corto, lungo come quello della ferma: Bru, "il braccio destro nella ref e' troppo lungo". Si accorcia in proporzione,
+come nel disegno: l'avambraccio perde 3 righe, il braccio fra spalla e gomito 2, il gomito resta in fuori).
 L'animazione, 16 fotogrammi da 90 ms:
 - l'aura: un alone viola intorno a lei, piu' chiaro attaccato al corpo, e fuori lingue di fiamma che salgono;
 - le ゴ ("menacing"): quattro katakana viola col contorno scuro, due per lato, che compaiono una dopo l'altra (il
