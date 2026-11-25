@@ -102,9 +102,9 @@ def lato(src, a_sinistra):
     gambe = op & (Y >= 65) & ~braccia
     corpo = op & ~coda & ~dietro & ~braccia & ~gambe
     return anima(src, [
-        # la gamba sale col corpo; nel piede la punta (davanti, x <= 10 guardando a sinistra) resta a terra:
-        # il tallone si alza
-        (gambe, lambda b, a, p: lambda r, x: b if (r < 77 or (x if a_sinistra else W - 1 - x) >= 11) else 0),
+        # la gamba sale col corpo; nel piede la punta (davanti, x <= 17 guardando a sinistra) resta a terra:
+        # i talloni (x 18-22) si alzano
+        (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 18) else 0),
         (corpo, lambda b, a, p: lambda r, x: b),
         (dietro, lambda b, a, p: lambda r, x: lineare(r, 42, b, 46, p)),
         (coda, lambda b, a, p: lambda r, x: lineare(r, 21, b, 6, p)),

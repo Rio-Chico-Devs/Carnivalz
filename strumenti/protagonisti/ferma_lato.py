@@ -20,22 +20,27 @@ COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85)}
 CAPELLI_VECCHI = {(87, 66, 125), (114, 91, 145), (148, 136, 190), (196, 185, 225), (228, 215, 241)}
 PELLE, PELLE_OMBRA, PELLE_SCURA = (128, 93, 75), (105, 75, 64), (85, 55, 39)   # i colori del collo della corsa
 
-# le gambe verso sinistra, dalla riga 68 (bordo dello stivale) alla 80 (suole), da x 8: la gamba vicina con la
-# luce sul davanti e il ginocchio lucido; quella lontana due pixel piu' indietro, scura, si vede solo dietro
-VICINA = ['...llllll...',
-          '...lnhhhl...',
-          '..lnmhhhl...',
-          '..lnhhhhhl..',
-          '...lnhhhhl..',
-          '...lnhhhl...',
+# le gambe verso sinistra, dalla riga 68 (bordo dello stivale) alla 80 (suole), da x 11. Bru: niente polpaccio
+# grosso e niente gambe inclinate in avanti: le gambe scendono verso il baricentro (x 18 circa: testa e corpo) e i
+# piedi ci stanno sotto. La gamba vicina: luce sul davanti, ginocchio lucido, caviglia sottile, piede col tacco;
+# quella lontana due pixel piu' indietro, scura (se ne vedono il retro e il tacco)
+VICINA = ['.lllllll....',
+          '.lnhhhhl....',
+          '.lmnhhhl....',
+          '..lnhhhl....',
+          '..lnhhhl....',
+          '..lnhhhl....',
           '...lnhhl....',
           '...lnhhl....',
-          '...lnhl.....',
-          '..lnhhl.....',
-          '.lnhhhll....',
-          'lnhhl.ll....',
-          'lll...ll....']
+          '....lnhl....',
+          '....lnhl....',
+          '...lnhhhl...',
+          '..lnhhl.ll..',
+          '..lll...ll..']
 LONTANA = [r.replace('n', 'h').replace('m', 'h') for r in VICINA]
+# le cosce sotto i pantaloncini (righe 65-67, da x 10), che scendono verso lo stivale; la mano ci sta davanti
+COSCE = ['dceee', '.dceee', '.dceee']
+PELLI = {'d': (97, 58, 63), 'c': (130, 85, 80), 'e': (156, 116, 82)}
 
 
 def leggi(nome):
@@ -81,8 +86,13 @@ def sinistra(testa_sx, cima):
     # il collo sotto il mento, fino al collarino
     for x, c in ((15, PELLE_SCURA), (16, PELLE), (17, PELLE), (18, PELLE), (19, PELLE_OMBRA)):
         out[47, x, :3] = c; out[47, x, 3] = 255
-    gambe(out, LONTANA, 9, 68)
-    gambe(out, VICINA, 7, 68)
+    for i, r in enumerate(COSCE):
+        for j, ch in enumerate(r):
+            y, x = 65 + i, 10 + j
+            if ch != '.' and (out[y, x, 3] == 0 or tuple(out[y, x, :3]) in PELLI.values()):
+                out[y, x, :3] = PELLI[ch]; out[y, x, 3] = 255
+    gambe(out, LONTANA, 13, 68)
+    gambe(out, VICINA, 11, 68)
     # la testa sopra il collo (i capelli dietro cadono sulla schiena)
     m = testa_sx[..., 3] > 0
     out[m] = testa_sx[m]
