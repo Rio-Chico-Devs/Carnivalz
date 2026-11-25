@@ -23,6 +23,10 @@ for y, riga in PUGNO.items():
     for x, c in riga.items():
         src[y, x, :3] = c; src[y, x, 3] = 255
         src[y, 39 - x, :3] = c; src[y, 39 - x, 3] = 255
+# ---- la bocca: solo un punto, aperta quel poco che basta per respirare (era un trattino alla riga 38, x 16-19)
+for x in (16, 18, 19):
+    src[38, x, :3] = (156, 116, 82)                                   # pelle
+src[38, 17, :3] = (74, 26, 52)                                        # il punto scuro della bocca aperta
 op = src[..., 3] > 0
 Y, X = np.mgrid[0:H, 0:W]
 coda = op & (Y <= 13)
