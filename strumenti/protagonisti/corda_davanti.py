@@ -71,13 +71,14 @@ def arco(theta, mani_y):
         y = int(math.floor(y0 + (colmo - y0) * math.sin(f) + 0.5))
         if not pts or pts[-1] != (x, y):
             pts.append((x, y))
-    # pixel perfetto: via gli angoli a L
+    # pixel perfetto: via gli angoli a L, guardando la linea gia' pulita (se no a ogni gradino
+    # sparivano tutti e due i pixel dell'angolo e la corda veniva tratteggiata)
     puliti = []
-    for i, p in enumerate(pts):
-        if 0 < i < len(pts) - 1:
-            a, b = pts[i - 1], pts[i + 1]
-            if abs(a[0] - b[0]) == 1 and abs(a[1] - b[1]) == 1 and (p[0] == a[0] or p[0] == b[0]):
-                continue
+    for p in pts:
+        if len(puliti) >= 2:
+            a = puliti[-2]
+            if abs(a[0] - p[0]) == 1 and abs(a[1] - p[1]) == 1:
+                puliti.pop()
         puliti.append(p)
     return puliti
 
