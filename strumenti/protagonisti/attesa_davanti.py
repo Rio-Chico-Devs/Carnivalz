@@ -16,15 +16,26 @@ MA = 2                                  # righe libere sopra
 op = src[..., 3] > 0
 Y, X = np.mgrid[0:H, 0:W]
 # le parti (righe e colonne della posa di fronte, 40x74)
+# in ritardo vanno solo i capelli: nelle righe dell'attacco e nelle zone delle ciocche ci sono anche il bordo di sopra
+# del cerchio d'oro, il bordo della fascia, le ciglia e la pelle ai lati del viso, che devono muoversi interi con la
+# testa (Bru: il cerchio "deve muoversi ma non allungarsi... per intero, non aggiungendo o sottraendo pixel")
+CAPELLI_COL = {(87, 66, 125), (114, 91, 145), (148, 136, 190), (196, 185, 225), (228, 215, 241)}
+LACCETTI = {(22, 37, 52)}                                              # i laccetti scuri delle ciocche
+capelli = np.zeros(op.shape, bool)
+for c in CAPELLI_COL:
+    capelli |= np.all(src[..., :3] == c, axis=-1)
+laccetti = np.zeros(op.shape, bool)
+for c in LACCETTI:
+    laccetti |= np.all(src[..., :3] == c, axis=-1)
 punte = op & (Y <= 13)                                                 # le punte in alto e il laccio
-ciocche = op & (Y >= 36) & (Y <= 45) & ((X <= 9) | (X >= 29))
+ciocche = op & (Y >= 36) & (Y <= 45) & ((X <= 9) | (X >= 29)) & (capelli | laccetti)
 braccia = op & (Y >= 46) & (Y <= 61) & ((X <= 11) | (X >= 28))
 gambe = op & (Y >= 59) & ~braccia
 gamba_sx, gamba_dx = gambe & (X <= 19), gambe & (X >= 20)
 corpo = op & ~punte & ~ciocche & ~braccia & ~gambe
 # i capelli che si muovono, con l'attacco: qualche riga sopra che la testa poi copre
-punte_attacco = op & (Y <= 16) & ~braccia
-ciocche_attacco = op & (Y >= 32) & (Y <= 45) & ((X <= 9) | (X >= 29))
+punte_attacco = op & (Y <= 16) & ~braccia & ((Y <= 13) | capelli)
+ciocche_attacco = op & (Y >= 32) & (Y <= 45) & ((X <= 9) | (X >= 29)) & (capelli | laccetti)
 #            f1 f2 f3 f4 f5 f6
 CORPO =     [0, 1, 1, 1, 0, 0]
 BRACCIA =   [0, 1, 2, 2, 1, 1]     # la mano; la spalla va col corpo
@@ -69,40 +80,6 @@ for k in range(6):
     sposta(out, ciocche_attacco, c)
     sposta(out, corpo, b)
     fot.append(out)
-# il cerchio d'oro della fascia resta fermo (Bru: "nell'idle animation del front il cerchietto dorato non dovrebbe
-# muoversi"; prima saliva con la testa e nel quinto fotogramma il suo bordo di sopra, che sta nell'attacco del laccio,
-# restava su un pixel e lo allungava). Il cerchio e' l'oro, il suo bordo di marroni e quello che c'e' dentro; in tutti
-# i fotogrammi e' come nel primo, e cosi' la riga appena sopra, dove il cerchio sollevato lascerebbe il suo bordo
-ORO = {(97, 60, 20), (202, 153, 78), (250, 214, 129)}
-BORDO = {(130, 85, 80), (156, 116, 82)}           # i due marroni del bordo del cerchio
-
-
-def cerchio(img):
-    piena = img[..., 3] > 0
-    muro = np.zeros(piena.shape, bool)
-    for c in ORO | BORDO:
-        muro |= np.all(img[..., :3] == c, axis=-1) & piena
-    # dentro: quello che non si raggiunge dai bordi del foglio senza passare dal cerchio
-    h, w = muro.shape
-    fuori = np.zeros_like(muro)
-    pila = [(y, x) for y in range(h) for x in (0, w - 1)] + [(y, x) for x in range(w) for y in (0, h - 1)]
-    pila = [(y, x) for y, x in pila if not muro[y, x]]
-    for y, x in pila:
-        fuori[y, x] = True
-    while pila:
-        y, x = pila.pop()
-        for yy, xx in ((y, x + 1), (y + 1, x), (y, x - 1), (y - 1, x)):
-            if 0 <= yy < h and 0 <= xx < w and not muro[yy, xx] and not fuori[yy, xx]:
-                fuori[yy, xx] = True
-                pila.append((yy, xx))
-    return ~fuori
-
-
-fermo = np.zeros((H + MA, W), bool)
-fermo[MA:] = cerchio(src)
-fermo[:-1] |= fermo[1:].copy()                    # e la riga sopra
-for out in fot[1:]:
-    out[fermo] = fot[0][fermo]
 striscia = np.concatenate(fot, axis=1)
 Image.fromarray(striscia, 'RGBA').save(sys.argv[2])
 # anteprima: GIF ingrandita 6 volte su fondo chiaro, coi tempi della GIF di Bru
