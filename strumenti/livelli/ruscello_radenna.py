@@ -702,13 +702,15 @@ ALBERI = [
     # Bru (26 novembre): le piante alla misura giusta rispetto a lei (alta 73): alberi ~3 volte lei, pini ~3,5,
     # cespugli poco piu' di lei o a meta' (strumenti/livelli/piante.py). Sono grandi, quindi piu' rade: incorniciano
     # i bordi, lasciano liberi la strada, il ponte, lo stagno e l'arrivo; si sbatte solo contro i tronchi.
-    # il boschetto in alto a sinistra (piedi abbastanza giu' che la chioma si veda tutta)
-    ('pino_alto_2', 40, 200), ('albero_alto_1', 160, 172), ('pino_alto_1', 262, 140), ('cespuglio_1', 112, 280),
+    # il boschetto in alto a sinistra (piedi abbastanza giu' che la chioma si veda tutta). Sul bordo in alto la chioma
+    # esce dalla mappa: li' gli alberi esotici a tronco dritto (si vedono il tronco e il fondo della chioma, come un
+    # bosco); quelli a serpente dove si vedono interi
+    ('pino_alto_2', 40, 200), ('albero_alto_dritto_1', 160, 172), ('pino_alto_1', 262, 140), ('cespuglio_1', 112, 280),
     # il bordo in alto, coi varchi della strada e del ruscello
-    ('albero_alto_3', 418, 150), ('pino_alto_3', 506, 122), ('albero_alto_2', 790, 172), ('pino_alto_1', 900, 150),
-    ('cespuglietto_1', 846, 196),
+    ('albero_alto_dritto_2', 418, 150), ('pino_alto_3', 506, 122), ('albero_alto_dritto_1', 790, 172),
+    ('pino_alto_1', 900, 150), ('cespuglietto_1', 846, 196),
     # in alto a destra, oltre il ruscello
-    ('albero_alto_4', 1180, 182), ('pino_alto_2', 1252, 252), ('cespuglio_2', 1118, 232),
+    ('albero_alto_dritto_2', 1180, 182), ('pino_alto_2', 1252, 252), ('cespuglio_2', 1118, 232),
     # il bordo a destra
     ('pino_alto_3', 1254, 330), ('albero_alto_1', 1228, 474), ('pino_alto_1', 1256, 600),
     # il bordo in basso: solo gli angoli, l'arrivo e la strada restano liberi
@@ -722,9 +724,10 @@ ALBERI = [
 ]
 # le piante nuove: (nome, che cosa, quanto alta, seme)
 # Bru: gli alberi tondi sembravano "un mucchio di palle"; ora sono alberi esotici (radici a contrafforte, chioma a
-# strati, liane e muschio): piante.albero_esotico
-PIANTE = [('albero_alto_1', 'albero_esotico', 205, 3), ('albero_alto_2', 'albero_esotico', 222, 11),
-          ('albero_alto_3', 'albero_esotico', 236, 17), ('albero_alto_4', 'albero_esotico', 214, 23), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
+# strati, liane e muschio), col tronco che fa le anse come nel disegno 111 di Bru: piante.albero_serpente
+PIANTE = [('albero_alto_1', 'albero_serpente', 205, 3), ('albero_alto_2', 'albero_serpente', 222, 11),
+          ('albero_alto_3', 'albero_serpente', 236, 17), ('albero_alto_4', 'albero_serpente', 214, 23),
+          ('albero_alto_dritto_1', 'albero_esotico', 222, 11), ('albero_alto_dritto_2', 'albero_esotico', 236, 17), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
           ('pino_alto_3', 'pino', 276, 13), ('cespuglio_1', 'cespuglio', 80, 5), ('cespuglio_2', 'cespuglio', 68, 19),
           ('cespuglietto_1', 'cespuglio', 50, 8)]
 COSE = [
@@ -793,7 +796,7 @@ def prepara_piante():
     # le piante nuove (strumenti/livelli/piante.py), coi semi fissi: sempre le stesse
     for (n, che, alto, seme) in PIANTE:
         f = getattr(_piante, che)
-        if che == 'albero_esotico':
+        if che in ('albero_esotico', 'albero_serpente'):
             # l'albero sa dov'e' il suo piede (il mezzo del tronco a terra: le radici e le felci vanno piu' in la')
             a, piede = f(alto, seme, con_piede=True)
             with open(os.path.join(NUOVI, n + '.json'), 'w') as fj:

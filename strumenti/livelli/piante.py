@@ -799,6 +799,246 @@ def albero_esotico(alto=230, seme=1, con_piede=False):
     return (out, (int(round(cx)) - int(x0), int(base) - int(y0))) if con_piede else out
 
 
+# ================================================================ il tronco a serpente
+# Bru (disegno 111): "per dare un effetto piu' particolare potremmo curvare il tronco come nel mio disegno". Il tronco
+# sale dal piede, corre di lato, gira in su a gomito e torna indietro, due o tre volte, come un nastro piegato; in cima
+# il ramo grande sale in un cuscino di chioma e dall'ultima corsa altri rami salgono nell'altro (due cuscini, come nel
+# disegno). La corteccia segue le curve: ogni pixel prende luce e scanalature dal punto del tronco piu' vicino, cosi'
+# le venature scorrono lungo le anse; sopra le corse orizzontali il muschio e le bromelie, sotto qualche liana.
+
+def _serpente(cx, base, alto, Wc, rng):
+    """il percorso del tronco: punti fitti, le corse (inizio, fine nei punti), la cima e il verso dell'ultima corsa"""
+    n = int(rng.integers(2, 4))
+    R = alto * 0.56 / (2 * n + 0.6)
+    lun = Wc * rng.uniform(0.2, 0.25)
+    verso = 1 if rng.random() < 0.5 else -1
+    pts = []
+
+    def arco(c, r, a0, a1):
+        for a in np.linspace(a0, a1, max(4, int(abs(a1 - a0) * r * 2))):
+            pts.append((c[0] + r * np.cos(a), c[1] + r * np.sin(a)))
+
+    def corsa(p0, p1, onda):
+        f, ph = rng.uniform(0.7, 1.4), rng.uniform(0, 2 * np.pi)
+        for t in np.linspace(0, 1, max(2, int(abs(p1[0] - p0[0]) * 2))):
+            pts.append((p0[0] + (p1[0] - p0[0]) * t,
+                        p0[1] + (p1[1] - p0[1]) * t + onda * np.sin(np.pi * t) * np.sin(2 * np.pi * f * t + ph)))
+    y = base - alto * 0.08 - R
+    for t in np.linspace(0, 1, int((base - y - R) * 2) + 2):        # su dal piede
+        pts.append((cx, base - (base - y - R) * t))
+    if verso > 0:                                                     # il primo gomito, verso il lato
+        arco((cx + R, y + R), R, np.pi, 1.5 * np.pi)
+    else:
+        arco((cx - R, y + R), R, 0.0, -0.5 * np.pi)
+    x = cx + verso * R
+    corse = []
+    for k in range(n):
+        xe = cx + verso * lun * (rng.uniform(0.9, 1.1) if k < n - 1 else rng.uniform(0.3, 0.6))
+        ye = y + rng.uniform(-0.03, 0.03) * alto
+        i0 = len(pts)
+        corsa((x, y), (xe, ye), rng.uniform(1.0, 3.0))
+        corse.append((i0, len(pts)))
+        if k < n - 1:                                                 # il gomito: mezzo cerchio in su, in fuori
+            if verso > 0:
+                arco((xe, ye - R), R, 0.5 * np.pi, -0.5 * np.pi)
+            else:
+                arco((xe, ye - R), R, 0.5 * np.pi, 1.5 * np.pi)
+            x, y = xe, ye - 2 * R
+            verso = -verso
+        else:
+            x, y = xe, ye
+    if verso > 0:                                                     # in cima: un quarto di gomito in su
+        arco((x, y - R), R, 0.5 * np.pi, 0.0)
+    else:
+        arco((x, y - R), R, 0.5 * np.pi, np.pi)
+    return np.array(pts, float), corse, verso
+
+
+def _legno_lungo(T, P, Wd, rng, rampa=TRONCO):
+    """Il tronco lungo il percorso: ogni pixel prende il punto piu' vicino (in raggi); la luce da in alto a sinistra
+    rispetto a quel punto; le scanalature a distanza fissa di traverso, che ondeggiano piano lungo il tronco (un
+    gradino piu' scure, la luce sul labbro); il riflesso sul bordo in ombra."""
+    tg = np.gradient(P, axis=0)
+    tg /= np.linalg.norm(tg, axis=1)[:, None] + 1e-9
+    nr = np.stack([-tg[:, 1], tg[:, 0]], 1)
+    sarc = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))])
+    best = np.full((T.h, T.w), np.inf)
+    idx = np.full((T.h, T.w), -1, int)
+    for i in range(len(P)):
+        x, y = P[i]
+        r = Wd[i] / 2
+        x0, x1 = max(0, int(x - r - 1)), min(T.w, int(x + r + 2))
+        y0, y1 = max(0, int(y - r - 1)), min(T.h, int(y + r + 2))
+        if x0 >= x1 or y0 >= y1:
+            continue
+        yy, xx = np.mgrid[y0:y1, x0:x1]
+        d = np.hypot(xx + 0.5 - x, yy + 0.5 - y) / r
+        sb, si = best[y0:y1, x0:x1], idx[y0:y1, x0:x1]
+        m = d < sb
+        sb[m] = d[m]
+        si[m] = i
+    ys, xs = np.nonzero(best <= 1.0)
+    i = idx[ys, xs]
+    r = Wd[i] / 2
+    ox, oy = (xs + 0.5 - P[i, 0]) / r, (ys + 0.5 - P[i, 1]) / r
+    sl = ox * LUCE[0] + oy * LUCE[1]
+    k = np.where(sl > 0.42, 3, np.where(sl > -0.2, 2, np.where(sl > -0.72, 1, 0)))
+    caso = rng.random(len(ys))
+    k = np.where((best[ys, xs] > 0.8) & (sl < -0.72) & (caso < 0.5), 1, k)     # il riflesso del prato
+    u = ox * nr[i, 0] + oy * nr[i, 1]
+    verso_luce = np.sign(nr[i, 0] * LUCE[0] + nr[i, 1] * LUCE[1] + 1e-9)
+    for j, u0 in enumerate((-0.64, -0.3, 0.04, 0.38, 0.7)):
+        f1, f2 = rng.uniform(0, 2 * np.pi, 2)
+        uu = u0 + 0.07 * np.sin(sarc[i] / 7.0 + f1)
+        aperto = np.sin(sarc[i] / 5.3 + f2) + 0.4 * np.sin(sarc[i] / 2.3 + f1) > -1.0   # ogni tanto il solco si rompe
+        du = (u - uu) * r
+        solco = (np.abs(du) < 0.5) & aperto
+        labbro = (du * verso_luce >= 0.5) & (du * verso_luce < 1.5) & aperto & (caso < 0.55)
+        k = np.where(solco, np.maximum(0, k - 1), np.where(labbro, np.minimum(3, k + 1), k))
+    T.img[ys, xs] = np.array(rampa, np.uint8)[k]
+    T.op[ys, xs] = True
+
+
+def albero_serpente(alto=230, seme=1, con_piede=False):
+    rng = np.random.default_rng(seme)
+    Wc = alto * rng.uniform(0.95, 1.05)
+    w, h = int(Wc) + 40, alto + 14
+    T = _Tela(h, w)
+    base = h - 8
+    cx = w / 2 + rng.uniform(-3, 3)
+    cima = base - alto + 4
+    W0 = alto * 0.1                                          # quanto e' grosso il tronco al piede
+    P, corse, verso = _serpente(cx, base, alto, Wc, rng)
+    sarc = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))])
+    Wd = W0 * (1 - 0.3 * sarc / sarc[-1]) + alto * 0.045 * np.clip(1 - (base - P[:, 1]) / (alto * 0.05), 0, 1) ** 2
+    xt, yt = P[-1]
+    # i due cuscini della chioma: quello del ramo grande dalla sua parte, l'altro dall'altra; uno piu' alto
+    sA = 1 if xt >= cx else -1
+    alzo = rng.uniform(-0.03, 0.03) * alto
+    cuscini = [(cx + sA * Wc * rng.uniform(0.22, 0.27), cima + alto * 0.15 + alzo, sA),
+               (cx - sA * Wc * rng.uniform(0.2, 0.25), cima + alto * 0.11 - alzo, -sA)]
+    gruppi = []
+    for (px_, py_, fuori) in cuscini:
+        # (spostamento x verso fuori, y, raggio, schiacciato, tono): dietro, sopra, davanti, e uno che allunga il
+        # cuscino verso fuori
+        for (dx_, dy_, rr, sch, tono) in ((-0.1, -0.02, 0.15, 0.5, 4.8), (0.1, -0.03, 0.14, 0.5, 4.8),
+                                           (0.0, -0.08, 0.13, 0.5, 4.9), (-0.06, 0.05, 0.14, 0.55, 5.1),
+                                           (0.08, 0.055, 0.12, 0.55, 5.0), (0.2, 0.01, 0.1, 0.52, 4.9)):
+            if rng.random() < 0.92:
+                rx = Wc * rr * rng.uniform(0.9, 1.1)
+                gruppi.append((px_ + fuori * Wc * dx_ + rng.uniform(-3, 3), py_ + alto * dy_ + rng.uniform(-2, 2), rx,
+                               rx * sch, rx * sch * 0.55, tono))
+    gruppi.sort(key=lambda q: q[1])
+    giu_chioma = max(q[1] + q[4] for q in gruppi)
+    # le radici dietro, il tronco a serpente, le radici davanti
+    hw_b = W0 / 2
+    for ang in (205 + rng.uniform(-10, 10), 335 + rng.uniform(-10, 10)):
+        _radice(T, cx + np.cos(np.radians(ang)) * hw_b * 0.7, base - 1, ang, alto * 0.14, alto * 0.065, rng)
+    _legno_lungo(T, P, Wd, rng)
+    for ang, L, F in ((168 + rng.uniform(-8, 8), 0.2, 0.085), (138 + rng.uniform(-10, 10), 0.15, 0.075),
+                      (92 + rng.uniform(-6, 6), 0.1, 0.065), (48 + rng.uniform(-10, 10), 0.14, 0.07),
+                      (12 + rng.uniform(-8, 8), 0.19, 0.08)):
+        a = np.radians(ang)
+        _radice(T, cx + np.cos(a) * hw_b * 0.8, base + np.sin(a) * hw_b * 0.3, ang, alto * L * rng.uniform(0.85, 1.15),
+                alto * F * rng.uniform(0.85, 1.15), rng)
+    # l'ombra della chioma sul tronco in alto: un gradino piu' scuro
+    for y in range(max(0, int(giu_chioma) - 2), min(h, int(giu_chioma + alto * 0.07))):
+        for x in range(w):
+            if T.op[y, x]:
+                c = tuple(int(v) for v in T.img[y, x])
+                if c in TRONCO and TRONCO.index(c) > 0:
+                    T.img[y, x] = TRONCO[TRONCO.index(c) - 1]
+    # i rami: quello grande dalla cima del tronco nel suo cuscino, due dall'ultima corsa nell'altro; dentro i
+    # cuscini i rametti verso i gruppi
+    attacchi = []
+    Wt = Wd[-1]
+    mioA = [q for q in gruppi if (q[0] - cx) * sA > 0]
+    mioB = [q for q in gruppi if (q[0] - cx) * sA <= 0]
+
+    def ramo(p0, w0, gr):
+        if not gr:
+            return
+        tx = np.mean([q[0] for q in gr]); ty = np.mean([q[1] + q[4] for q in gr])
+        q1 = (p0[0] + (tx - p0[0]) * 0.5, p0[1] - (p0[1] - ty) * 0.75)
+        rp = _bezier(p0, (p0[0] + (tx - p0[0]) * 0.15, p0[1] - (p0[1] - ty) * 0.45), q1,
+                     int(np.hypot(q1[0] - p0[0], q1[1] - p0[1]) * 1.6))
+        w1 = max(3.0, w0 * 0.6)
+        _legno(T, rp, [w0 + (w1 - w0) * i / max(1, len(rp) - 1) for i in range(len(rp))])
+        attacchi.append(rp)
+        for (mx, my, rx, ryt, ryb, tono) in gr:
+            p2 = (mx + rng.uniform(-0.25, 0.25) * rx, my + ryb * 0.3)
+            r2 = _bezier(q1, ((q1[0] + p2[0]) / 2, q1[1] - (q1[1] - p2[1]) * 0.7), p2,
+                         int(np.hypot(p2[0] - q1[0], p2[1] - q1[1]) * 1.6))
+            _legno(T, r2, [w1 + (2.0 - w1) * (i / max(1, len(r2) - 1)) ** 0.8 for i in range(len(r2))])
+            attacchi.append(r2)
+    ramo((xt, yt + 1), Wt * 0.95, mioA)
+    i0, i1 = corse[-1]
+    for f in sorted(rng.uniform(0.3, 0.8, 2)):
+        j = int(i0 + (i1 - i0) * f)
+        if mioB:
+            ramo((P[j, 0], P[j, 1] - Wd[j] * 0.3), Wd[j] * 0.5, mioB[:3] if f < 0.55 else mioB[2:] or mioB)
+    # il muschio: sul dorso delle corse e dei rami (dove sopra e' vuoto), sul lato in luce in basso
+    for y in range(0, h):
+        for x in range(w):
+            if not T.op[y, x] or tuple(int(v) for v in T.img[y, x]) != TRONCO[3]:
+                continue
+            sopra_vuoto = y == 0 or not T.op[y - 1, x]
+            if (sopra_vuoto and rng.random() < 0.35) or (y > base - alto * 0.1 and rng.random() < 0.03):
+                _muschio(T, x - 1, y, rng, grande=y > base - alto * 0.12)
+    # sopra le corse una o due bromelie; sotto le corse qualche liana corta
+    dorsi, pance = [], []
+    for (a_, b_) in corse:
+        for j in range(a_, b_, 3):
+            x, y = int(round(P[j, 0])), int(round(P[j, 1]))
+            r = Wd[j] / 2
+            dorsi.append((x, int(round(y - r))))
+            pance.append((x, int(round(y + r)) + 1))
+    for _ in range(int(rng.integers(1, 3))):
+        bx, by = dorsi[int(rng.integers(len(dorsi)))]
+        for j, riga in enumerate(BROMELIA):
+            for i, ch in enumerate(riga):
+                if ch != '.':
+                    T.metti(bx - 3 + i, by - len(BROMELIA) + 2 + j, {'m': FIORE_LIANA[2], 'M': FIORE_LIANA[1],
+                            'o': FIORE_LIANA[0], 'g': MUSCHIO[3], 'G': MUSCHIO[2]}[ch])
+    for _ in range(int(rng.integers(2, 5))):
+        x, y = pance[int(rng.integers(len(pance)))]
+        if y < base - alto * 0.12:
+            _pendente(T, x, y, int(rng.uniform(6, 24)), rng, fiori=rng.random() < 0.3)
+    # le liane ad arco fra i rami, sotto la chioma
+    for _ in range(int(rng.integers(1, 3))):
+        if len(attacchi) < 2:
+            break
+        i, j = rng.choice(len(attacchi), 2, replace=False)
+        a = attacchi[i][int(len(attacchi[i]) * rng.uniform(0.35, 0.7))]
+        b = attacchi[j][int(len(attacchi[j]) * rng.uniform(0.35, 0.7))]
+        if abs(a[0] - b[0]) > 14:
+            _arco(T, a, b, rng.uniform(8, 20), rng, fiori=rng.random() < 0.4)
+    # la chioma, dal dietro al davanti, e le liane che pendono dai cuscini
+    chioma = np.zeros((h, w), bool)
+    for (mx, my, rx, ryt, ryb, tono) in gruppi:
+        chioma |= _gruppo(T, mx, my, rx, ryt, ryb, tono, rng)
+    fondi = [(x, np.nonzero(chioma[:, x])[0].max()) for x in range(w) if chioma[:, x].any()]
+    for _ in range(int(Wc / 24)):
+        x, yb = fondi[int(rng.integers(len(fondi)))]
+        L = int(rng.choice([rng.uniform(8, 22), rng.uniform(22, 50), rng.uniform(50, 90)], p=[0.45, 0.4, 0.15]))
+        if yb + L < base - 8:
+            _pendente(T, x, yb + 2, L, rng, fiori=rng.random() < 0.25)
+    # le felci al piede
+    for s_ in (-1, 1):
+        if rng.random() < 0.85:
+            _felce(T, cx + s_ * (hw_b + alto * rng.uniform(0.06, 0.1)), base + 1, alto * rng.uniform(0.065, 0.085), rng)
+    pad = np.pad(T.op, 1)
+    pieni = T.op & pad[:-2, 1:-1] & pad[2:, 1:-1] & pad[1:-1, :-2] & pad[1:-1, 2:]
+    _ripulisci(T.img, pieni)
+    out = np.zeros((h, w, 4), np.uint8)
+    out[..., :3] = T.img
+    out[..., 3] = T.op * 255
+    ys, xs = np.nonzero(out[..., 3])
+    y0, x0 = ys.min(), max(0, xs.min() - 1)
+    out = out[y0:ys.max() + 1, x0:xs.max() + 2]
+    return (out, (int(round(cx)) - int(x0), int(base) - int(y0))) if con_piede else out
+
+
 def _taglia(a):
     ys, xs = np.nonzero(a[..., 3])
     return a[ys.min():ys.max() + 1, max(0, xs.min() - 1):xs.max() + 2]
