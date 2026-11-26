@@ -25,7 +25,7 @@ for y, riga in PUGNO.items():
         src[y, 39 - x, :3] = c; src[y, 39 - x, 3] = 255
 # ---- la bocca: solo un punto, aperta quel poco che basta per respirare (era un trattino alla riga 38, x 16-19)
 for x in (16, 18, 19):
-    src[38, x, :3] = (175, 134, 99)                                   # pelle
+    src[38, x, :3] = (212, 165, 122)                                   # pelle
 src[38, 17, :3] = (74, 26, 52)                                        # il punto scuro della bocca aperta
 op = src[..., 3] > 0
 Y, X = np.mgrid[0:H, 0:W]
@@ -37,7 +37,7 @@ corpo = op & ~coda & ~ciocche & ~braccia & ~gambe
 # ---- le gambe: pose fatte riga per riga dalle gambe di Lei ferma (righe 59-72: l'anca, le cosce, gli stivali).
 # per ogni posa le righe di partenza dalla 60 in giu' (con quanto il ginocchio va in fuori), poi il piede se cambia
 COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85),     # stivali
-       'e': (175, 134, 99), 'c': (147, 101, 95), 'd': (110, 70, 75)}                     # pelle
+       'e': (212, 165, 122), 'c': (190, 131, 114), 'd': (157, 103, 102)}                     # pelle
 PIEDI = {   # (piede sinistro da x 12, piede destro da x 20), sotto la caviglia (riga 70)
     'punta_terra': (['.lhhl..', 'lhnl...', 'lll....'], ['....lnnl', '....lhnl', '....llll']),   # tallone su, punta a terra
     'punta':       (['.lhhl..', '.lhl...', '.ll....'], ['....lnhl', '.....lnl', '.....ll.']),   # in aria, punta in giu'

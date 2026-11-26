@@ -20,7 +20,7 @@ NOTTE = {(24, 20, 33): (6, 7, 15), (40, 37, 54): (22, 37, 52), (55, 50, 68): (49
 LATTICE = {(6, 7, 15), (22, 37, 52), (49, 59, 70), (69, 79, 85)}
 COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85)}
 CAPELLI_VECCHI = {(87, 66, 125), (114, 91, 145), (148, 136, 190), (196, 185, 225), (228, 215, 241)}
-PELLE, PELLE_OMBRA, PELLE_SCURA = (145, 109, 90), (118, 87, 76), (85, 55, 39)   # i colori del collo della corsa
+PELLE, PELLE_OMBRA, PELLE_SCURA = (187, 140, 118), (164, 121, 108), (85, 55, 39)   # i colori del collo della corsa
 
 # le gambe verso sinistra, dalla riga 68 (bordo dello stivale) alla 80 (suole), da x 11. Bru: niente polpaccio
 # grosso e niente gambe inclinate in avanti: le gambe scendono verso il baricentro (x 18 circa: testa e corpo) e i
@@ -42,7 +42,7 @@ VICINA = ['.lllllll....',
 # la coscia intera sotto i pantaloncini (righe 65-67, da x 11) fino al bordo dello stivale: la mano ora finisce
 # all'altezza dei pantaloncini, come di fronte, e la coscia non resta mezza coperta
 COSCE = ['.dceeeecd', '.dceeeecd', '.dceeeeed']
-PELLI = {'d': (110, 70, 75), 'c': (147, 101, 95), 'e': (175, 134, 99)}
+PELLI = {'d': (157, 103, 102), 'c': (190, 131, 114), 'e': (212, 165, 122)}
 # la treccia: quella della corsa, che scende davanti al collo fino al petto (Bru: "hai rimosso le trecce?")
 CAPELLI_CORSA = {(86, 69, 107), (110, 91, 132), (124, 105, 147), (168, 148, 189), (191, 172, 209), (206, 185, 223)}
 
