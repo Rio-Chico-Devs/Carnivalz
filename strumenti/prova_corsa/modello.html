@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda, si addormenta in piedi con la bolla al naso, o si mette in posa JoJo con l'aura. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda, si addormenta in piedi con la bolla al naso, o si mette in posa JoJo con l'aura. Passano le nuvole: le loro ombre scorrono col vento, e sotto gli alberi il sole fa macchioline che si accendono e ondeggiano. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -261,6 +261,11 @@ kbd {
         <span class="nome">Acqua</span>
         <button type="button" data-acqua="1" aria-pressed="true">Che scorre</button>
         <button type="button" data-acqua="0" aria-pressed="false">Ferma, com'era</button>
+      </div>
+      <div class="fila" role="group" aria-label="Luci e ombre">
+        <span class="nome">Luci e ombre</span>
+        <button type="button" data-luci="1" aria-pressed="true">Nuvole e sole</button>
+        <button type="button" data-luci="0" aria-pressed="false">Spente</button>
       </div>
       <div class="fila" role="group" aria-label="Ingrandimento">
         <span class="nome">Ingrandimento</span>
@@ -351,6 +356,7 @@ kbd {
       im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms };
     }
     if (D.pozza) im.pozza = Object.assign({}, D.pozza, { img: await immagine(D.pozza.img) });
+    if (D.luci) { im.nuvole = await immagine(D.luci.ombra); im.sole = await immagine(D.luci.sole); }
     try {
       await caricaAcqua();
     } catch (e) {
@@ -459,6 +465,13 @@ kbd {
       ACQ.on = b.dataset.acqua === "1";
       ACQ.chiave = "";
       for (const o of document.querySelectorAll("[data-acqua]")) o.setAttribute("aria-pressed", String(o === b));
+      b.blur();
+    });
+  }
+  for (const b of document.querySelectorAll("[data-luci]")) {
+    b.addEventListener("click", () => {
+      LUCI.on = b.dataset.luci === "1";
+      for (const o of document.querySelectorAll("[data-luci]")) o.setAttribute("aria-pressed", String(o === b));
       b.blur();
     });
   }
@@ -1041,6 +1054,59 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     return { can, gl, fondo, punti, uSh, vaoF, vaoP, bp, pts: new Float32Array(3 * 4096), n: 0 };
   }
 
+  // ---------------------------------------------------------------- luci e ombre che si muovono
+  // Le ombre delle nuvole che passano col vento (una tessera da moltiplicare: scuriscono tirando al viola) e il sole nei
+  // sereni (una tessera da sommare a schermo), sopra tutta la scena, lei compresa. Sotto le chiome degli alberi grandi,
+  // macchioline di sole che si accendono, si spengono e ondeggiano col vento, come la luce fra le foglie.
+  const LUCI = { on: true, t: 0, macchie: [] };
+  function preparaMacchie() {
+    // l'ombra della chioma per terra e' un ovale (come nella mappa: centro 5 a destra e 3 su dal piede, raggi 0.56 e
+    // 0.24 della larghezza); dentro, nove macchioline a caso, sempre le stesse, non sul tronco
+    let s = 12345;
+    const caso = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    LUCI.macchie = [];
+    D.pezzi.forEach((p) => {
+      if (!/albero_alto/.test(p[0])) return;
+      const w = IM.pezzi[p[0]].width;
+      const cx = p[1] + 5, cy = p[2] - 3, rx = 0.56 * w, ry = 0.24 * w;
+      for (let k = 0; k < 9; k++) {
+        let x, y, n = 0;
+        do {
+          const a = caso() * 2 * Math.PI, r = Math.sqrt(caso()) * 0.85;
+          x = cx + Math.cos(a) * r * rx; y = cy + Math.sin(a) * r * ry; n++;
+        } while (Math.abs(x - p[1]) < 10 && y > p[2] - 10 && n < 12);
+        LUCI.macchie.push({ x: Math.round(x), y: Math.round(y), f: caso(), T: 2.2 + caso() * 2.8, o: caso() * 6.3 });
+      }
+    });
+  }
+  function macchieDiSole(g, cx, cy) {
+    g.globalCompositeOperation = "screen";
+    for (const m of LUCI.macchie) {
+      const x = m.x - cx + Math.round(1.4 * Math.sin(LUCI.t * 0.9 + m.o)), y = m.y - cy;
+      if (x < -3 || y < -3 || x > gw + 3 || y > gh + 3) continue;
+      const v = Math.sin(2 * Math.PI * (LUCI.t / m.T + m.f));
+      if (v < 0.3) continue;
+      if (v > 0.75) {
+        g.fillStyle = "rgb(104,94,44)"; g.fillRect(x - 1, y, 3, 1); g.fillRect(x, y - 1, 1, 1);
+        g.fillStyle = "rgb(58,52,22)"; g.fillRect(x - 1, y - 1, 1, 1); g.fillRect(x + 1, y - 1, 1, 1);
+      } else {
+        g.fillStyle = "rgb(64,58,26)"; g.fillRect(x, y, 2, 1);
+      }
+    }
+    g.globalCompositeOperation = "source-over";
+  }
+  function nuvole(g, cx, cy) {
+    // la tessera e' ferma nel mondo e scorre col vento: dove cade il suo angolo sullo schermo, poi ripetuta
+    const T = IM.nuvole.width, [vx, vy] = D.luci.vento;
+    const ox = Math.floor(LUCI.t * vx), oy = Math.floor(LUCI.t * vy);
+    const sx0 = (((ox - cx) % T) + T) % T - T, sy0 = (((oy - cy) % T) + T) % T - T;
+    for (const [im, modo] of [[IM.nuvole, "multiply"], [IM.sole, "screen"]]) {
+      g.globalCompositeOperation = modo;
+      for (let y = sy0; y < gh; y += T) for (let x = sx0; x < gw; x += T) g.drawImage(im, x, y);
+    }
+    g.globalCompositeOperation = "source-over";
+  }
+
   // ---------------------------------------------------------------- disegno
   function misura() {
     const r = campo.getBoundingClientRect();
@@ -1107,6 +1173,8 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
       const P = IM.pozza;
       g.drawImage(P.img, fotogramma(P) * P.w, 0, P.w, P.h, LX0 + P.x - cx, LY0 + P.y - cy, P.w, P.h);
     }
+    const luci = LUCI.on && IM.nuvole;
+    if (luci) macchieDiSole(g, cx, cy);
     // i pezzi che stanno in piedi e Lei, in ordine di piede: chi ha il piede piu' in basso e' davanti
     const lista = [];
     D.pezzi.forEach((p, i) => {
@@ -1124,6 +1192,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     lista.push([ly, 1, 0, () => disegnaLei(g, lx - cx, ly - cy)]);
     lista.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
     for (const voce of lista) voce[3]();
+    if (luci) nuvole(g, cx, cy);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(mondo, 0, 0, gw * sc, gh * sc);
   }
@@ -1155,6 +1224,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     if (pronto) {
       aggiorna(dt);
       avanzaAcqua(dt);
+      if (LUCI.on) LUCI.t += dt;
       disegna();
       scriviStato();
     }
@@ -1166,6 +1236,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   misura();
   caricaTutto().then((im) => {
     IM = im;
+    preparaMacchie();
     pronto = true;
     carico.hidden = true;
     misura();

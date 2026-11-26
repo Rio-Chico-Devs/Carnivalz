@@ -75,6 +75,9 @@ acqua['dati'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati.png'))
 acqua['frazioni'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati_frazioni.png'))
 acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna_tavolozza.png'))   # coi colori nuovi
 dati['acqua'] = acqua
+# le luci e le ombre che si muovono: le tessere delle nuvole (strumenti/livelli/luci.py) e il vento, in pixel al secondo
+dati['luci'] = {'ombra': uri(os.path.join(LIV, 'terreni', 'nuvole_ombra.png')),
+                'sole': uri(os.path.join(LIV, 'terreni', 'nuvole_sole.png')), 'vento': [14, 5]}
 with open(os.path.join(ACQUA, 'pezzi', 'pezzi_anim.json'), encoding='utf-8') as f:
     anim = json.load(f)
 dati['animati'] = {}
