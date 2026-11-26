@@ -2,8 +2,9 @@
 Il 115 e' una griglia di 5x5 pose con i pixel grandi 4,687 punti (non intero) e il fondo verde; le righe scure lo
 dividono in cinque file. Qui: per ogni pixel vero la mediana del centro del suo quadrato; il fondo (riempito dai
 bordi di ogni cella, si ferma al contorno nero) diventa trasparente; ogni colore va al piu' vicino (OKLab) di una
-tavolozza presa dagli esempi stessi; i pixel sporchi fuori dal contorno (resti della compressione) diventano
-contorno se ne hanno almeno tre attorno, se no spariscono; le pose in riquadri di 38x50 coi piedi sull'ultima riga.
+tavolozza presa dagli esempi stessi; i colori che toccano il fondo diventano contorno (dove gli esempi l'hanno
+aperto) e i puntini staccati (resti della compressione) spariscono; le pose in riquadri di 38x50 coi piedi
+sull'ultima riga.
 uso: esempi_bru.py esempi.webp foglio.png"""
 import os
 import sys
@@ -76,20 +77,21 @@ def lettere(a, fig):
 
 
 def bordi(L):
+    """i colori che toccano il fondo: un puntino staccato (al piu' due vicini pieni) sparisce, il resto diventa
+    contorno (dove il contorno degli esempi e' aperto, come sulle punte delle orecchie, si chiude)"""
     H, W = L.shape
-    for _ in range(2):
-        nuovo = L.copy()
-        for y in range(H):
-            for x in range(W):
-                if L[y, x] in '.k':
-                    continue
-                if not any(not (0 <= y + dy < H and 0 <= x + dx < W) or L[y + dy, x + dx] == '.'
-                           for dy, dx in ((0, 1), (1, 0), (0, -1), (-1, 0))):
-                    continue
-                nk = sum(1 for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx) and 0 <= y + dy < H
-                         and 0 <= x + dx < W and L[y + dy, x + dx] == 'k')
-                nuovo[y, x] = 'k' if nk >= 3 else '.'
-        L = nuovo
+    nuovo = L.copy()
+    for y in range(H):
+        for x in range(W):
+            if L[y, x] in '.k':
+                continue
+            if not any(not (0 <= y + dy < H and 0 <= x + dx < W) or L[y + dy, x + dx] == '.'
+                       for dy, dx in ((0, 1), (1, 0), (0, -1), (-1, 0))):
+                continue
+            pieni = sum(1 for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx) and 0 <= y + dy < H
+                        and 0 <= x + dx < W and L[y + dy, x + dx] != '.')
+            nuovo[y, x] = 'k' if pieni >= 3 else '.'
+    L = nuovo
     for y in range(H):
         for x in range(W):
             if L[y, x] == 'k' and not any(0 <= y + dy < H and 0 <= x + dx < W and L[y + dy, x + dx] != '.'
