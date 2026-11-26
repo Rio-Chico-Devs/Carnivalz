@@ -44,32 +44,18 @@
    82
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   629,
-   294,
-   17,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_6.png",
-   660,
-   295,
+   "pezzi/pasto/fusi/masso_muschio_1.png",
+   604,
+   296,
    13,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_3.png",
-   601,
-   297,
-   14,
    19
   ],
   [
-   "pezzi/pasto/fusi/masso_3.png",
+   "pezzi/pasto/fusi/masso_muschio_8.png",
    686,
    298,
-   14,
-   19
+   16,
+   22
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
@@ -79,25 +65,18 @@
    52
   ],
   [
+   "pezzi/pasto/fusi/masso_muschio_9.png",
+   578,
+   300,
+   17,
+   20
+  ],
+  [
    "pezzi/pasto/fusi/masso_basso_4.png",
    708,
    302,
    15,
    15
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   575,
-   303,
-   17,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_3.png",
-   549,
-   309,
-   14,
-   20
   ],
   [
    "pezzi/pasto/fusi/masso_muschio_8.png",
@@ -107,11 +86,18 @@
    22
   ],
   [
-   "pezzi/pasto/fusi/masso_basso_4.png",
-   522,
+   "pezzi/pasto/fusi/masso_muschio_8.png",
+   549,
+   312,
+   16,
+   22
+  ],
+  [
+   "pezzi/pasto/fusi/masso_muschio_3.png",
+   524,
    321,
-   15,
-   15
+   14,
+   20
   ],
   [
    "pezzi/pasto/fusi/masso_muschio_1.png",
@@ -128,6 +114,13 @@
    70
   ],
   [
+   "pezzi/pasto/fusi/masso_muschio_9.png",
+   503,
+   337,
+   17,
+   20
+  ],
+  [
    "pezzi/pasto/fusi/masso_muschio_8.png",
    778,
    339,
@@ -140,6 +133,13 @@
    355,
    13,
    19
+  ],
+  [
+   "pezzi/pasto/fusi/masso_basso_4.png",
+   484,
+   359,
+   15,
+   15
   ],
   [
    "pezzi/pasto/fusi/masso_muschio_8.png",
@@ -156,13 +156,6 @@
    15
   ],
   [
-   "pezzi/pasto/tronco.png",
-   584,
-   384,
-   24,
-   21
-  ],
-  [
    "pezzi/pasto/fusi/masso_muschio_9.png",
    468,
    386,
@@ -175,13 +168,6 @@
    386,
    6,
    11
-  ],
-  [
-   "pezzi/pasto/fuoco.png",
-   676,
-   394,
-   25,
-   40
   ],
   [
    "pezzi/pasto/fusi/masso_muschio_8.png",
@@ -205,18 +191,25 @@
    239
   ],
   [
-   "pezzi/pasto/goblin.png",
-   626,
-   424,
-   27,
-   66
-  ],
-  [
    "pezzi/pasto/fusi/masso_muschio_3.png",
    804,
    427,
    14,
    20
+  ],
+  [
+   "pezzi/pasto/preda.png",
+   630,
+   427,
+   37,
+   35
+  ],
+  [
+   "pezzi/pasto/goblin.png",
+   640,
+   430,
+   32,
+   62
   ],
   [
    "pezzi/pasto/fusi/masso_muschio_8.png",

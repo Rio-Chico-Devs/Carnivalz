@@ -315,8 +315,14 @@ kbd {
 
   // il piede: un rettangolo di 10x6 intorno al punto per terra (LivelloPianta.gd)
   const ANGOLI = [[-5, -3], [4.9, -3], [-5, 2.9], [4.9, 2.9], [0, 0]];
-  const [LX0, LY0, LX1, LY1] = D.limiti;
-  const LW = LX1 - LX0, LH = LY1 - LY0;
+  // le zone della pagina (il pasto del goblin, il ruscello...): Z e' quella dove sta Lei, coi suoi limiti
+  let Z = D.zone[D.inizio];
+  let LX0 = 0, LY0 = 0, LX1 = 1, LY1 = 1, LW = 1, LH = 1;
+  function limiti() {
+    [LX0, LY0, LX1, LY1] = Z.limiti;
+    LW = LX1 - LX0; LH = LY1 - LY0;
+  }
+  limiti();
 
   const campo = document.getElementById("campo");
   const tela = document.getElementById("tela");
@@ -335,7 +341,7 @@ kbd {
   const VERSI = { "0,1": "giu", "0,-1": "su", "1,0": "destra", "-1,0": "sinistra" };
   // quieta: da quanti millisecondi e' ferma senza che si tocchino i tasti (l'attesa, poi un'animazione a caso);
   // speciale: l'animazione da ferma pescata, finche' non riparte
-  const lei = { x: D.partenza[0], y: D.partenza[1], verso: VERSI[D.verso.join(",")] || "su", tempo: 0, corre: false,
+  const lei = { x: Z.partenza[0], y: Z.partenza[1], verso: VERSI[Z.verso.join(",")] || "su", tempo: 0, corre: false,
     quieta: 0, speciale: null, posaPrima: -1 };
   let velocita = 185, ritmo = 1.15, zoom = 2, dopoNoia = 5000;
   let IM = null, passi = null, PW = 0, pronto = false;
@@ -351,22 +357,47 @@ kbd {
       im.src = src;
     });
   }
+  function maschera(img) {
+    // dove l'immagine non e' trasparente
+    const a = pixelDi(img), m = new Uint8Array(img.width * img.height);
+    for (let i = 0; i < m.length; i++) m[i] = a[i * 4 + 3] > 127 ? 1 : 0;
+    return m;
+  }
   async function caricaTutto() {
     const fogli = {};
     for (const k of Object.keys(D.fogli)) fogli[k] = immagine(D.fogli[k]);
     const pezzi = {};
     for (const k of Object.keys(D.immagini)) pezzi[k] = immagine(D.immagini[k]);
-    const im = { pezzi: {} };
+    const im = { pezzi: {}, animati: {}, zone: {} };
     for (const k of Object.keys(fogli)) im[k] = await fogli[k];
     for (const k of Object.keys(pezzi)) im.pezzi[k] = await pezzi[k];
-    im.mappa = await immagine(D.mappa);
-    // i pezzi con l'acqua a fotogrammi (striscia orizzontale) e la pozza, che e' disegnata dentro la mappa
-    im.animati = {};
-    for (const k of Object.keys(D.animati || {})) {
-      const a = D.animati[k];
-      im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms, sempre: !!a.sempre };
+    // per ogni zona: la mappa; dove si cammina (senza la maschera, dappertutto dentro la mappa); dove e' prato e i
+    // colori della mappa, per l'erba ai passi (se non si possono leggere, niente erba che salta). I pezzi a
+    // fotogrammi (l'acqua del ruscello, il goblin che mangia) e la pozza, disegnata dentro la mappa
+    for (const n of Object.keys(D.zone)) {
+      const z = D.zone[n], q = { mappa: await immagine(z.mappa), passi: null, PW: 0, prato: null, mappaPx: null };
+      try {
+        const p = await immagine(z.passi);
+        q.passi = maschera(p);
+        q.PW = p.width;
+      } catch (e) {
+        q.passi = null;
+      }
+      try {
+        const pr = await immagine(z.prato);
+        if (pr.width !== q.PW) throw new Error("misura");
+        q.prato = maschera(pr);
+        q.mappaPx = new Uint32Array(pixelDi(q.mappa).buffer);
+      } catch (e) {
+        q.prato = null;
+      }
+      for (const k of Object.keys(z.animati || {})) {
+        const a = z.animati[k];
+        im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms, sempre: !!a.sempre };
+      }
+      if (z.pozza) im.pozza = Object.assign({}, z.pozza, { img: await immagine(z.pozza.img) });
+      im.zone[n] = q;
     }
-    if (D.pozza) im.pozza = Object.assign({}, D.pozza, { img: await immagine(D.pozza.img) });
     if (D.luci) im.nuvole = await immagine(D.luci.ombra);
     if (D.fiori) im.fiori = await immagine(D.fiori.img);
     try {
@@ -374,31 +405,7 @@ kbd {
     } catch (e) {
       ACQ.ok = false;        // senza i dati resta l'acqua ferma della mappa
     }
-    const p = await immagine(D.passi);
-    try {
-      const c = document.createElement("canvas");
-      c.width = p.width; c.height = p.height;
-      const g = c.getContext("2d");
-      g.drawImage(p, 0, 0);
-      const px = g.getImageData(0, 0, p.width, p.height).data;
-      passi = new Uint8Array(p.width * p.height);
-      for (let i = 0; i < passi.length; i++) passi[i] = px[i * 4 + 3] > 127 ? 1 : 0;
-      PW = p.width;
-    } catch (e) {
-      passi = null;          // senza la maschera si cammina dappertutto dentro la mappa
-    }
-    // l'erba ai passi: dove e' prato e i colori della mappa (per schiacciarla); dove la nuvola fa ombra (li' le macchie
-    // di sole sotto gli alberi si spengono). Se non si possono leggere, niente erba che salta e le macchie restano
-    try {
-      const pr = await immagine(D.prato);
-      if (pr.width !== PW) throw new Error("misura");
-      const a = pixelDi(pr);
-      prato = new Uint8Array(pr.width * pr.height);
-      for (let i = 0; i < prato.length; i++) prato[i] = a[i * 4 + 3] > 127 ? 1 : 0;
-      mappaPx = new Uint32Array(pixelDi(im.mappa).buffer);
-    } catch (e) {
-      prato = null;
-    }
+    // dove la nuvola fa ombra (li' le macchie di sole sotto gli alberi si spengono)
     try {
       if (im.nuvole) {
         const a = pixelDi(im.nuvole);
@@ -409,6 +416,23 @@ kbd {
       nuvolaPx = null;
     }
     return im;
+  }
+  // Lei passa in un'altra zona: la sua mappa, i suoi passi e il suo prato, le macchie di sole sotto i suoi alberi, i
+  // suoi fiori; l'erba pestata della zona di prima non c'e' piu'
+  function usaZona(n) {
+    Z = D.zone[n];
+    const q = IM.zone[n];
+    IM.mappa = q.mappa; passi = q.passi; PW = q.PW; prato = q.prato; mappaPx = q.mappaPx;
+    limiti();
+    preparaMacchie();
+    preparaFiori();
+    ERBA.foglie = []; ERBA.impronte = []; ERBA.ciuffi = [];
+  }
+  function entraZona(n, x, y, verso) {
+    usaZona(n);
+    lei.x = x; lei.y = y;
+    if (verso) lei.verso = VERSI[verso.join(",")] || lei.verso;
+    lei.quieta = 0; lei.speciale = null; lei.posaPrima = -1;
   }
 
   // ---------------------------------------------------------------- dove si cammina
@@ -532,10 +556,10 @@ kbd {
     });
   }
   document.getElementById("inizio").addEventListener("click", (e) => {
-    lei.x = D.partenza[0]; lei.y = D.partenza[1];
-    lei.verso = VERSI[D.verso.join(",")] || "su"; lei.tempo = 0; lei.corre = false; lei.quieta = 0;
-    lei.speciale = null; lei.posaPrima = -1;
-    ERBA.foglie = []; ERBA.impronte = []; ERBA.ciuffi = [];
+    const z0 = D.zone[D.inizio];
+    TRANS.fase = null;
+    if (IM) entraZona(D.inizio, z0.partenza[0], z0.partenza[1], z0.verso);
+    lei.tempo = 0; lei.corre = false;
     e.currentTarget.blur();
   });
   campo.addEventListener("pointerdown", () => campo.focus());
@@ -643,7 +667,7 @@ kbd {
     return g.getImageData(0, 0, img.width, img.height).data;
   }
   async function caricaAcqua() {
-    const A = D.acqua;
+    const ZA = Object.values(D.zone).find((z) => z.acqua), A = ZA ? ZA.acqua : null;
     if (!A) return;
     const dati = await immagine(A.dati), fraz = await immagine(A.frazioni), tess = await immagine(A.tessera);
     const W = dati.width, H = dati.height, px = pixelDi(dati), pf = pixelDi(fraz), tp = pixelDi(tess);
@@ -1131,7 +1155,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     let s = 12345;
     const caso = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
     LUCI.macchie = [];
-    D.pezzi.forEach((p) => {
+    Z.pezzi.forEach((p) => {
       if (!/albero_alto/.test(p[0])) return;
       const w = IM.pezzi[p[0]].width;
       const cx = p[1] + 5, cy = p[2] - 3, rx = 0.56 * w, ry = 0.24 * w;
@@ -1316,7 +1340,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     return [a / l, b / l];
   })();
   function preparaFiori() {
-    FIORI.lista = D.fiori ? D.fiori.lista.map(([x, y, s], i) => ({ x, y, s, fase: rnd(i, 7, 3) * 2 * Math.PI, p: 0, v: 0 })) : [];
+    FIORI.lista = D.fiori && Z.fiori ? Z.fiori.map(([x, y, s], i) => ({ x, y, s, fase: rnd(i, 7, 3) * 2 * Math.PI, p: 0, v: 0 })) : [];
   }
   function piegaVento(f, t) {
     const d = f.x * VENTO_U[0] + f.y * VENTO_U[1];                 // quanto e' avanti nel verso del vento
@@ -1407,7 +1431,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     const cx = telecamera(guarda ? guarda[0] : lx, gw, LW, LX0), cy = telecamera(guarda ? guarda[1] : ly, gh, LH, LY0);
     g.drawImage(IM.mappa, LX0 - cx, LY0 - cy);
     // l'acqua che si muove, solo la parte che si vede, e la pozza coi sassi (piatta, dentro la mappa)
-    const acqua = ACQ.ok && ACQ.on;
+    const acqua = ACQ.ok && ACQ.on && !!Z.acqua;
     if (acqua) {
       // la parte che si vede con un margine, a quadretti di 32: se la telecamera si sposta di poco non si rifa'
       const M = 48, Q = 32;
@@ -1428,7 +1452,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     if (luci) macchieDiSole(g, cx, cy);
     // i pezzi che stanno in piedi e Lei, in ordine di piede: chi ha il piede piu' in basso e' davanti
     const lista = [];
-    D.pezzi.forEach((p, i) => {
+    Z.pezzi.forEach((p, i) => {
       const im = IM.pezzi[p[0]];
       const x0 = p[1] - p[3], y0 = p[2] - p[4];
       if (x0 >= cx + gw || y0 >= cy + gh || x0 + im.width <= cx || y0 + im.height <= cy) return;
@@ -1452,9 +1476,14 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     if (luci) nuvole(g, cx, cy);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(mondo, 0, 0, gw * sc, gh * sc);
+    const b = buio();
+    if (b > 0) {
+      ctx.fillStyle = "rgba(11, 14, 20, " + b.toFixed(3) + ")";
+      ctx.fillRect(0, 0, gw * sc, gh * sc);
+    }
   }
   function stanza(x, y) {
-    for (const s of D.stanze) {
+    for (const s of Z.stanze) {
       const [a, b, c, d] = s.rett;
       if (x >= a && x < c && y >= b && y < d) return s.nome;
     }
@@ -1474,6 +1503,35 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     if (t !== scritto) { stato.innerHTML = t; scritto = t; }
   }
 
+  // da una zona all'altra: quando i piedi di Lei entrano in un'uscita la scena va al buio, si cambia zona (Lei
+  // all'entrata dell'altra, nel verso giusto) e torna la luce
+  const TRANS = { fase: null, t: 0, u: null }, BUIO = 0.3;
+  function avanzaTransizione(dt) {
+    if (!TRANS.fase) {
+      for (const u of Z.uscite || []) {
+        const [a, b, c, d] = u.rett;
+        if (lei.x >= a && lei.x < c && lei.y >= b && lei.y < d) {
+          TRANS.fase = "esce"; TRANS.t = 0; TRANS.u = u;
+          break;
+        }
+      }
+      return;
+    }
+    TRANS.t += dt;
+    if (TRANS.fase === "esce" && TRANS.t >= BUIO) {
+      const u = TRANS.u;
+      entraZona(u.zona, u.entrata[0] === null ? lei.x : u.entrata[0], u.entrata[1], u.verso);
+      TRANS.fase = "entra"; TRANS.t = 0;
+    } else if (TRANS.fase === "entra" && TRANS.t >= BUIO) {
+      TRANS.fase = null;
+    }
+  }
+  function buio() {
+    if (!TRANS.fase) return 0;
+    const f = Math.min(1, TRANS.t / BUIO);
+    return TRANS.fase === "esce" ? f : 1 - f;
+  }
+
   let prima = performance.now(), inPausa = false, camera = [0, 0], guarda = null;   // guarda: per le prove
   let OROLOGIO = 0;                 // i secondi passati (per i pezzi che si muovono sempre)
   function giro(ora) {
@@ -1481,6 +1539,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     prima = ora;
     if (pronto && !inPausa) {
       aggiorna(dt);
+      avanzaTransizione(dt);
       OROLOGIO += dt;
       avanzaAcqua(dt);
       if (LUCI.on) LUCI.t += dt;
@@ -1497,15 +1556,16 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   misura();
   caricaTutto().then((im) => {
     IM = im;
-    preparaMacchie();
-    preparaFiori();
+    usaZona(D.inizio);
     if (QS.has("prova")) {
       // per le prove: il tempo fermo (pausa) e che va avanti a passi esatti (avanti, in millisecondi)
       window.provaErba = { ERBA, LUCI, FIORI, lei, erbaQui, inNuvola, pausa: (b) => { inPausa = b; }, camera: () => [camera[0], camera[1], sc],
         guarda: (q) => { guarda = q; },
+        zona: () => Object.keys(D.zone).find((k) => D.zone[k] === Z), TRANS, entra: entraZona,
         avanti: (ms) => {
           for (let t = 0; t < ms - 1e-6; t += 1000 / 60) {
-            aggiorna(1 / 60); OROLOGIO += 1 / 60; avanzaAcqua(1 / 60); LUCI.t += 1 / 60; avanzaErba(1 / 60); avanzaFiori(1 / 60);
+            aggiorna(1 / 60); avanzaTransizione(1 / 60); OROLOGIO += 1 / 60; avanzaAcqua(1 / 60); LUCI.t += 1 / 60;
+            avanzaErba(1 / 60); avanzaFiori(1 / 60);
           }
           disegna();
         } };

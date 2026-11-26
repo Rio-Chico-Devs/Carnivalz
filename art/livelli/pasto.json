@@ -1,5 +1,5 @@
 {
- "_nota": "Il pasto del goblin, fatto da strumenti/livelli/pasto_goblin.py: la radura nel recinto di massi col goblin al centro che mangia davanti al fuoco; la meta' di nord lastricata coi mattoni della pianura, con la strada che esce verso la pianura, quella di sud (da dove si arriva) solo prato.",
+ "_nota": "Il pasto del goblin, fatto da strumenti/livelli/pasto_goblin.py: la radura nel recinto di massi col goblin al centro, di spalle, che divora la preda; la meta' di nord lastricata coi mattoni della pianura, con la strada che esce verso la pianura, quella di sud (da dove si arriva) solo prato.",
  "nome": "Il pasto del goblin",
  "mappa": "pasto.png",
  "scala": 1,
@@ -10,18 +10,18 @@
  "prato": "pasto_prato.png",
  "fiori": "pasto_fiori.json",
  "animati": {
-  "pezzi/pasto/fuoco.png": {
-   "file": "pezzi/pasto/fuoco_fotogrammi.png",
-   "n": 4,
-   "ms": 110
-  },
   "pezzi/pasto/goblin.png": {
    "file": "pezzi/pasto/goblin_fotogrammi.png",
-   "n": 2,
-   "ms": 260
+   "n": 6,
+   "ms": 85
+  },
+  "pezzi/pasto/preda.png": {
+   "file": "pezzi/pasto/preda_fotogrammi.png",
+   "n": 6,
+   "ms": 85
   }
  },
- "_animati": "Si muovono sempre (non solo con l'acqua): le fiamme del fuoco e il goblin che mastica.",
+ "_animati": "Si muovono sempre (non solo con l'acqua), insieme: il goblin che divora e la preda che sobbalza.",
  "limiti": [
   0,
   0,
@@ -58,10 +58,10 @@
   {
    "nome": "Verso la pianura",
    "rett": [
-    160,
+    560,
     0,
-    510,
-    350
+    720,
+    290
    ]
   },
   {
@@ -100,35 +100,31 @@
    470
   ],
   [
-   560,
+   570,
    430
   ],
   [
-   520,
-   380
+   586,
+   370
   ],
   [
-   500,
-   344
+   626,
+   330
   ],
   [
-   440,
-   300
+   636,
+   290
   ],
   [
-   360,
-   250
+   622,
+   200
   ],
   [
-   300,
-   180
+   608,
+   120
   ],
   [
-   250,
-   100
-  ],
-  [
-   237,
+   606,
    84
   ]
  ]
