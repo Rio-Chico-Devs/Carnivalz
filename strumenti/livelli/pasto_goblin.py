@@ -4,13 +4,16 @@
 #
 #   python3 strumenti/livelli/pasto_goblin.py [anteprima.png]      (serve numpy e Pillow)
 #
-# Una radura di terra battuta dentro un recinto di massi, nel prato; al centro il goblin (strumenti/nemici/
-# goblin_tipico) che mangia davanti al fuoco, con la carne sullo spiedo, un tronco per sedersi e le ossa sparse. Il
-# sentiero arriva da sud (dalla capsula, da dove arriva Lei) ed entra dal varco di sotto; dal varco di nord-ovest
-# un altro sentiero va verso la pianura aperta. Attorno il prato coi fiori al vento e gli alberi esotici, come al
-# ruscello (stessi pezzi, stesso prato, stesse regole delle tavolozze di Bru).
+# Una radura dentro un recinto di massi, nel prato; al centro il goblin (strumenti/nemici/goblin_tipico) che mangia
+# davanti al fuoco, con la carne sullo spiedo, un tronco per sedersi e le ossa sparse. Bru: il pavimento "meta' di
+# mattoni come la scena successiva e la meta' da dove si arriva senza sentiero, solo radura". Quindi la meta' di nord
+# del recinto e' lastricata coi mattoni della pianura aperta (la tappa dopo: la strada del ruscello, stesso kit di
+# Bru, stessi colori), col cordolo lungo il giro e rotta verso sud; la meta' di sud, da dove arriva Lei (dalla
+# capsula), e' prato, senza sentiero, e le ossa restano nell'erba. Dal varco di nord-ovest la strada di mattoni va
+# verso la pianura. Attorno il prato coi fiori al vento e gli alberi esotici, come al ruscello (stessi pezzi, stesso
+# prato, stesse regole delle tavolozze di Bru).
 #
-# Scrive art/livelli/pasto.png (il terreno con le cose piatte: terra, cenere, ossa, ombre), pasto_pezzi.json (le cose
+# Scrive art/livelli/pasto.png (il terreno con le cose piatte: mattoni, cenere, ossa, ombre), pasto_pezzi.json (le cose
 # in piedi), pasto_passi.png (dove si cammina), pasto_prato.png (dove i passi pestano l'erba), pasto_fiori.json,
 # pasto.json; i pezzi nuovi in art/livelli/pezzi/pasto/ (il fuoco a fotogrammi, il tronco, il goblin che mastica).
 import json
@@ -35,10 +38,11 @@ GOBLIN = os.path.join(QUI, '..', 'nemici', 'goblin_tipico', 'goblin_tipico.png')
 W, H = 1280, 800
 C = (640, 400)                          # il centro del recinto
 ANELLO = (172, 106)                     # il recinto di massi: i raggi dell'ellisse (vista di tre quarti)
-RADURA = (150, 90)                      # la terra battuta dentro
+LASTRICO = (156, 94)                    # il lastricato: l'ellisse di cui resta la meta' di nord
+ROTTO = 434                             # la riga (mossa) dove il lastricato si rompe: sotto, verso chi arriva, prato
 VARCHI = [(90, 12), (213, 12)]          # i varchi nel recinto: angolo (0 a destra, 90 giu') e mezza ampiezza
-SUD = [(640, 500), (632, 560), (612, 630), (618, 710), (604, 800)]      # il sentiero che arriva da sud
-NO = [(503, 342), (452, 306), (380, 268), (322, 214), (266, 140), (224, 60), (200, 0)]   # e quello verso la pianura
+# la strada di mattoni verso la pianura: parte dal lastricato ed esce dal varco di nord-ovest
+STRADA = [(548, 372), (503, 342), (452, 306), (380, 268), (322, 214), (266, 140), (224, 60), (200, 0)]
 PRATO = rr.PRATO
 TERRA = np.array(_tav.rampa((150, 112, 78), 5, 0.30, 0.80), float)       # profondo, scuro, medio, chiaro, luce
 CENERE = np.array(_tav.rampa((110, 104, 100), 4, 0.25, 0.70), float)
@@ -46,6 +50,12 @@ OSSO = np.array(_tav.rampa((226, 214, 186), 4, 0.42, 0.95), float)
 CORTECCIA = np.array(_tav.rampa((120, 82, 58), 5, 0.24, 0.72), float)
 CARNE = np.array(_tav.rampa((150, 72, 52), 4, 0.28, 0.72), float)
 PIETRA = rr.P_NUOVA
+# i mattoni della pianura: i sei colori del kit di Bru (terreni/strade_radenna, dal piu' scuro al piu' chiaro) vanno,
+# nella mappa del ruscello, sui gradini 1-6 della rampa della pietra (riadatta(), controllato sulla mappa vera)
+KIT = [(44, 71, 50), (66, 84, 69), (84, 103, 85), (108, 122, 105), (120, 135, 117), (141, 155, 135)]
+MATTONI = PIETRA[1:7]
+CORDOLO = [0, 2, 5, 3, 1, 0]            # il cordolo dal bordo verso dentro, come nel kit (scuro, luce, solco)
+MOTIVO = 'diamanti'                        # dentro il lastricato: 'righe' (la spina della strada) o 'diamanti' (il nodo)
 FIAMMA = np.array([(176, 58, 52), (232, 112, 48), (252, 172, 66), (255, 222, 120), (255, 248, 214)], float)
 BRACE = np.array([(200, 70, 44), (246, 136, 56), (255, 200, 98)], float)
 
@@ -76,7 +86,7 @@ OSSA = [('osso', 712, 440), ('osso_s', 586, 452), ('teschio', 726, 420), ('osso'
 PARTENZA = [612, 776]
 STANZE = [
     {"nome": "Il pasto del goblin", "rett": [470, 290, 810, 510]},
-    {"nome": "Il sentiero", "rett": [540, 510, 700, 800]},
+    {"nome": "L'arrivo", "rett": [500, 510, 760, 800]},
     {"nome": "Verso la pianura", "rett": [160, 0, 510, 350]},
     {"nome": "Il prato", "rett": [0, 0, W, H]},
 ]
@@ -299,73 +309,119 @@ def curva(punti, passo=1.0):
     return rr.curva(punti, passo)
 
 
-def distanza_da(linea):
-    """per ogni pixel la distanza dalla linea (spezzata fitta)"""
+def _kit(nome):
+    """un pezzo del kit delle strade di Bru come indici di KIT (-1 dove e' vuoto)"""
+    a = np.asarray(Image.open(os.path.join(LIV, 'terreni', 'strade_radenna', nome)).convert('RGBA')).astype(int)
+    k = np.full(a.shape[:2], -1)
+    for i, c in enumerate(KIT):
+        k[(a[..., 3] > 0) & np.all(a[..., :3] == c, -1)] = i
+    assert ((k >= 0) == (a[..., 3] > 0)).all(), nome
+    return k
+
+
+def _pulisci(m, y0, y1, x0, x1, isole=10, buchi=6):
+    """nel riquadro: via i pezzetti di mattone piu' piccoli di 'isole' pixel e i buchi piu' piccoli di 'buchi'"""
+    sub = m[y0:y1, x0:x1].copy()
+    for valore, minimo in ((True, isole), (False, buchi)):
+        visti = np.zeros(sub.shape, bool)
+        h, w = sub.shape
+        for y, x in zip(*np.nonzero(sub == valore)):
+            if visti[y, x]:
+                continue
+            pezzo, pila = [], [(y, x)]
+            visti[y, x] = True
+            while pila:
+                cy, cx = pila.pop()
+                pezzo.append((cy, cx))
+                for yy, xx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
+                    if 0 <= yy < h and 0 <= xx < w and not visti[yy, xx] and sub[yy, xx] == valore:
+                        visti[yy, xx] = True
+                        pila.append((yy, xx))
+            if len(pezzo) < minimo:
+                for cy, cx in pezzo:
+                    sub[cy, cx] = not valore
+    m = m.copy()
+    m[y0:y1, x0:x1] = sub
+    return m
+
+
+def lastricato():
+    """i mattoni: la meta' di nord del recinto lastricata, mattonelle quadrate coi rombi del nodo del kit (MOTIVO),
+    il cordolo lungo il giro e lungo la strada. Verso sud il lastricato e' rotto a mattonelle: sopra una linea mossa
+    sono intere (qualcuna manca), su quella linea sono spezzate, sotto non ci sono piu' (qualche coccio rimasto nel
+    prato), e vicino alla rottura l'erba cresce nelle fughe; sotto c'e' solo prato. La strada di mattoni esce dal
+    varco di nord-ovest (il motivo del kit piegato lungo la curva, come al ruscello). Ritorna la maschera e l'indice
+    di MATTONI"""
     yy, xx = np.mgrid[0:H, 0:W]
-    d = np.full((H, W), 1e9)
-    for (x, y) in linea[::3]:
-        d = np.minimum(d, (xx - x) ** 2 + (yy - y) ** 2)
-    return np.sqrt(d)
-
-
-def terra_battuta():
-    """dove c'e' la terra: la radura (ellisse col bordo mosso) e i due sentieri (larghezza che cambia)"""
-    yy, xx = np.mgrid[0:H, 0:W]
-    ang = np.arctan2((yy - C[1]) / RADURA[1], (xx - C[0]) / RADURA[0])
-    giro = rr.rumore1(400, 31, 4)[((ang + np.pi) / (2 * np.pi) * 359).astype(int)]
-    r = np.sqrt(((xx - C[0]) / RADURA[0]) ** 2 + ((yy - C[1]) / RADURA[1]) ** 2)
-    radura = r < 1 + (giro - 0.5) * 0.16
-    terra = radura.copy()
-    for punti, larg in ((SUD, 15), (NO, 13)):
-        lin, u = curva(punti)
-        d = distanza_da(lin)
-        mosso = larg + (_prato.liscio(H, W, 40, 40, 5) - 0.5) * 7
-        terra |= d < mosso
-    # il bordo sfrangiato: qualche ciuffo di prato entra nella terra e viceversa (a scacchi sul confine)
-    bordo = _prato.liscio(H, W, 6, 6, 9)
-    n = np.zeros((H, W), int)
-    for dy in (-2, -1, 0, 1, 2):
-        for dx in (-2, -1, 0, 1, 2):
-            n += np.roll(np.roll(terra, dy, 0), dx, 1)
-    vicino = (n > 4) & (n < 21)
-    terra = np.where(vicino, (n / 25.0 + (bordo - 0.5) * 0.7) > 0.5, terra)
-    return terra, radura
-
-
-def colora_terra(out, terra):
-    """la terra battuta: il medio; piu' chiara dove si cammina di piu' (macchie larghe e morbide, il mezzo della
-    radura e dei sentieri), un gradino piu' scura sul bordo (la polvere contro l'erba); sassolini con luce e ombra"""
-    F = _prato.liscio(H, W, 46, 22, 41) * 0.7 + _prato.liscio(H, W, 12, 7, 42) * 0.3
-    k = np.full((H, W), 2)
-    k[F > 0.64] = 3
-    yy, xx = np.mgrid[0:H, 0:W]
-    centro = np.sqrt(((xx - C[0]) / (RADURA[0] * 0.55)) ** 2 + ((yy - C[1]) / (RADURA[1] * 0.55)) ** 2) < 1
-    k[centro & (F > 0.48)] = 3
-    n = np.zeros((H, W), int)
-    for dy in (-2, 0, 2):
-        for dx in (-2, 0, 2):
-            n += np.roll(np.roll(terra, dy, 0), dx, 1)
-    k[n < 9] = 1
-    col = TERRA[k]
-    rng = np.random.default_rng(12)
-    ys, xs = np.nonzero(terra & (n == 9))
-    for i in rng.choice(len(ys), len(ys) // 170, replace=False):          # i sassolini: luce e ombra
-        y, x = ys[i], xs[i]
-        if y + 1 < H and x + 1 < W and terra[y + 1, x + 1]:
-            col[y, x] = TERRA[4]; col[y + 1, x + 1] = TERRA[1]
-    out[terra] = col[terra]
-    return out
+    ang = np.arctan2((yy - C[1]) / LASTRICO[1], (xx - C[0]) / LASTRICO[0])
+    giro = rr.rumore1(400, 23, 7)[((ang + np.pi) / (2 * np.pi) * 359).astype(int)]
+    r = np.sqrt(((xx - C[0]) / LASTRICO[0]) ** 2 + ((yy - C[1]) / LASTRICO[1]) ** 2)
+    ellisse = r < 1 + (giro - 0.5) * 0.03
+    lin, u = curva(STRADA)
+    D, S, V = rr.campo(lin, u, 18, H, 0)
+    via = D < 14.5
+    tutto = ellisse | via                                # fin dove arriva il cordolo (sulla rottura no)
+    # le mattonelle (29 pixel, come i rombi del nodo): il mezzo di ognuna, un numero a caso per ognuna, e la riga
+    # della rottura che passa li'
+    T = 29
+    ty, tx = (yy - C[1]) // T, (xx - C[0]) // T
+    yc, xc = C[1] + ty * T + T / 2.0, C[0] + tx * T + T / 2.0
+    caso = (((ty + 50) * 7919 + (tx + 50) * 104729) % 1000) / 1000.0
+    caso2 = (((ty + 50) * 15485863 + (tx + 50) * 32452843) % 997) / 997.0
+    onda = rr.rumore1(W + T, 61, 11)
+    riga = ROTTO + (onda[np.clip(xc, 0, W - 1).astype(int)] - 0.5) * 30
+    intera = yc < riga - 9
+    sparita = yc > riga + 9
+    f = _prato.liscio(H, W, 5, 4, 13)
+    tiene = intera | (~intera & ~sparita & (yy < riga + (f - 0.5) * 16))
+    tiene &= ~(intera & (yc > riga - 9 - T) & (caso < 0.13))         # qualcuna manca, nella fila sopra la rottura
+    ox, oy = (caso2 - 0.5) * 12, (caso - 0.5) * 10                   # un coccio in qualche mattonella sparita
+    coccio = sparita & (yc < riga + 9 + 2 * T) & (caso2 > 0.72) & \
+        (((xx - xc - ox) / 7.0) ** 2 + ((yy - yc - oy) / 5.0) ** 2 + (f - 0.5) * 1.4 < 1)
+    fughe = ((yy - C[1]) % T == T - 1) | ((xx - C[0]) % T == T - 1)
+    erba_fughe = fughe & (yy > riga - 1.5 * T) & (_prato.liscio(H, W, 3, 3, 17) > 0.62)     # ciuffetti corti
+    # il cordolo non e' a mattonelle: si spezza dove passa la linea mossa, pixel per pixel
+    d = rr._distanza(~tutto, 7)
+    cordolo = ellisse & (d <= 6)
+    sul_cordolo = yy < ROTTO + (onda[xx] - 0.5) * 30 + (f - 0.5) * 16
+    mat = (ellisse & ~cordolo & (tiene | coccio) & ~erba_fughe) | (cordolo & sul_cordolo) | via
+    mat = _pulisci(mat, C[1] - LASTRICO[1] - 4, C[1] + LASTRICO[1] + 4, C[0] - LASTRICO[0] - 4,
+                   C[0] + LASTRICO[0] + 4)
+    st = _kit('strada_verticale.png')
+    idx = np.full((H, W), -1)
+    if MOTIVO == 'diamanti':
+        blocco = _kit('nodo.png')[6:35, 6:35]            # i rombi del nodo (la fuga scura sotto e a destra)
+        dentro = blocco[(yy - C[1]) % T, (xx - C[0]) % T]
+    else:
+        dentro = st[(yy - C[1]) % 55, 6 + (xx - C[0]) % 16]     # le righe a spina della strada, una accanto all'altra
+    idx[ellisse] = dentro[ellisse]
+    fuori = via & ~ellisse
+    col = np.clip(np.rint(V + 14.5).astype(int), 6, 22)
+    idx[fuori] = st[S.astype(int) % 55, col][fuori]
+    # il solco dove la strada entra nel lastricato
+    attacco = fuori & (np.roll(ellisse, 1, 0) | np.roll(ellisse, -1, 0) | np.roll(ellisse, 1, 1) | np.roll(ellisse, -1, 1))
+    idx[attacco] = 0
+    for k in range(1, 7):
+        idx[mat & (d == k)] = CORDOLO[k - 1]
+    # la rottura: i mattoni che toccano il prato (fuori dal cordolo) hanno lo spigolo scuro
+    vicini = np.ones((H, W), bool)
+    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        vicini &= np.roll(np.roll(mat, dy, 0), dx, 1)
+    idx[mat & ~vicini & (d > 6)] = 1
+    idx[~mat] = -1
+    return mat, idx
 
 
 def cenere(out):
-    """attorno al fuoco la terra annerita e la cenere"""
+    """attorno al fuoco i mattoni anneriti (due gradini piu' giu' sulla rampa della pietra) e in mezzo la cenere
+    grigia"""
     yy, xx = np.mgrid[0:H, 0:W]
     fx, fy = FUOCO[0], FUOCO[1] - 2
     r = np.sqrt(((xx - fx) / 34.0) ** 2 + ((yy - fy) / 13.0) ** 2)
     f = _prato.liscio(H, W, 5, 5, 61)
     m1 = r + (f - 0.5) * 0.5 < 1.0
     m2 = r + (f - 0.5) * 0.4 < 0.7
-    out[m1] = CENERE[1]
+    out = scendi(out, 2, m1)
     out[m2] = CENERE[2]
     out[m2 & (f > 0.62)] = CENERE[3]
     return out
@@ -378,28 +434,48 @@ FORME = {
 }
 
 
-def ossa(out):
-    """le ossa sparse per terra (piatte): luce in alto, ombra sotto, contorno della terra scura"""
-    col = {'L': OSSO[3], 'O': OSSO[2], 'o': TERRA[0], 'k': TERRA[0]}
+def scendi(out, quanto, maschera=None):
+    """i pixel scendono di 'quanto' gradini (per pixel) lungo la rampa del loro materiale: il prato (tre al piu') o
+    la pietra dei mattoni (due al piu'); gli altri colori restano"""
+    q = np.rint(out).astype(int)
+    quanto = np.broadcast_to(quanto, (H, W))
+    if maschera is None:
+        maschera = quanto > 0
+    for rampa, extra, massimo in ((rr.PRATO_RAMPA, (PRATO['petalo'], PRATO['cuore']), 3), (PIETRA, (), 2)):
+        pos = np.full((H, W), -1)
+        for i, c in enumerate(np.asarray(rampa).astype(int)):
+            pos[np.all(q == c, axis=-1)] = i
+        for c in extra:                                  # i fiorellini del prato: come la luce
+            pos[np.all(q == np.array(c), axis=-1)] = len(rampa) - 1
+        m = maschera & (pos >= 0) & (quanto > 0)
+        out[m] = np.asarray(rampa, float)[np.maximum(0, pos[m] - np.minimum(quanto[m], massimo))]
+    return out
+
+
+def ossa(out, mat):
+    """le ossa sparse per terra (piatte): luce in alto, ombra sotto, il contorno del piu' scuro del terreno su cui
+    stanno (nell'erba, dove si arriva, o sui mattoni) e sotto un'ombrina di un gradino"""
+    ombrina = np.zeros((H, W), bool)
     for (n, x0, y0) in OSSA:
         forma = FORME[n.replace('_s', '')]
         if n.endswith('_s'):
             forma = [r[::-1] for r in forma[::-1]]
         h, w = len(forma), len(forma[0])
+        scuro = MATTONI[0] if mat[y0 - h // 2, x0] else rr.PRATO_RAMPA[0]
+        col = {'L': OSSO[3], 'O': OSSO[2], 'o': scuro, 'k': scuro}
         for j, r in enumerate(forma):
             for i, ch in enumerate(r):
                 if ch in col:
                     out[y0 - h + j, x0 - w // 2 + i] = col[ch]
-        for i in range(w):                               # l'ombrina sotto (un gradino di terra)
-            y, x = y0, x0 - w // 2 + i
-            if forma[-1][i] != '.' and 0 <= y < H:
-                out[y, x] = TERRA[1]
-    return out
+        for i in range(w):
+            if forma[-1][i] != '.' and 0 <= y0 < H:
+                ombrina[y0, x0 - w // 2 + i] = True
+    return scendi(out, 1, ombrina)
 
 
-def ombre(out, terra, tutte):
-    """le ombre delle cose in piedi: sul prato scendono di gradini lungo la sua rampa (come al ruscello); sulla terra
-    un gradino della sua rampa"""
+def ombre(out, tutte):
+    """le ombre delle cose in piedi: sul prato scendono di gradini lungo la sua rampa (come al ruscello), sui mattoni
+    lungo quella della pietra"""
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
     giu = np.zeros((H, W), int)
     for (n, f, fx, fy, piede, imp) in tutte:
@@ -425,21 +501,7 @@ def ombre(out, terra, tutte):
                     e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
                     if e <= 1:
                         giu[y, x] += 2 if e < 0.55 else 1
-    q = np.rint(out).astype(int)
-    rampa = rr.PRATO_RAMPA
-    pos = np.full((H, W), -1)
-    for i, c in enumerate(rampa.astype(int)):
-        pos[np.all(q == c, axis=-1)] = i
-    for k in ('petalo', 'cuore'):
-        pos[np.all(q == np.array(PRATO[k]), axis=-1)] = 4
-    sul_prato = (pos >= 0) & (giu > 0)
-    out[sul_prato] = rampa[np.maximum(0, pos[sul_prato] - np.minimum(giu[sul_prato], 3))]
-    pt = np.full((H, W), -1)
-    for i, c in enumerate(TERRA.astype(int)):
-        pt[np.all(q == c, axis=-1)] = i
-    sulla_terra = (pt >= 0) & (giu > 0)
-    out[sulla_terra] = TERRA[np.maximum(0, pt[sulla_terra] - np.minimum(giu[sulla_terra], 2))]
-    return out, giu > 0
+    return scendi(out, giu), giu > 0
 
 
 def passi(tutte, bordi=True):
@@ -478,21 +540,24 @@ def main():
     fiori_segni = []
     passi_prato, _ = _prato.prato(H, W, seme=58, tav=PRATO, fiori=fiori_segni)
     out = passi_prato[3].astype(float)
-    terra, radura = terra_battuta()
-    out = colora_terra(out, terra)
+    mat, idx = lastricato()
+    out[mat] = MATTONI[idx[mat]]
+    # i mattoni rotti sono un filo piu' alti del prato: sotto lo spigolo, sull'erba, un'ombrina di un gradino
+    sotto = np.zeros((H, W), bool)
+    sotto[1:] = mat[:-1] & ~mat[1:]
+    out = scendi(out, 1, sotto)
     out = cenere(out)
-    out = ossa(out)
-    senza = out.copy()
-    out, ombra = ombre(out, terra, tutte)
+    out = ossa(out, mat)
+    out, ombra = ombre(out, tutte)
     _salva(out, os.path.join(LIV, 'pasto.png'))
     cammino = passi(tutte)
     _salva(cammino, os.path.join(LIV, 'pasto_passi.png'))
-    # dove i passi pestano l'erba: i colori del prato (anche all'ombra), non la terra
+    # dove i passi pestano l'erba: i colori del prato (anche all'ombra), non i mattoni
     q = np.rint(out).astype(int)
     erba = np.zeros((H, W), bool)
     for c in list(PRATO.values()):
         erba |= np.all(q == np.array(c), axis=-1)
-    erba &= ~terra
+    erba &= ~mat
     pr = np.zeros((H, W, 4), np.uint8); pr[erba] = (255, 255, 255, 255)
     _salva(pr, os.path.join(LIV, 'pasto_prato.png'))
     # i fiori in piedi: dove il prato li avrebbe messi, nel prato al sole e dove si cammina
@@ -528,7 +593,8 @@ def main():
         f.write('\n')
     pianta = {
         "_nota": "Il pasto del goblin, fatto da strumenti/livelli/pasto_goblin.py: la radura nel recinto di massi col "
-                 "goblin al centro che mangia davanti al fuoco, il sentiero da sud e quello verso la pianura.",
+                 "goblin al centro che mangia davanti al fuoco; la meta' di nord lastricata coi mattoni della pianura, "
+                 "con la strada che esce verso la pianura, quella di sud (da dove si arriva) solo prato.",
         "nome": "Il pasto del goblin",
         "mappa": "pasto.png", "scala": 1, "pixel": 1, "ingrandimento": 2,
         "pezzi": "pasto_pezzi.json", "passi": "pasto_passi.png", "prato": "pasto_prato.png", "fiori": "pasto_fiori.json",

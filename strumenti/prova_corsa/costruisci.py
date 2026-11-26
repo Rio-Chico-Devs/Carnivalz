@@ -89,11 +89,13 @@ else:
 # pagina qui, al posto di quelli del ruscello; e dove non c'e' acqua, i comandi dell'acqua nascosti
 TESTI = {
     'pasto': {'titolo': 'Il pasto del goblin',
-              'sotto': "Lei arriva dal sentiero di sud nella radura del recinto di massi: al centro il goblin mangia "
-                       "davanti al fuoco, con la carne sullo spiedo, un tronco per sedersi e le ossa sparse. Il "
-                       "fuoco scoppietta, il goblin mastica; dal varco di nord-ovest un sentiero va verso la pianura. "
-                       "Come al ruscello: le nuvole e le macchie di sole, i fiori al vento, l'erba che si muove ai "
-                       "passi (sulla terra battuta no); se Lei resta ferma si annoia.",
+              'sotto': "Lei arriva dal prato, da sud, ed entra nel recinto di massi: la metà di qua è prato, "
+                       "quella di là è lastricata coi mattoni della pianura aperta, rotti verso sud. Al centro il "
+                       "goblin mangia davanti al fuoco, con la carne sullo spiedo, un tronco per sedersi e le ossa "
+                       "sparse nell'erba e sui mattoni. Il fuoco scoppietta, il goblin mastica; dal varco di "
+                       "nord-ovest la strada di mattoni va verso la pianura. Come al ruscello: le nuvole e le macchie "
+                       "di sole, i fiori al vento, l'erba che si muove ai passi (sui mattoni no); se Lei resta ferma "
+                       "si annoia.",
               'aria': "Il pasto del goblin: clicca e usa le frecce per far correre Lei",
               'carico': "Carico la radura del goblin…"},
 }
