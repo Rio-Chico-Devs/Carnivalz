@@ -1,8 +1,9 @@
-"""I colori di Lei uguali in tutte le pose, come la ferma di fronte (Bru: "di lato i colori dei capelli e degli abiti
-sembrano piu' spenti rispetto a quelli del front e delle animazioni", poi: "uniformiamo, vogliamo quelli come il
-front"). Le corse, le ferme e le attese di lato e le viste di spalle sono ricalcate da disegni diversi e avevano
-ognuna le sue tavolozze: capelli (e top) piu' spenti, la fascia meno accesa, stelle rosa, occhi e cerchio d'oro un
-filo diversi. Qui passano tutti ai colori della ferma di fronte:
+"""I colori di Lei uguali in tutte le pose, come la ferma di fronte. Prima il lattice nero (stivali, guanti e
+pantaloncini: contorno, pieno, mezzo, luce di fronte nelle corse e nelle viste di spalle). Poi il resto (Bru: "di lato
+i colori dei capelli e degli abiti sembrano piu' spenti rispetto a quelli del front e delle animazioni", poi:
+"uniformiamo, vogliamo quelli come il front"): le corse, le ferme e le attese di lato e le viste di spalle sono
+ricalcate da disegni diversi e avevano ognuna le sue tavolozze: capelli (e top) piu' spenti, la fascia meno accesa,
+stelle rosa, occhi e cerchio d'oro un filo diversi. Qui passano tutti ai colori della ferma di fronte:
 - i capelli: la rampa di fronte ha 5 toni (scuro, ombra, medio, chiaro, luce). I 6 toni delle corse e i 9 delle
   spalle vanno per ruolo su quelli di fronte (lo scuro sullo scuro, il chiaro piu' usato sul chiaro, la luce sulla
   luce...); i toni in piu' prendono il colore che sta fra i due vicini sulla stessa rampa (in OKLab, secondo la loro
@@ -34,6 +35,9 @@ SPALLE = [(87, 68, 109), (105, 83, 129), (120, 98, 145), (135, 113, 159), (151, 
           (181, 161, 201), (188, 168, 206), (200, 180, 215)]
 GUIDE_SPALLE = {0: 0, 2: 1, 4: 2, 7: 3, 8: 4}
 UNO_A_UNO = {
+    # il lattice nero delle corse e delle spalle -> contorno (6,7,15), pieno (22,37,52), mezzo (49,59,70) di fronte
+    (15, 13, 19): (6, 7, 15), (32, 35, 47): (22, 37, 52), (43, 46, 58): (49, 59, 70),                     # corse
+    (11, 8, 16): (6, 7, 15), (20, 19, 31): (22, 37, 52), (31, 32, 44): (22, 37, 52), (46, 45, 59): (49, 59, 70),
     (228, 193, 215): FRONTE[4],                         # due pixel di luce nei capelli di spalle
     (77, 59, 77): FRONTE[0],                            # il contorno malva delle spalle
     # la fascia (corse e lato; spalle) -> chiaro, ombra, scuro di fronte
