@@ -8,7 +8,7 @@ sys.path.insert(0, QUI)
 import numpy as np
 from PIL import Image
 from anima import Acqua
-TESSERA = os.path.join(QUI, '..', '..', '..', 'art', 'livelli', 'terreni', 'acqua_radenna.png')
+TESSERA = os.path.join(QUI, '..', '..', '..', 'art', 'livelli', 'terreni', 'acqua_liscia.png')   # l'acqua liscia
 NPZ, USCITA, INFO = sys.argv[1:4]
 A = Acqua(NPZ, TESSERA)
 d = A.d

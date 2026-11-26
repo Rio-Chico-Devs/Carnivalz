@@ -57,6 +57,9 @@ P = np.array([(30, 40, 33), (44, 71, 50), (66, 84, 69), (84, 103, 85), (108, 122
 AQ = np.array([(1, 119, 127), (2, 133, 136), (2, 156, 149), (1, 182, 168), (2, 213, 192), (2, 231, 204),
                (18, 242, 218), (79, 253, 237), (117, 255, 252), (210, 255, 250)], float)
 FONDO = -10          # l'acqua del ruscello: 10 pixel sotto il prato
+# la tessera dell'acqua del ruscello: liscia come l'acqua delle vasche (Bru: "non avesse i ghirigori e fosse come le
+# acque degli altri oggetti"; strumenti/livelli/acqua_liscia.py). Prima era acqua_radenna.png, presa dal foglio di Bru
+TESSERA_ACQUA = 'acqua_liscia.png'
 # Bru (26 novembre): "usa sempre palette del genere" (gli esempi 108-110). I disegni e le tessere di Bru si leggono
 # ancora coi colori di prima (VERDI, P, AQ: servono a riconoscerli); alla fine la mappa, i pezzi e l'acqua passano
 # alle rampe nuove (strumenti/tavolozza.py): stesso indice per l'acqua e la pietra, la luce di ogni colore per il
@@ -531,7 +534,7 @@ def disegna(t, F, seme=3):
     tipo, GY, Zb, Mb, FD, FH = G['tipo'], G['gy'], G['z'], G['m'], G['fd'], G['fh']
     rng = np.random.default_rng(seme)
     V_ = np.asarray(Image.open(os.path.join(TER, 'vasca_radenna.png')).convert('RGBA')).astype(float)
-    acqua_t = np.asarray(Image.open(os.path.join(TER, 'acqua_radenna.png')).convert('RGB')).astype(float)
+    acqua_t = np.asarray(Image.open(os.path.join(TER, TESSERA_ACQUA)).convert('RGB')).astype(float)
     sassi_t = np.asarray(Image.open(os.path.join(TER, 'ciottoli_radenna.png')).convert('RGB')).astype(float)
     muschio_t = _verde(sassi_t)
     st = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', 'strada_verticale.png')).convert('RGBA')).astype(float)
@@ -705,17 +708,19 @@ ALBERI = [
     # il boschetto in alto a sinistra (piedi abbastanza giu' che la chioma si veda tutta). Sul bordo in alto la chioma
     # esce dalla mappa: li' gli alberi esotici a tronco dritto (si vedono il tronco e il fondo della chioma, come un
     # bosco); quelli a serpente dove si vedono interi
-    ('pino_alto_2', 40, 200), ('albero_alto_dritto_1', 160, 172), ('pino_alto_1', 262, 140), ('cespuglio_1', 112, 280),
+    # Bru: "i pini eliminiamoli, sono orrendi": dove c'erano, qualche albero esotico in piu' per non lasciare buchi
+    # nella cornice del bosco
+    ('albero_alto_dritto_1', 160, 172), ('cespuglio_1', 112, 280),
     # il bordo in alto, coi varchi della strada e del ruscello
-    ('albero_alto_dritto_2', 418, 150), ('pino_alto_3', 506, 122), ('albero_alto_dritto_1', 790, 172),
-    ('pino_alto_1', 900, 150), ('cespuglietto_1', 846, 196),
+    ('albero_alto_dritto_2', 418, 150), ('albero_alto_dritto_3', 512, 118), ('albero_alto_dritto_1', 790, 172),
+    ('cespuglietto_1', 846, 196),
     # in alto a destra, oltre il ruscello
-    ('albero_alto_dritto_2', 1180, 182), ('pino_alto_2', 1252, 252), ('cespuglio_2', 1118, 232),
+    ('albero_alto_dritto_2', 1180, 182), ('cespuglio_2', 1118, 232),
     # il bordo a destra
-    ('pino_alto_3', 1254, 330), ('albero_alto_1', 1228, 474), ('pino_alto_1', 1256, 600),
+    ('albero_alto_3', 1262, 318), ('albero_alto_1', 1228, 474),
     # il bordo in basso: solo gli angoli, l'arrivo e la strada restano liberi
-    ('albero_alto_2', 44, 704), ('pino_alto_2', 150, 694), ('cespuglio_1', 256, 716),
-    ('cespuglietto_1', 900, 716), ('albero_alto_3', 1006, 706), ('pino_alto_3', 1110, 694),
+    ('albero_alto_2', 44, 704), ('cespuglio_1', 256, 716),
+    ('cespuglietto_1', 900, 716), ('albero_alto_3', 1006, 706),
     ('albero_alto_4', 1206, 716),
     # il bordo a sinistra
     ('albero_alto_4', 32, 336), ('cespuglio_2', 24, 462),
@@ -727,8 +732,9 @@ ALBERI = [
 # strati, liane e muschio), col tronco che fa le anse come nel disegno 111 di Bru: piante.albero_serpente
 PIANTE = [('albero_alto_1', 'albero_serpente', 205, 3), ('albero_alto_2', 'albero_serpente', 222, 11),
           ('albero_alto_3', 'albero_serpente', 236, 17), ('albero_alto_4', 'albero_serpente', 214, 23),
-          ('albero_alto_dritto_1', 'albero_esotico', 222, 11), ('albero_alto_dritto_2', 'albero_esotico', 236, 17), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
-          ('pino_alto_3', 'pino', 276, 13), ('cespuglio_1', 'cespuglio', 80, 5), ('cespuglio_2', 'cespuglio', 68, 19),
+          ('albero_alto_dritto_1', 'albero_esotico', 222, 11), ('albero_alto_dritto_2', 'albero_esotico', 236, 17),
+          ('albero_alto_dritto_3', 'albero_esotico', 214, 23), ('cespuglio_1', 'cespuglio', 80, 5),
+          ('cespuglio_2', 'cespuglio', 68, 19),
           ('cespuglietto_1', 'cespuglio', 50, 8)]
 COSE = [
     # la piazza antica: due colonne in diagonale, la vasca di pietra accanto
@@ -1013,7 +1019,7 @@ def riadatta(out):
 def tessera_acqua():
     # la tessera dell'acqua per l'animazione della pagina: ogni colore va all'indice di AQ piu' vicino (come fa la
     # pagina) e prende il colore nuovo a quell'indice
-    t = np.asarray(Image.open(os.path.join(TER, 'acqua_radenna.png')).convert('RGB')).astype(float)
+    t = np.asarray(Image.open(os.path.join(TER, TESSERA_ACQUA)).convert('RGB')).astype(float)
     k = ((AQ[None, None] - t[..., None, :]) ** 2).sum(-1).argmin(-1)
     _salva(AQ_NUOVA[k], os.path.join(TER, 'acqua_radenna_tavolozza.png'))
 

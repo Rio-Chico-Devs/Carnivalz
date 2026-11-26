@@ -854,6 +854,32 @@ def _serpente(cx, base, alto, Wc, rng):
     return np.array(pts, float), corse, verso
 
 
+def _gradini(punti, R):
+    """una spezzata ad angoli (su, di lato, su...) coi gomiti tondi di raggio R: punti fitti (mezzo pixel)"""
+    Q = [np.array(q, float) for q in punti]
+    out = []
+    for i in range(len(Q) - 1):
+        a_, b_ = Q[i], Q[i + 1]
+        d = b_ - a_
+        L = np.linalg.norm(d)
+        if L < 1e-6:
+            continue
+        u = d / L
+        r0 = min(R, L / 2) if i > 0 else 0.0
+        r1 = min(R, L / 2) if i < len(Q) - 2 else 0.0
+        s0, s1 = a_ + u * r0, b_ - u * r1
+        for t in np.linspace(0, 1, max(2, int(np.linalg.norm(s1 - s0) * 2))):
+            out.append(s0 + (s1 - s0) * t)
+        if i < len(Q) - 2:                                  # il gomito: dalla fine di questo tratto all'inizio del dopo
+            c_ = Q[i + 2] - b_
+            Lc = np.linalg.norm(c_)
+            if Lc > 1e-6:
+                e = b_ + c_ / Lc * min(R, Lc / 2)
+                for t in np.linspace(0, 1, max(4, int(R * 3))):
+                    out.append((1 - t) ** 2 * s1 + 2 * (1 - t) * t * b_ + t ** 2 * e)
+    return np.array(out, float)
+
+
 def _legno_lungo(T, P, Wd, rng, rampa=TRONCO):
     """Il tronco lungo il percorso: ogni pixel prende il punto piu' vicino (in raggi); la luce da in alto a sinistra
     rispetto a quel punto; le scanalature a distanza fissa di traverso, che ondeggiano piano lungo il tronco (un
@@ -930,6 +956,14 @@ def albero_serpente(alto=230, seme=1, con_piede=False):
                                rx * sch, rx * sch * 0.55, tono))
     gruppi.sort(key=lambda q: q[1])
     giu_chioma = max(q[1] + q[4] for q in gruppi)
+    # il tronco sale dritto (appena verso il mezzo del suo cuscino) fin dentro le foglie del cuscino A
+    (A_x, A_y, _a), (B_x, B_y, _b) = cuscini
+    yA = A_y + alto * 0.03
+    salita = [(xt + (A_x - xt) * 0.25 * (1 - np.cos(np.pi * t)) / 2, yt - (yt - yA) * t)
+              for t in np.linspace(0, 1, max(2, int((yt - yA) * 2)))]
+    P = np.concatenate([P, np.array(salita[1:], float)])
+    sarc = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))])
+    Wd = W0 * (1 - 0.35 * sarc / sarc[-1]) + alto * 0.045 * np.clip(1 - (base - P[:, 1]) / (alto * 0.05), 0, 1) ** 2
     # le radici dietro, il tronco a serpente, le radici davanti
     hw_b = W0 / 2
     for ang in (205 + rng.uniform(-10, 10), 335 + rng.uniform(-10, 10)):
@@ -941,42 +975,51 @@ def albero_serpente(alto=230, seme=1, con_piede=False):
         a = np.radians(ang)
         _radice(T, cx + np.cos(a) * hw_b * 0.8, base + np.sin(a) * hw_b * 0.3, ang, alto * L * rng.uniform(0.85, 1.15),
                 alto * F * rng.uniform(0.85, 1.15), rng)
-    # l'ombra della chioma sul tronco in alto: un gradino piu' scuro
+    # il ramo per l'altro cuscino (Bru, 112: niente rami sottili in diagonale; rami grossi a gradino, come il tronco):
+    # esce di lato dal tronco che sale, corre verso il cuscino B e ci sale dentro a gomito; oppure esce dall'ultima
+    # ansa, sale un poco, va di lato e risale. A volte dal tratto di lato si alza un secondo ramo
+    Rr = alto * 0.045
+    wr = W0 * 0.55
+    yB = B_y + alto * 0.03
+    verso_B = 1 if B_x > xt else -1
+    rami = []
+    if rng.random() < 0.5 and len(salita) > 8:
+        j = int(len(salita) * rng.uniform(0.3, 0.5))
+        sx_, sy_ = salita[j]
+        x0 = sx_ + verso_B * Wd[len(P) - len(salita) + j] * 0.3
+        xs_ = B_x - verso_B * rng.uniform(0.0, 0.08) * Wc
+        rami.append([(x0, sy_), (xs_, sy_ + rng.uniform(-2, 2)), (xs_, yB)])
+    else:
+        i0_, i1_ = corse[-1]
+        j = int(i0_ + (i1_ - i0_) * rng.uniform(0.25, 0.45))
+        x0, y0_ = P[j, 0], P[j, 1] - Wd[j] * 0.3
+        ym = y0_ - (y0_ - yB) * rng.uniform(0.35, 0.5)
+        xs_ = B_x - verso_B * rng.uniform(0.0, 0.08) * Wc
+        rami.append([(x0, y0_), (x0, ym), (xs_, ym), (xs_, yB)])
+    q0, q1 = np.array(rami[0][-3], float), np.array(rami[0][-2], float)
+    if rng.random() < 0.65 and abs(q1[0] - q0[0]) > 40:     # il secondo ramo, dal tratto di lato in su: solo se il
+        f_ = rng.uniform(0.3, 0.5)                             # tratto e' lungo, lontano dall'altro (non due pali)
+        xf = q0[0] + (q1[0] - q0[0]) * f_
+        if abs(xf - q1[0]) > 18 and abs(xf - q0[0]) > 12:
+            rami.append([(xf, q0[1] + (q1[1] - q0[1]) * f_), (xf, yB + alto * 0.02)])
+    attacchi = []
+    for k_, punti in enumerate(rami):
+        Pr = _gradini(punti, Rr if k_ == 0 else Rr * 0.6)
+        larg = (wr if k_ == 0 else wr * 0.7) * (1 - 0.25 * np.linspace(0, 1, len(Pr)))
+        _legno_lungo(T, Pr, larg, rng)
+        attacchi.append(Pr)
+        corse.append(None)                                    # i tratti di lato dei rami: muschio sopra, liane sotto
+        for (a_, b_) in zip(punti[:-1], punti[1:]):
+            if abs(a_[1] - b_[1]) < 3 and abs(a_[0] - b_[0]) > 8:
+                attacchi.append(np.array([a_, b_], float))
+    attacchi.append(P[-len(salita):])
+    # l'ombra della chioma sul tronco e sui rami: un gradino piu' scuro sotto le foglie
     for y in range(max(0, int(giu_chioma) - 2), min(h, int(giu_chioma + alto * 0.07))):
         for x in range(w):
             if T.op[y, x]:
                 c = tuple(int(v) for v in T.img[y, x])
                 if c in TRONCO and TRONCO.index(c) > 0:
                     T.img[y, x] = TRONCO[TRONCO.index(c) - 1]
-    # i rami: quello grande dalla cima del tronco nel suo cuscino, due dall'ultima corsa nell'altro; dentro i
-    # cuscini i rametti verso i gruppi
-    attacchi = []
-    Wt = Wd[-1]
-    mioA = [q for q in gruppi if (q[0] - cx) * sA > 0]
-    mioB = [q for q in gruppi if (q[0] - cx) * sA <= 0]
-
-    def ramo(p0, w0, gr):
-        if not gr:
-            return
-        tx = np.mean([q[0] for q in gr]); ty = np.mean([q[1] + q[4] for q in gr])
-        q1 = (p0[0] + (tx - p0[0]) * 0.5, p0[1] - (p0[1] - ty) * 0.75)
-        rp = _bezier(p0, (p0[0] + (tx - p0[0]) * 0.15, p0[1] - (p0[1] - ty) * 0.45), q1,
-                     int(np.hypot(q1[0] - p0[0], q1[1] - p0[1]) * 1.6))
-        w1 = max(3.0, w0 * 0.6)
-        _legno(T, rp, [w0 + (w1 - w0) * i / max(1, len(rp) - 1) for i in range(len(rp))])
-        attacchi.append(rp)
-        for (mx, my, rx, ryt, ryb, tono) in gr:
-            p2 = (mx + rng.uniform(-0.25, 0.25) * rx, my + ryb * 0.3)
-            r2 = _bezier(q1, ((q1[0] + p2[0]) / 2, q1[1] - (q1[1] - p2[1]) * 0.7), p2,
-                         int(np.hypot(p2[0] - q1[0], p2[1] - q1[1]) * 1.6))
-            _legno(T, r2, [w1 + (2.0 - w1) * (i / max(1, len(r2) - 1)) ** 0.8 for i in range(len(r2))])
-            attacchi.append(r2)
-    ramo((xt, yt + 1), Wt * 0.95, mioA)
-    i0, i1 = corse[-1]
-    for f in sorted(rng.uniform(0.3, 0.8, 2)):
-        j = int(i0 + (i1 - i0) * f)
-        if mioB:
-            ramo((P[j, 0], P[j, 1] - Wd[j] * 0.3), Wd[j] * 0.5, mioB[:3] if f < 0.55 else mioB[2:] or mioB)
     # il muschio: sul dorso delle corse e dei rami (dove sopra e' vuoto), sul lato in luce in basso
     for y in range(0, h):
         for x in range(w):
@@ -987,7 +1030,10 @@ def albero_serpente(alto=230, seme=1, con_piede=False):
                 _muschio(T, x - 1, y, rng, grande=y > base - alto * 0.12)
     # sopra le corse una o due bromelie; sotto le corse qualche liana corta
     dorsi, pance = [], []
-    for (a_, b_) in corse:
+    for cr in corse:
+        if cr is None:
+            continue
+        a_, b_ = cr
         for j in range(a_, b_, 3):
             x, y = int(round(P[j, 0])), int(round(P[j, 1]))
             r = Wd[j] / 2

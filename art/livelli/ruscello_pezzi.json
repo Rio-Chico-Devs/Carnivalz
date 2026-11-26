@@ -2,18 +2,11 @@
  "_nota": "Scritto da strumenti/livelli/ruscello_radenna.py: non toccare a mano. Ogni pezzo e' [file (da art/livelli/), x, y del piede nel mondo, x, y del piede nel disegno].",
  "pezzi": [
   [
-   "pezzi/ruscello/fusi/pino_alto_3.png",
-   506,
-   122,
-   72,
-   277
-  ],
-  [
-   "pezzi/ruscello/fusi/pino_alto_1.png",
-   262,
-   140,
-   64,
-   243
+   "pezzi/ruscello/fusi/albero_alto_dritto_3.png",
+   512,
+   118,
+   119,
+   218
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
@@ -21,13 +14,6 @@
    150,
    135,
    242
-  ],
-  [
-   "pezzi/ruscello/fusi/pino_alto_1.png",
-   900,
-   150,
-   64,
-   243
   ],
   [
    "pezzi/ruscello/fusi/masso_muschio_3.png",
@@ -72,13 +58,6 @@
    52
   ],
   [
-   "pezzi/ruscello/fusi/pino_alto_2.png",
-   40,
-   200,
-   69,
-   262
-  ],
-  [
    "pezzi/ruscello/fusi/masso_muschio_8.png",
    140,
    214,
@@ -121,13 +100,6 @@
    99
   ],
   [
-   "pezzi/ruscello/fusi/pino_alto_2.png",
-   1252,
-   252,
-   69,
-   262
-  ],
-  [
    "pezzi/ruscello/fusi/cespuglio_1.png",
    112,
    280,
@@ -135,11 +107,11 @@
    82
   ],
   [
-   "pezzi/ruscello/fusi/pino_alto_3.png",
-   1254,
-   330,
-   72,
-   277
+   "pezzi/ruscello/fusi/albero_alto_3.png",
+   1262,
+   318,
+   139,
+   239
   ],
   [
    "pezzi/ruscello/fusi/masso_basso_4.png",
@@ -152,7 +124,7 @@
    "pezzi/ruscello/fusi/albero_alto_4.png",
    32,
    336,
-   121,
+   123,
    218
   ],
   [
@@ -194,7 +166,7 @@
    "pezzi/ruscello/fusi/albero_alto_1.png",
    1228,
    474,
-   104,
+   103,
    211
   ],
   [
@@ -240,13 +212,6 @@
    102
   ],
   [
-   "pezzi/ruscello/fusi/pino_alto_1.png",
-   1256,
-   600,
-   64,
-   243
-  ],
-  [
    "pezzi/ruscello/fusi/masso_muschio_3.png",
    560,
    640,
@@ -261,20 +226,6 @@
    10
   ],
   [
-   "pezzi/ruscello/fusi/pino_alto_2.png",
-   150,
-   694,
-   69,
-   262
-  ],
-  [
-   "pezzi/ruscello/fusi/pino_alto_3.png",
-   1110,
-   694,
-   72,
-   277
-  ],
-  [
    "pezzi/ruscello/fusi/albero_alto_2.png",
    44,
    704,
@@ -285,7 +236,7 @@
    "pezzi/ruscello/fusi/albero_alto_3.png",
    1006,
    706,
-   137,
+   139,
    239
   ],
   [
@@ -306,7 +257,7 @@
    "pezzi/ruscello/fusi/albero_alto_4.png",
    1206,
    716,
-   121,
+   123,
    218
   ]
  ]

@@ -7,7 +7,7 @@ sys.path.insert(0, QUI)
 import numpy as np
 from PIL import Image
 from anima import Acqua
-A = Acqua(sys.argv[1], os.path.join(QUI, '..', '..', '..', 'art', 'livelli', 'terreni', 'acqua_radenna.png'))
+A = Acqua(sys.argv[1], os.path.join(QUI, '..', '..', '..', 'art', 'livelli', 'terreni', 'acqua_liscia.png'))
 t = float(sys.argv[3])
 js = np.fromfile(sys.argv[2], np.uint8).reshape(A.H, A.W, 4)
 py = A.fotogramma(t)
