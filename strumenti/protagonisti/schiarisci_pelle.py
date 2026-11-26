@@ -1,15 +1,16 @@
 """La pelle di Lei piu' chiara, abbronzata (Bru: "la pelle della protagonista e' troppo scura, possiamo schiarirla
 leggermente?", poi: "schiariamo ancora leggermente la pelle del personaggio, deve sembrare abbronzata non indiana").
-Il primo giro alzava la luce di ogni tono di +0.06 (OKLab) con la stessa tinta: restava marrone, perche' quasi meta'
-della pelle e' in ombra e le ombre erano rosso-viola spente. Ora la scala e' rifatta in OKLCH: il pieno dorato
-(luce 0.755, tinta 64), la luce del naso verso il giallo, le ombre calde color terracotta (tinta 36, l'ombra fonda 20,
-ancora verso il rosso-viola come vogliono le regole della tavolozza) piu' vicine al pieno di prima, cosi' si vede
-abbronzata e non scura. Le due famiglie della pelle (la ferma e le corse, ricalcate in tempi diversi) restano due,
-la corsa un filo sotto come nei disegni; i contorni scuri, la bocca, il cerchio d'oro e il resto non si toccano.
+Fra le prove a confronto Bru ha scelto "una via di mezzo tra la seconda e la terza": la seconda e' il primo giro
+(ogni tono +0.06 di luce in OKLab, stessa tinta), la terza la prova col pieno a luce 0.72 (le ombre un po' piu'
+vicine al pieno e un filo meno intense, la tinta di 4 gradi verso il giallo). La scala qui e' a meta' strada fra le
+due, in OKLab: il pieno a luce 0.686. Le due famiglie della pelle (la ferma e le corse, ricalcate in tempi diversi)
+restano due, la corsa un filo sotto come nei disegni; i contorni scuri, la bocca, il cerchio d'oro e il resto non si
+toccano.
 Il bordo scuro del cerchio d'oro sulla fascia e' disegnato con due marroni della pelle: schiariti farebbero un alone
 rosato attorno al cerchio, quindi i pezzetti di "pelle" attaccati all'oro (al piu' 12 pixel: la pelle vera e' molto
 piu' grande) tengono i colori di partenza.
-Cambia sia i colori di partenza sia quelli del primo giro; si puo' rilanciare: dopo non trova piu' niente da cambiare.
+Cambia sia i colori di partenza sia quelli dei giri di prima; si puo' rilanciare: dopo non trova piu' niente da
+cambiare.
 uso: schiarisci_pelle.py cartella_lei_chibi"""
 import glob
 import os
@@ -18,26 +19,26 @@ import sys
 import numpy as np
 from PIL import Image
 
-# tono: (colore di partenza, colore del primo giro) -> colore nuovo
+# tono: (colore di partenza, primo giro, secondo giro, adesso); l'ultimo e' quello che resta
 SCALA = {
     # la ferma (e attesa, corda, dorme, jojo)
-    'luce (il naso)': ((173, 135, 111), (192, 153, 129), (227, 187, 158)),
-    'pieno': ((156, 116, 82), (175, 134, 99), (212, 165, 122)),
-    'ombra': ((130, 85, 80), (147, 101, 95), (190, 131, 114)),
-    'ombra fonda': ((97, 58, 63), (110, 70, 75), (157, 103, 102)),
-    'ombra di spalle': ((117, 82, 79), (132, 96, 93), (179, 125, 113)),
+    'luce (il naso)': ((173, 135, 111), (192, 153, 129), (227, 187, 158), (203, 164, 138)),
+    'pieno': ((156, 116, 82), (175, 134, 99), (212, 165, 122), (185, 145, 108)),
+    'ombra': ((130, 85, 80), (147, 101, 95), (190, 131, 114), (160, 114, 107)),
+    'ombra fonda': ((97, 58, 63), (110, 70, 75), (157, 103, 102), (127, 86, 89)),
+    'ombra di spalle': ((117, 82, 79), (132, 96, 93), (179, 125, 113), (146, 110, 106)),
     # le corse
-    'corsa: luce (il naso)': ((166, 125, 106), (185, 143, 124), (225, 183, 158)),
-    'corsa: pieno': ((150, 107, 78), (169, 125, 95), (207, 158, 118)),
-    'corsa: pieno 2': ((150, 108, 79), (169, 126, 96), (207, 159, 119)),
-    'corsa: ombra': ((128, 93, 75), (145, 109, 90), (187, 140, 118)),
-    'corsa: scura': ((105, 75, 64), (118, 87, 76), (164, 121, 108)),
+    'corsa: luce (il naso)': ((166, 125, 106), (185, 143, 124), (225, 183, 158), (196, 154, 133)),
+    'corsa: pieno': ((150, 107, 78), (169, 125, 95), (207, 158, 118), (179, 135, 104)),
+    'corsa: pieno 2': ((150, 108, 79), (169, 126, 96), (207, 159, 119), (179, 136, 105)),
+    'corsa: ombra': ((128, 93, 75), (145, 109, 90), (187, 140, 118), (157, 121, 101)),
+    'corsa: scura': ((105, 75, 64), (118, 87, 76), (164, 121, 108), (133, 102, 90)),
 }
-PELLE = {}                      # ogni colore della pelle (di partenza, del primo giro, nuovo) -> (partenza, nuovo)
-for partenza, primo, nuovo in SCALA.values():
-    for c in (partenza, primo, nuovo):
-        PELLE[c] = (partenza, nuovo)
-assert len(PELLE) == 3 * len(SCALA)
+PELLE = {}                      # ogni colore che la pelle ha avuto -> (colore di partenza, colore di adesso)
+for colori in SCALA.values():
+    for c in colori:
+        PELLE[c] = (colori[0], colori[-1])
+assert len(PELLE) == 4 * len(SCALA)
 ORO = {(97, 60, 20), (178, 136, 62), (202, 153, 78), (223, 186, 97), (250, 214, 129)}   # il cerchio d'oro
 BORDO_ORO = 12
 

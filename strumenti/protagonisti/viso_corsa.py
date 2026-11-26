@@ -20,10 +20,10 @@ COL = {'l': NERO,
        'B': (78, 34, 90),        # pupilla
        '1': (125, 62, 135),      # magenta
        '0': (245, 205, 226),     # riflesso
-       'e': (207, 158, 118),     # pelle
-       'c': (187, 140, 118),     # pelle in ombra
-       'd': (164, 121, 108),     # pelle scura
-       '2': (225, 183, 158)}     # la luce del naso (nella ferma 227,187,158 sulla pelle 212,165,122)
+       'e': (179, 135, 104),     # pelle
+       'c': (157, 121, 101),     # pelle in ombra
+       'd': (133, 102, 90),      # pelle scura
+       '2': (196, 154, 133)}     # la luce del naso (nella ferma 203,164,138 sulla pelle 185,145,108)
 # gli occhi della ferma (davanti_ferma.png, righe 30-35): il sinistro da x 9, il destro da x 21
 SINISTRO = ['llll.',
             'lllll',
