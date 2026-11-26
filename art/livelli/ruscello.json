@@ -9,6 +9,7 @@
  "pezzi": "ruscello_pezzi.json",
  "passi": "ruscello_passi.png",
  "prato": "ruscello_prato.png",
+ "fiori": "ruscello_fiori.json",
  "_prato": "Dove i piedi pestano l'erba (bianco): li' a ogni passo saltano i fili d'erba; sulla strada di mattoni, sulle lastre e sui ciottoli no.",
  "erba": {
   "tinta": [

@@ -42,6 +42,7 @@ sys.path.insert(0, os.path.join(QUI, '..'))
 import prato as _prato           # noqa: E402  il prato con la tecnica degli esempi di Bru (108)
 import tavolozza as _tav         # noqa: E402  le tavolozze col segreto degli esempi di Bru
 import piante as _piante         # noqa: E402  alberi, pini e cespugli a misura di lei (109, 110)
+import fiori as _fiori           # noqa: E402  i fiori del prato in piedi, mossi dal vento
 LIV = os.path.join(QUI, '..', '..', 'art', 'livelli')
 TER = os.path.join(LIV, 'terreni')
 PEZ = os.path.join(LIV, 'pezzi')
@@ -500,14 +501,23 @@ def pianta():
 # ================================================================ i colori
 
 class Erba:
-    # il prato con la tecnica degli esempi di Bru (108): base, macchie a nuvola, foglioline, luci e fiori
-    # (strumenti/livelli/prato.py), nei colori degli esempi; prima erano i quattro quadrati d'erba di Bru
+    # il prato con la tecnica degli esempi di Bru (108): base, macchie a nuvola, foglioline, luci
+    # (strumenti/livelli/prato.py), nei colori degli esempi; prima erano i quattro quadrati d'erba di Bru.
+    # I fiori non sono piu' dentro la mappa: prato() dice dove sarebbero (segni: il numero del fiore nel suo posto) e
+    # la pagina li disegna in piedi, mossi dal vento (fiori.py, fiori_veri)
     def __init__(self, hg, seme):
-        passi, _ = _prato.prato(hg, W, seme=seme + 20, tav=PRATO)
+        self.fiori = []
+        passi, _ = _prato.prato(hg, W, seme=seme + 20, tav=PRATO, fiori=self.fiori)
         self.img = passi[3].astype(float)
+        self.segni = np.full((hg, W), -1, int)
+        for k, (y, x, _g) in enumerate(self.fiori):
+            self.segni[y, x] = k
 
     def colori(self, X, G):
         return self.img[np.clip(G, 0, self.img.shape[0] - 1), X]
+
+    def segno(self, X, G):
+        return self.segni[np.clip(G, 0, self.segni.shape[0] - 1), X]
 
 
 def _verde(t):
@@ -532,6 +542,8 @@ def disegna(t, F, seme=3):
     img = np.zeros((H, W, 3))
     prato = erba.colori(X, gyc)
     img[pav & (Mb == ERBA)] = prato[pav & (Mb == ERBA)]
+    G['fiori'] = erba.fiori
+    G['fiori_segni'] = np.where(pav & (Mb == ERBA), erba.segno(X, gyc), -1)
     erba_m = pav & (Mb == ERBA)          # i pixel presi dal prato (per prato_vero: dove l'erba salta ai passi)
     # la strada e il piano del ponte: il motivo del kit piegato lungo la curva
     col = np.clip((F['VV'][gyc, X] + 14.5).astype(int), 0, 28); row = F['SV'][gyc, X].astype(int) % 55
@@ -1009,6 +1021,38 @@ def prato_vero(out, G):
     return a
 
 
+def fiori_veri(out, ombra, G):
+    # i fiori in piedi (la pagina li muove col vento): dove prato() li avrebbe disegnati, se li' alla fine c'e' ancora
+    # il prato al sole tutto attorno (non sotto le chiome, non sul bordo della strada o delle sponde, non ai piedi delle
+    # cose in piedi). La specie a macchie larghe come nei prati veri (rumore largo: margherite le piu', poi ranuncoli e
+    # salvia), grandi e piccoli a caso. Ognuno: [x, y del piede nel mondo, numero della specie in fiori.SPECIE]
+    segni = G['fiori_segni']
+    erba = prato_vero(out, G)[..., 3] > 0
+    cammino = passi(G)[..., 3] > 0
+    posti = {}
+    for y, x in zip(*np.nonzero(segni >= 0)):
+        posti.setdefault(int(segni[y, x]), (int(y), int(x)))
+    macchie = _prato.liscio(H, W, 170, 110, 77)
+    q1, q2 = np.quantile(macchie, [0.62, 0.86])
+    rng = np.random.default_rng(31)
+    nomi = list(_fiori.SPECIE)
+    lista = []
+    for k in sorted(posti):
+        y, x = posti[k]
+        piccolo = rng.random() < 0.45
+        if y < 14 or x < 6 or x > W - 7 or y > H - 3:
+            continue
+        # il prato al sole dove sta il fiore piegato (la corolla fino a 3 pixel di lato, 10 sopra il piede)
+        if not erba[y - 10:y + 2, x - 6:x + 7].all() or ombra[y - 3:y + 2, x - 4:x + 5].any() or not cammino[y, x]:
+            continue
+        n = macchie[y, x]
+        sp = 'margherita' if n < q1 else ('ranuncolo' if n < q2 else 'salvia')
+        if piccolo:
+            sp = {'margherita': 'margheritina', 'ranuncolo': 'ranuncolino', 'salvia': 'salvietta'}[sp]
+        lista.append([x, y, nomi.index(sp)])
+    return sorted(lista, key=lambda f: (f[1], f[0]))
+
+
 def passi(G):
     # dove si cammina: prato, strada, piano del ponte, sponde di ciottoli (in cima); non l'acqua, non la sponda di
     # faccia, non le spallette; non i piedi delle cose in piedi e la pozza coi sassi
@@ -1045,12 +1089,20 @@ def main():
     terreno, G = disegna(t, F)
     terreno = decora(terreno, G)
     terreno = luce_turchese(terreno, G)
+    senza_ombre = terreno.copy()
     terreno = ombre(terreno, G)
+    ombra = np.any(np.abs(terreno - senza_ombre) > 0.5, -1)        # dove le ombre hanno scurito
     terreno = riadatta(terreno)
     tessera_acqua()
     _salva(terreno, os.path.join(LIV, 'ruscello.png'))
     _salva(passi(G).astype(float), os.path.join(LIV, 'ruscello_passi.png'))
     _salva(prato_vero(terreno, G).astype(float), os.path.join(LIV, 'ruscello_prato.png'))
+    fiori = fiori_veri(terreno, ombra, G)
+    with open(os.path.join(LIV, 'ruscello_fiori.json'), 'w') as f:
+        json.dump({"_nota": "Scritto da strumenti/livelli/ruscello_radenna.py: non toccare a mano. I fiori del prato in "
+                            "piedi: [x, y del piede nel mondo, specie (la riga di terreni/fiori.png, fiori.py)].",
+                   "fiori": fiori}, f, ensure_ascii=False)
+        f.write('\n')
     with open(os.path.join(LIV, 'ruscello_pezzi.json'), 'w') as f:
         json.dump({"_nota": "Scritto da strumenti/livelli/ruscello_radenna.py: non toccare a mano. Ogni pezzo e' "
                             "[file (da art/livelli/), x, y del piede nel mondo, x, y del piede nel disegno].",
@@ -1068,6 +1120,7 @@ def main():
         "pezzi": "ruscello_pezzi.json",
         "passi": "ruscello_passi.png",
         "prato": "ruscello_prato.png",
+        "fiori": "ruscello_fiori.json",
         "_prato": "Dove i piedi pestano l'erba (bianco): li' a ogni passo saltano i fili d'erba; sulla strada di "
                   "mattoni, sulle lastre e sui ciottoli no.",
         "erba": {"tinta": [0.2, 0.47], "saturazione": 0.42, "luce": [0.1, 0.85]},

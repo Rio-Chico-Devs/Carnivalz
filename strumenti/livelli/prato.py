@@ -8,7 +8,9 @@
    scurissimi nel cuore delle macchie.
 Poi via i pixel soli. Le tinte: A gli esempi di Bru (chiaro), B una via di mezzo, C scuro come il prato di adesso.
 
-modulo: prato(h, w, seme, tav) -> (i 4 passi (h, w, 3) uint8, i livelli delle macchie)
+modulo: prato(h, w, seme, tav, fiori=None) -> (i 4 passi (h, w, 3) uint8, i livelli delle macchie); se 'fiori' e' una
+lista i fiori non si disegnano: ci finiscono i loro posti (y, x, gruppetto) e il resto del prato resta uguale (i fiori
+in piedi che si muovono col vento li disegna la pagina, con fiori.py)
 uso: prato.py cartella_livelli cartella_prove   (i quattro passi e lo stesso pezzo della mappa del ruscello nelle tre
      tinte, accanto a com'e' ora)"""
 import numpy as np
@@ -76,7 +78,7 @@ def distanza(m, fino):
     return d
 
 
-def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42):
+def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42, fiori=None):
     rng = np.random.default_rng(seme)
     T = {k: np.array(v, np.uint8) for k, v in tav.items()}
     passi = []
@@ -130,12 +132,15 @@ def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42):
             timbra(out, LUCI[rng.integers(len(LUCI))], x - 2, y - 2, T['luce'], libero)
     libero = np.all(out == T['base'], axis=-1)
     libero_f = distanza(~libero, 2) > 1
-    for _ in range(int(h * w / 2200)):
+    for gruppo in range(int(h * w / 2200)):
         y, x = rng.integers(0, h), rng.integers(0, w)
         for _ in range(rng.integers(1, 4)):
             yy, xx = y + rng.integers(-6, 7), x + rng.integers(-7, 8)
             if 0 <= yy < h and 0 <= xx < w and libero_f[yy, xx]:
-                timbra(out, FIORE, xx - 2, yy - 2, {'P': T['petalo'], 'C': T['cuore']})
+                if fiori is None:
+                    timbra(out, FIORE, xx - 2, yy - 2, {'P': T['petalo'], 'C': T['cuore']})
+                else:
+                    fiori.append((int(yy), int(xx), gruppo))
                 libero_f[max(0, yy - 5):yy + 6, max(0, xx - 5):xx + 6] = False
     cuore = (liv == 2) & (distanza(liv < 2, 6) > 4)
     for _ in range(int(h * w / 40)):

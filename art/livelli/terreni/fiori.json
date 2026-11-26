@@ -1,0 +1,24 @@
+{
+ "specie": [
+  "margherita",
+  "margheritina",
+  "ranuncolo",
+  "ranuncolino",
+  "salvia",
+  "salvietta"
+ ],
+ "pieghe": [
+  -3,
+  -2,
+  -1,
+  0,
+  1,
+  2,
+  3
+ ],
+ "w": 17,
+ "h": 16,
+ "px": 8,
+ "py": 14,
+ "_nota": "Scritto da strumenti/livelli/fiori.py: i fiori del prato, una riga per specie, una colonna per piega (-3..+3); il piede del fiore e' a (px, py) nel fotogramma."
+}

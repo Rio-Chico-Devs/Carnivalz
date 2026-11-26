@@ -100,6 +100,13 @@ def appoggi(nome, n, w=40):
 
 dati['appoggi'] = {'fronte': appoggi('davanti_corsa', 12), 'spalle': appoggi('dietro_corsa', 9),
                    'lato': appoggi('lato_corsa', 12), 'latoSx': appoggi('lato_sinistro_corsa', 12)}
+# i fiori in piedi che si muovono col vento: le pose (strumenti/livelli/fiori.py) e dove stanno (ruscello_radenna.py)
+with open(os.path.join(LIV, 'terreni', 'fiori.json'), encoding='utf-8') as f:
+    _fj = json.load(f)
+with open(os.path.join(LIV, pianta['fiori']), encoding='utf-8') as f:
+    _fl = json.load(f)['fiori']
+dati['fiori'] = {'img': uri(os.path.join(LIV, 'terreni', 'fiori.png')), 'w': _fj['w'], 'h': _fj['h'], 'px': _fj['px'],
+                 'py': _fj['py'], 'pieghe': _fj['pieghe'], 'specie': _fj['specie'], 'lista': _fl}
 # i colori del prato della mappa (ruscello_radenna.PRATO): la rampa dal piu' scuro al piu' chiaro e i fiori
 _P = TINTE['A']
 dati['erba'] = {'rampa': [_P[k] for k in ('profondo', 'scuro', 'medio', 'base', 'luce')],
