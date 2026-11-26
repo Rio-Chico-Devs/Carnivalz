@@ -1,0 +1,135 @@
+{
+ "_nota": "Il pasto del goblin, fatto da strumenti/livelli/pasto_goblin.py: la radura nel recinto di massi col goblin al centro che mangia davanti al fuoco, il sentiero da sud e quello verso la pianura.",
+ "nome": "Il pasto del goblin",
+ "mappa": "pasto.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "pezzi": "pasto_pezzi.json",
+ "passi": "pasto_passi.png",
+ "prato": "pasto_prato.png",
+ "fiori": "pasto_fiori.json",
+ "animati": {
+  "pezzi/pasto/fuoco.png": {
+   "file": "pezzi/pasto/fuoco_fotogrammi.png",
+   "n": 4,
+   "ms": 110
+  },
+  "pezzi/pasto/goblin.png": {
+   "file": "pezzi/pasto/goblin_fotogrammi.png",
+   "n": 2,
+   "ms": 260
+  }
+ },
+ "_animati": "Si muovono sempre (non solo con l'acqua): le fiamme del fuoco e il goblin che mastica.",
+ "limiti": [
+  0,
+  0,
+  1280,
+  800
+ ],
+ "partenza": [
+  612,
+  776
+ ],
+ "verso": [
+  0,
+  -1
+ ],
+ "stanze": [
+  {
+   "nome": "Il pasto del goblin",
+   "rett": [
+    470,
+    290,
+    810,
+    510
+   ]
+  },
+  {
+   "nome": "Il sentiero",
+   "rett": [
+    540,
+    510,
+    700,
+    800
+   ]
+  },
+  {
+   "nome": "Verso la pianura",
+   "rett": [
+    160,
+    0,
+    510,
+    350
+   ]
+  },
+  {
+   "nome": "Il prato",
+   "rett": [
+    0,
+    0,
+    1280,
+    800
+   ]
+  }
+ ],
+ "giro": [
+  [
+   612,
+   776
+  ],
+  [
+   618,
+   700
+  ],
+  [
+   614,
+   620
+  ],
+  [
+   636,
+   548
+  ],
+  [
+   640,
+   500
+  ],
+  [
+   600,
+   470
+  ],
+  [
+   560,
+   430
+  ],
+  [
+   520,
+   380
+  ],
+  [
+   500,
+   344
+  ],
+  [
+   440,
+   300
+  ],
+  [
+   360,
+   250
+  ],
+  [
+   300,
+   180
+  ],
+  [
+   250,
+   100
+  ],
+  [
+   237,
+   84
+  ]
+ ]
+}

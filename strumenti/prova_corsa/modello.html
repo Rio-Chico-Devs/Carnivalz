@@ -364,7 +364,7 @@ kbd {
     im.animati = {};
     for (const k of Object.keys(D.animati || {})) {
       const a = D.animati[k];
-      im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms };
+      im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms, sempre: !!a.sempre };
     }
     if (D.pozza) im.pozza = Object.assign({}, D.pozza, { img: await immagine(D.pozza.img) });
     if (D.luci) im.nuvole = await immagine(D.luci.ombra);
@@ -984,7 +984,8 @@ kbd {
     mostra(x0, y0, x1, y1);
   }
   function fotogramma(a) {
-    return Math.floor(ACQ.t * 1000 / a.ms) % a.n;
+    // i pezzi dell'acqua vanno col tempo dell'acqua; quelli che si muovono sempre (il fuoco, il goblin) con l'orologio
+    return Math.floor((a.sempre ? OROLOGIO : ACQ.t) * 1000 / a.ms) % a.n;
   }
 
   // ---------------------------------------------------------------- l'acqua sulla scheda grafica
@@ -1431,7 +1432,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
       const im = IM.pezzi[p[0]];
       const x0 = p[1] - p[3], y0 = p[2] - p[4];
       if (x0 >= cx + gw || y0 >= cy + gh || x0 + im.width <= cx || y0 + im.height <= cy) return;
-      const an = acqua && IM.animati[p[0]];
+      const an0 = IM.animati[p[0]], an = an0 && (an0.sempre || acqua) ? an0 : null;
       if (an) {
         const w = im.width, h = im.height;
         lista.push([p[2], 0, i, () => g.drawImage(an.img, fotogramma(an) * w, 0, w, h, x0 - cx, y0 - cy, w, h)]);
@@ -1474,11 +1475,13 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   }
 
   let prima = performance.now(), inPausa = false, camera = [0, 0], guarda = null;   // guarda: per le prove
+  let OROLOGIO = 0;                 // i secondi passati (per i pezzi che si muovono sempre)
   function giro(ora) {
     const dt = Math.min(0.05, Math.max(0, (ora - prima) / 1000));
     prima = ora;
     if (pronto && !inPausa) {
       aggiorna(dt);
+      OROLOGIO += dt;
       avanzaAcqua(dt);
       if (LUCI.on) LUCI.t += dt;
       avanzaErba(dt);
@@ -1502,7 +1505,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
         guarda: (q) => { guarda = q; },
         avanti: (ms) => {
           for (let t = 0; t < ms - 1e-6; t += 1000 / 60) {
-            aggiorna(1 / 60); avanzaAcqua(1 / 60); LUCI.t += 1 / 60; avanzaErba(1 / 60); avanzaFiori(1 / 60);
+            aggiorna(1 / 60); OROLOGIO += 1 / 60; avanzaAcqua(1 / 60); LUCI.t += 1 / 60; avanzaErba(1 / 60); avanzaFiori(1 / 60);
           }
           disegna();
         } };

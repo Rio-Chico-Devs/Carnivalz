@@ -1,9 +1,11 @@
-"""Mette dentro la pagina della prova i fogli di Lei, la mappa del ruscello,
-la maschera dei passi, i pezzi che stanno in piedi e l'acqua che si muove (tutto in data URI).
+"""Mette dentro la pagina della prova i fogli di Lei, la mappa di una zona (il ruscello, o un'altra: il pasto del
+goblin), la maschera dei passi, i pezzi che stanno in piedi e l'acqua che si muove (tutto in data URI). L'acqua c'e'
+solo al ruscello; le altre zone possono avere pezzi a fotogrammi che si muovono sempre (il fuoco, il goblin).
 
-uso: costruisci.py modello.html uscita.html cartella_acqua (quella di fai.sh)
+uso: costruisci.py modello.html uscita.html cartella_acqua [zona]     (zona: ruscello, se manca; o pasto)
 """
 import base64
+import html
 import json
 import os
 import sys
@@ -15,6 +17,7 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 sys.path.insert(0, os.path.join(REPO, 'strumenti', 'livelli'))
 from prato import TINTE                                     # noqa: E402  (i colori del prato della mappa)
 MODELLO, USCITA, ACQUA = sys.argv[1:4]
+ZONA = sys.argv[4] if len(sys.argv) > 4 else 'ruscello'
 LEI = os.path.join(REPO, 'strumenti/protagonisti/lei_chibi')
 LIV = os.path.join(REPO, 'art/livelli')
 
@@ -24,7 +27,7 @@ def uri(percorso):
         return 'data:image/png;base64,' + base64.b64encode(f.read()).decode('ascii')
 
 
-with open(os.path.join(LIV, 'ruscello.json'), encoding='utf-8') as f:
+with open(os.path.join(LIV, ZONA + '.json'), encoding='utf-8') as f:
     pianta = json.load(f)
 with open(os.path.join(LIV, pianta['pezzi']), encoding='utf-8') as f:
     pezzi = json.load(f)['pezzi']
@@ -70,14 +73,30 @@ dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': 
                  'corda': ferma('corda', 'davanti_corda', 64),
                  'dorme': ferma('dorme', 'davanti_dorme', 40),
                  'jojo': ferma('jojo', 'davanti_jojo', 48)}
-# l'acqua: i dati per pixel, la tessera, il filo del ruscello; i pezzi con l'acqua a fotogrammi e la pozza
-with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f:
-    acqua = json.load(f)
-acqua.pop('conti', None)
-acqua['dati'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati.png'))
-acqua['frazioni'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati_frazioni.png'))
-acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna_tavolozza.png'))   # coi colori nuovi
-dati['acqua'] = acqua
+# l'acqua (solo al ruscello): i dati per pixel, la tessera, il filo del ruscello; i pezzi con l'acqua a fotogrammi e
+# la pozza
+if ZONA == 'ruscello':
+    with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f:
+        acqua = json.load(f)
+    acqua.pop('conti', None)
+    acqua['dati'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati.png'))
+    acqua['frazioni'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati_frazioni.png'))
+    acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna_tavolozza.png'))   # coi colori nuovi
+    dati['acqua'] = acqua
+else:
+    dati['acqua'] = None
+# i testi della pagina per le zone che non sono il ruscello (quelli del ruscello sono gia' nella pagina): messi nella
+# pagina qui, al posto di quelli del ruscello; e dove non c'e' acqua, i comandi dell'acqua nascosti
+TESTI = {
+    'pasto': {'titolo': 'Il pasto del goblin',
+              'sotto': "Lei arriva dal sentiero di sud nella radura del recinto di massi: al centro il goblin mangia "
+                       "davanti al fuoco, con la carne sullo spiedo, un tronco per sedersi e le ossa sparse. Il "
+                       "fuoco scoppietta, il goblin mastica; dal varco di nord-ovest un sentiero va verso la pianura. "
+                       "Come al ruscello: le nuvole e le macchie di sole, i fiori al vento, l'erba che si muove ai "
+                       "passi (sulla terra battuta no); se Lei resta ferma si annoia.",
+              'aria': "Il pasto del goblin: clicca e usa le frecce per far correre Lei",
+              'carico': "Carico la radura del goblin…"},
+}
 # le ombre delle nuvole che passano: la tessera (strumenti/livelli/luci.py) e il vento, in pixel al secondo
 dati['luci'] = {'ombra': uri(os.path.join(LIV, 'terreni', 'nuvole_ombra.png')), 'vento': [14, 5]}
 
@@ -112,23 +131,48 @@ _P = TINTE['A']
 dati['erba'] = {'rampa': [_P[k] for k in ('profondo', 'scuro', 'medio', 'base', 'luce')],
                 'fiori': [_P['petalo'], _P['cuore']]}
 print('appoggi', dati['appoggi'])
-with open(os.path.join(ACQUA, 'pezzi', 'pezzi_anim.json'), encoding='utf-8') as f:
-    anim = json.load(f)
 dati['animati'] = {}
-for k, v in anim.items():
-    v = dict(v)
-    v['img'] = uri(os.path.join(ACQUA, 'pezzi', v.pop('file')))
-    if k == 'pozza':
-        dati['pozza'] = v
-    else:
-        assert k in dati['immagini'], k
-        dati['animati'][k] = v
+if ZONA == 'ruscello':
+    with open(os.path.join(ACQUA, 'pezzi', 'pezzi_anim.json'), encoding='utf-8') as f:
+        anim = json.load(f)
+    for k, v in anim.items():
+        v = dict(v)
+        v['img'] = uri(os.path.join(ACQUA, 'pezzi', v.pop('file')))
+        if k == 'pozza':
+            dati['pozza'] = v
+        else:
+            assert k in dati['immagini'], k
+            dati['animati'][k] = v
+# i pezzi della zona a fotogrammi che si muovono sempre (non solo con l'acqua): il fuoco, il goblin che mastica
+for k, v in pianta.get('animati', {}).items():
+    assert k in dati['immagini'], k
+    dati['animati'][k] = {'img': uri(os.path.join(LIV, v['file'])), 'n': v['n'], 'ms': v['ms'], 'sempre': True}
 testo = json.dumps(dati, ensure_ascii=False, separators=(',', ':'))
 assert '</' not in testo
 with open(MODELLO, encoding='utf-8') as f:
     pagina = f.read()
 assert pagina.count('/*DATI*/null') == 1
 pagina = pagina.replace('/*DATI*/null', testo)
+
+
+def cambia(pagina, vecchio, nuovo):
+    assert pagina.count(vecchio) == 1, vecchio
+    return pagina.replace(vecchio, nuovo)
+
+
+if ZONA in TESTI:
+    T = {k: html.escape(v, quote=True) for k, v in TESTI[ZONA].items()}
+    pagina = cambia(pagina, '<title>Prova corsa Lei</title>', '<title>%s</title>' % T['titolo'])
+    pagina = cambia(pagina, '<h1>Prova corsa</h1>', '<h1>%s</h1>' % T['titolo'])
+    i = pagina.index('<p class="sotto">') + len('<p class="sotto">')
+    pagina = pagina[:i] + T['sotto'] + pagina[pagina.index('<br>', i):]
+    pagina = cambia(pagina, 'aria-label="Il ruscello di Radenna: clicca e usa le frecce per far correre Lei"',
+                    'aria-label="%s"' % T['aria'])
+    pagina = cambia(pagina, 'Carico il ruscello…', T['carico'])
+if not dati['acqua']:
+    pagina = cambia(pagina, '<label>Corrente del ruscello', '<label hidden>Corrente del ruscello')
+    pagina = cambia(pagina, '<div class="fila" role="group" aria-label="Acqua">',
+                    '<div class="fila" role="group" aria-label="Acqua" hidden>')
 with open(USCITA, 'w', encoding='utf-8') as f:
     f.write(pagina)
 print('pezzi', len(dati['pezzi']), 'immagini', len(dati['immagini']), 'pagina %.0f KB' % (len(pagina) / 1024))
