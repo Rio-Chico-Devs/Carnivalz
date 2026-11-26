@@ -8,6 +8,8 @@
  "_scala": "La mappa e' alla misura del mondo (un pixel, un pixel del mondo, come lei); la telecamera ingrandisce due volte.",
  "pezzi": "ruscello_pezzi.json",
  "passi": "ruscello_passi.png",
+ "prato": "ruscello_prato.png",
+ "_prato": "Dove i piedi pestano l'erba (bianco): li' a ogni passo saltano i fili d'erba; sulla strada di mattoni, sulle lastre e sui ciottoli no.",
  "erba": {
   "tinta": [
    0.2,

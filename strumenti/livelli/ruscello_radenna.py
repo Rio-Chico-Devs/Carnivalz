@@ -532,12 +532,14 @@ def disegna(t, F, seme=3):
     img = np.zeros((H, W, 3))
     prato = erba.colori(X, gyc)
     img[pav & (Mb == ERBA)] = prato[pav & (Mb == ERBA)]
+    erba_m = pav & (Mb == ERBA)          # i pixel presi dal prato (per prato_vero: dove l'erba salta ai passi)
     # la strada e il piano del ponte: il motivo del kit piegato lungo la curva
     col = np.clip((F['VV'][gyc, X] + 14.5).astype(int), 0, 28); row = F['SV'][gyc, X].astype(int) % 55
     tex = st[row, col]
     m = pav & np.isin(Mb, [STRADA, PONTE]); pieno = tex[..., 3] > 0
     img[m & pieno] = tex[m & pieno][:, :3]
     img[m & ~pieno & (Mb == STRADA)] = prato[m & ~pieno & (Mb == STRADA)]
+    erba_m |= m & ~pieno & (Mb == STRADA)
     img[m & ~pieno & (Mb == PONTE)] = P[3]
     # le sponde: i ciottoli di Bru; verso il prato il muschio lascia il posto all'erba
     sh, sw = sassi_t.shape[:2]
@@ -546,6 +548,7 @@ def disegna(t, F, seme=3):
     m = pav & (Mb == RIVA)
     img[m] = sas[m]
     img[m & mus & fuori] = prato[m & mus & fuori]
+    erba_m |= m & mus & fuori
     # la sponda di la' vista di faccia: gli stessi ciottoli nell'ombra, piu' scuri giu' verso l'acqua
     f = fac & np.isin(Mb, [RIVA, ERBA, STRADA])
     fd = FD.astype(float); fh = np.maximum(FH, 1).astype(float)
@@ -629,7 +632,10 @@ def disegna(t, F, seme=3):
                         img[y + k, x] *= ff
     # la piazza antica: le nove lastre di Bru posate sul prato (la strada ci passa sotto)
     pz = np.asarray(Image.open(os.path.join(TER, 'piazza_radenna.png')).convert('RGBA')).astype(float)
-    _posa(img, pz, PIAZZA[0] - pz.shape[1] // 2, PIAZZA[1] - pz.shape[0] // 2)
+    x0, y0 = PIAZZA[0] - pz.shape[1] // 2, PIAZZA[1] - pz.shape[0] // 2
+    _posa(img, pz, x0, y0)
+    erba_m[y0:y0 + pz.shape[0], x0:x0 + pz.shape[1]] &= pz[..., 3] == 0
+    G['erba'] = erba_m
     return img, G
 
 
@@ -986,6 +992,23 @@ def anteprima(terreno):
     return out
 
 
+def prato_vero(out, G):
+    # dove i piedi pestano l'erba (la pagina ci fa saltare i fili d'erba a ogni passo): i pixel che disegna() ha preso
+    # dal prato e che alla fine hanno ancora un colore del prato (le ombre lo fanno scendere lungo la sua rampa, i fiori
+    # contano); non la strada di mattoni, le lastre della piazza, i ciottoli delle sponde, le cose posate sopra.
+    # Via i pixel quasi soli (un colore del prato per caso in mezzo ad altro)
+    q = np.rint(np.clip(out, 0, 255)).astype(int)
+    col = np.zeros((H, W), bool)
+    for c in PRATO.values():
+        col |= np.all(q == np.array(c), axis=-1)
+    m = G['erba'] & col
+    n = np.zeros((H, W), int)
+    n[1:] += m[:-1]; n[:-1] += m[1:]; n[:, 1:] += m[:, :-1]; n[:, :-1] += m[:, 1:]
+    m &= n >= 2
+    a = np.zeros((H, W, 4), np.uint8); a[m] = (255, 255, 255, 255)
+    return a
+
+
 def passi(G):
     # dove si cammina: prato, strada, piano del ponte, sponde di ciottoli (in cima); non l'acqua, non la sponda di
     # faccia, non le spallette; non i piedi delle cose in piedi e la pozza coi sassi
@@ -1027,6 +1050,7 @@ def main():
     tessera_acqua()
     _salva(terreno, os.path.join(LIV, 'ruscello.png'))
     _salva(passi(G).astype(float), os.path.join(LIV, 'ruscello_passi.png'))
+    _salva(prato_vero(terreno, G).astype(float), os.path.join(LIV, 'ruscello_prato.png'))
     with open(os.path.join(LIV, 'ruscello_pezzi.json'), 'w') as f:
         json.dump({"_nota": "Scritto da strumenti/livelli/ruscello_radenna.py: non toccare a mano. Ogni pezzo e' "
                             "[file (da art/livelli/), x, y del piede nel mondo, x, y del piede nel disegno].",
@@ -1043,6 +1067,9 @@ def main():
                   "ingrandisce due volte.",
         "pezzi": "ruscello_pezzi.json",
         "passi": "ruscello_passi.png",
+        "prato": "ruscello_prato.png",
+        "_prato": "Dove i piedi pestano l'erba (bianco): li' a ogni passo saltano i fili d'erba; sulla strada di "
+                  "mattoni, sulle lastre e sui ciottoli no.",
         "erba": {"tinta": [0.2, 0.47], "saturazione": 0.42, "luce": [0.1, 0.85]},
         "limiti": [0, 0, W, H],
         "partenza": PARTENZA, "verso": [0, -1],

@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda, si addormenta in piedi con la bolla al naso, o si mette in posa JoJo con l'aura. Passano le nuvole: le loro ombre scorrono col vento, e sotto gli alberi il sole fa macchioline che si accendono e ondeggiano. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda, si addormenta in piedi con la bolla al naso, o si mette in posa JoJo con l'aura. Passano le nuvole: le loro ombre scorrono col vento, e sotto gli alberi il sole fa macchioline che si accendono e ondeggiano (quando passa una nuvola si spengono). Correndo sul prato l'erba si muove a ogni passo: i ciuffetti scattano, le foglioline saltano, l'impronta resta un momento e si rialza; sulla strada di mattoni, sulle lastre e sul ponte no. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -266,6 +266,11 @@ kbd {
         <span class="nome">Luci e ombre</span>
         <button type="button" data-luci="1" aria-pressed="true">Nuvole e sole</button>
         <button type="button" data-luci="0" aria-pressed="false">Spente</button>
+      </div>
+      <div class="fila" role="group" aria-label="Erba ai passi">
+        <span class="nome">Erba ai passi</span>
+        <button type="button" data-erba="1" aria-pressed="true">Si muove</button>
+        <button type="button" data-erba="0" aria-pressed="false">Ferma</button>
       </div>
       <div class="fila" role="group" aria-label="Ingrandimento">
         <span class="nome">Ingrandimento</span>
@@ -326,9 +331,10 @@ kbd {
   // quieta: da quanti millisecondi e' ferma senza che si tocchino i tasti (l'attesa, poi un'animazione a caso);
   // speciale: l'animazione da ferma pescata, finche' non riparte
   const lei = { x: D.partenza[0], y: D.partenza[1], verso: VERSI[D.verso.join(",")] || "su", tempo: 0, corre: false,
-    quieta: 0, speciale: null };
+    quieta: 0, speciale: null, posaPrima: -1 };
   let velocita = 185, ritmo = 1.15, zoom = 2, dopoNoia = 5000;
   let IM = null, passi = null, PW = 0, pronto = false;
+  let prato = null, mappaPx = null, nuvolaPx = null;     // dove e' prato; i colori della mappa; dove fa ombra la nuvola
   let gw = 1, gh = 1, sc = 1;
 
   // ---------------------------------------------------------------- immagini
@@ -356,7 +362,7 @@ kbd {
       im.animati[k] = { img: await immagine(a.img), n: a.n, ms: a.ms };
     }
     if (D.pozza) im.pozza = Object.assign({}, D.pozza, { img: await immagine(D.pozza.img) });
-    if (D.luci) { im.nuvole = await immagine(D.luci.ombra); im.sole = await immagine(D.luci.sole); }
+    if (D.luci) im.nuvole = await immagine(D.luci.ombra);
     try {
       await caricaAcqua();
     } catch (e) {
@@ -374,6 +380,27 @@ kbd {
       PW = p.width;
     } catch (e) {
       passi = null;          // senza la maschera si cammina dappertutto dentro la mappa
+    }
+    // l'erba ai passi: dove e' prato e i colori della mappa (per schiacciarla); dove la nuvola fa ombra (li' le macchie
+    // di sole sotto gli alberi si spengono). Se non si possono leggere, niente erba che salta e le macchie restano
+    try {
+      const pr = await immagine(D.prato);
+      if (pr.width !== PW) throw new Error("misura");
+      const a = pixelDi(pr);
+      prato = new Uint8Array(pr.width * pr.height);
+      for (let i = 0; i < prato.length; i++) prato[i] = a[i * 4 + 3] > 127 ? 1 : 0;
+      mappaPx = new Uint32Array(pixelDi(im.mappa).buffer);
+    } catch (e) {
+      prato = null;
+    }
+    try {
+      if (im.nuvole) {
+        const a = pixelDi(im.nuvole);
+        nuvolaPx = new Uint8Array(im.nuvole.width * im.nuvole.height);
+        for (let i = 0; i < nuvolaPx.length; i++) nuvolaPx[i] = a[i * 4] < 250 ? 1 : 0;
+      }
+    } catch (e) {
+      nuvolaPx = null;
     }
     return im;
   }
@@ -475,6 +502,14 @@ kbd {
       b.blur();
     });
   }
+  for (const b of document.querySelectorAll("[data-erba]")) {
+    b.addEventListener("click", () => {
+      ERBA.on = b.dataset.erba === "1";
+      ERBA.foglie = []; ERBA.impronte = []; ERBA.ciuffi = [];
+      for (const o of document.querySelectorAll("[data-erba]")) o.setAttribute("aria-pressed", String(o === b));
+      b.blur();
+    });
+  }
   for (const b of document.querySelectorAll("[data-z]")) {
     b.addEventListener("click", () => {
       zoom = +b.dataset.z;
@@ -486,7 +521,8 @@ kbd {
   document.getElementById("inizio").addEventListener("click", (e) => {
     lei.x = D.partenza[0]; lei.y = D.partenza[1];
     lei.verso = VERSI[D.verso.join(",")] || "su"; lei.tempo = 0; lei.corre = false; lei.quieta = 0;
-    lei.speciale = null;
+    lei.speciale = null; lei.posaPrima = -1;
+    ERBA.foglie = []; ERBA.impronte = []; ERBA.ciuffi = [];
     e.currentTarget.blur();
   });
   campo.addEventListener("pointerdown", () => campo.focus());
@@ -527,7 +563,7 @@ kbd {
   function aggiorna(dt) {
     const [dx, dy] = direzione();
     if (!dx && !dy) {
-      lei.corre = false; lei.tempo = 0; lei.quieta += dt * 1000;
+      lei.corre = false; lei.tempo = 0; lei.quieta += dt * 1000; lei.posaPrima = -1;
       if (lei.quieta < dopoNoia) lei.speciale = null;            // il cursore e' stato spostato piu' avanti
       else if (!lei.speciale && SPECIALI.length) { lei.speciale = pesca(); lei.verso = "giu"; }
       return;
@@ -539,12 +575,27 @@ kbd {
       const a = ciclo(VISTE[lei.verso]), b = ciclo(VISTE[verso]);
       lei.tempo = ((lei.tempo % a) / a) * b;
       lei.verso = verso;
+      lei.posaPrima = -1;
     }
     const x0 = lei.x, y0 = lei.y;
     cammina(dx, dy, dt);
     // le gambe vanno con la strada fatta: contro un muro si fermano
     lei.tempo += Math.hypot(lei.x - x0, lei.y - y0) / velocita * 1000 * ritmo;
     lei.corre = lei.tempo > 0;
+    if (lei.corre) passo(VISTE[lei.verso]);
+  }
+  // i fotogrammi passati da quello di prima: se in uno il piede tocca terra (D.appoggi, dai fogli della corsa), li'
+  // l'erba salta. Il primo fotogramma dopo una fermata o una girata non conta: il piede era gia' per terra
+  function passo(v) {
+    const i = posa(v, lei.tempo), prima = lei.posaPrima;
+    lei.posaPrima = i;
+    if (prima < 0 || i === prima) return;
+    for (let k = (prima + 1) % v.n; ; k = (k + 1) % v.n) {
+      for (const [f, dx, w] of (D.appoggi && D.appoggi[v.foglio]) || []) {
+        if (f === k) { ERBA.tocchi++; pesta(Math.round(lei.x) + (v.specchio ? -dx - 1 : dx), Math.round(lei.y) + 2, w); }
+      }
+      if (k === i) break;
+    }
   }
 
   // ---------------------------------------------------------------- l'acqua
@@ -1055,9 +1106,10 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   }
 
   // ---------------------------------------------------------------- luci e ombre che si muovono
-  // Le ombre delle nuvole che passano col vento (una tessera da moltiplicare: scuriscono tirando al viola) e il sole nei
-  // sereni (una tessera da sommare a schermo), sopra tutta la scena, lei compresa. Sotto le chiome degli alberi grandi,
-  // macchioline di sole che si accendono, si spengono e ondeggiano col vento, come la luce fra le foglie.
+  // Le ombre delle nuvole che passano col vento, sopra tutta la scena, lei compresa: sagome tonde e nette di un tono
+  // solo (una tessera da moltiplicare: toglie piu' rosso che blu, l'ombra tira al blu come nelle rampe del prato).
+  // Sotto le chiome degli alberi grandi, macchioline di sole che si accendono, si spengono e ondeggiano col vento,
+  // come la luce fra le foglie; quando passa una nuvola si spengono.
   const LUCI = { on: true, t: 0, macchie: [] };
   function preparaMacchie() {
     // l'ombra della chioma per terra e' un ovale (come nella mappa: centro 5 a destra e 3 su dal piede, raggi 0.56 e
@@ -1079,11 +1131,19 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
       }
     });
   }
+  function inNuvola(x, y) {
+    // la tessera e' ferma nel mondo e scorre col vento: il punto del mondo (x, y) cade qui nella tessera
+    if (!nuvolaPx) return false;
+    const T = IM.nuvole.width, [vx, vy] = D.luci.vento;
+    const tx = (((x - Math.floor(LUCI.t * vx)) % T) + T) % T, ty = (((y - Math.floor(LUCI.t * vy)) % T) + T) % T;
+    return nuvolaPx[ty * T + tx] === 1;
+  }
   function macchieDiSole(g, cx, cy) {
     g.globalCompositeOperation = "screen";
     for (const m of LUCI.macchie) {
       const x = m.x - cx + Math.round(1.4 * Math.sin(LUCI.t * 0.9 + m.o)), y = m.y - cy;
       if (x < -3 || y < -3 || x > gw + 3 || y > gh + 3) continue;
+      if (inNuvola(m.x, m.y)) continue;
       const v = Math.sin(2 * Math.PI * (LUCI.t / m.T + m.f));
       if (v < 0.3) continue;
       if (v > 0.75) {
@@ -1100,11 +1160,134 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     const T = IM.nuvole.width, [vx, vy] = D.luci.vento;
     const ox = Math.floor(LUCI.t * vx), oy = Math.floor(LUCI.t * vy);
     const sx0 = (((ox - cx) % T) + T) % T - T, sy0 = (((oy - cy) % T) + T) % T - T;
-    for (const [im, modo] of [[IM.nuvole, "multiply"], [IM.sole, "screen"]]) {
-      g.globalCompositeOperation = modo;
-      for (let y = sy0; y < gh; y += T) for (let x = sx0; x < gw; x += T) g.drawImage(im, x, y);
-    }
+    g.globalCompositeOperation = "multiply";
+    for (let y = sy0; y < gh; y += T) for (let x = sx0; x < gw; x += T) g.drawImage(IM.nuvole, x, y);
     g.globalCompositeOperation = "source-over";
+  }
+
+  // ---------------------------------------------------------------- l'erba ai passi
+  // A ogni passo sul prato: ai lati del piede due ciuffetti di fili scattano in fuori e si richiudono; l'erba sotto il
+  // piede si schiaccia (scende di un gradino lungo la rampa del prato, come le ombre della mappa) e si rialza; tre o
+  // quattro foglioline saltano su fino alle ginocchia, girando, e ricadono nell'erba. Le foglioline sono grandi come
+  // quelle disegnate nel prato, chiare sopra, il base in mezzo e un pixel scurissimo dalla parte dell'ombra (la luce
+  // viene da in alto a sinistra, come in tutta la mappa): nel prato il chiarissimo e lo scurissimo non stanno mai
+  // vicini, cosi' non si confondono col disegno dell'erba. Sulla strada di mattoni, sulle lastre della piazza, sui ciottoli: niente. Dove e' prato lo dice la
+  // maschera fatta con la mappa (ruscello_radenna.py, prato_vero); quando il piede tocca terra lo dicono i fogli della
+  // corsa (costruisci.py, appoggi)
+  const ERBA = { on: true, foglie: [], impronte: [], ciuffi: [], tocchi: 0, pestate: 0 };   // tocchi, pestate: prove
+  const RAMPA = D.erba.rampa;                            // dal piu' scuro al piu' chiaro
+  const RAMPA_RGB = RAMPA.map(([r, g, b]) => "rgb(" + r + "," + g + "," + b + ")");
+  const GRADINO = new Map();                             // colore della mappa (come in mappaPx) -> gradino della rampa
+  const chiaveColore = ([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0;
+  RAMPA.forEach((c, i) => GRADINO.set(chiaveColore(c), i));
+  for (const c of D.erba.fiori) GRADINO.set(chiaveColore(c), RAMPA.length - 1);      // i fiori contano come la luce
+  const SALTO = 300;                                     // quanto tira giu' (px/s^2)
+  const IMPRONTA = [0.25, 0.6, 0.9];   // l'impronta: il mezzo due gradini fino a, tutta fino a, il mezzo fino a (s)
+  // la fogliolina che gira: quattro pose (aperta, di taglio, aperta dall'altra parte, di taglio) di pixel
+  // [x, y, tono: 0 la luce, 1 il base, 2 lo scurissimo]; a specchio se va a sinistra. La grande e' come le foglioline
+  // del prato (XXX. / .XXX), la piccola tre pixel
+  const POSE = [
+    [[[0, 0, 0], [1, 0, 0], [2, 0, 0], [1, 1, 1], [2, 1, 1], [3, 1, 2]],
+      [[0, 0, 0], [1, 0, 0], [2, 0, 1], [3, 0, 2]],
+      [[1, 0, 0], [2, 0, 0], [3, 0, 0], [0, 1, 2], [1, 1, 1], [2, 1, 1]],
+      [[0, 0, 0], [1, 0, 0], [2, 0, 1], [3, 0, 2]]],
+    [[[0, 0, 0], [1, 0, 0], [1, 1, 2]], [[0, 0, 0], [1, 0, 2]], [[0, 0, 0], [1, 0, 0], [0, 1, 2]], [[0, 0, 0], [1, 0, 2]]],
+  ];
+  const TONI_FOGLIA = [4, 3, 0];                          // i gradini della rampa: luce, base, profondo
+  // il ciuffetto a sinistra del piede (a destra a specchio): tre fili che scattano in fuori, poi si richiudono;
+  // [x, y, tono: 0 la luce, 1 lo scuro (il piede del ciuffo), 2 il medio (dove il filo nasce)] dal piede del ciuffo,
+  // tre pose da 60 ms
+  const CIUFFO = [
+    [[0, 0, 1], [-1, 0, 1], [-1, -1, 2], [-2, -2, 0], [-3, -3, 0], [-4, -4, 0],
+      [0, -1, 2], [0, -2, 0], [-1, -3, 0], [-1, -4, 0], [1, -1, 0], [2, -2, 0]],
+    [[0, 0, 1], [-1, 0, 1], [-1, -1, 2], [-2, -2, 0], [-3, -2, 0], [0, -1, 2], [0, -2, 0], [0, -3, 0]],
+    [[0, 0, 1], [-1, -1, 0], [0, -1, 0], [0, -2, 0]],
+  ];
+  const TONI_CIUFFO = [4, 1, 2];                          // i gradini della rampa per i tre toni
+  const VERSO_XY = { destra: [1, 0], sinistra: [-1, 0], giu: [0, 1], su: [0, -1] };
+  let semeErba = 7;
+  const casoErba = () => ((semeErba = (semeErba * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  function erbaQui(x, y) {
+    const mx = x - LX0, my = y - LY0;
+    if (!prato || mx < 0 || my < 0 || mx >= LW || my >= LH) return false;
+    return prato[my * PW + mx] === 1;
+  }
+  function gradino(x, y) {
+    const g = GRADINO.get(mappaPx[(y - LY0) * PW + (x - LX0)]);
+    return g === undefined ? -1 : g;
+  }
+  function pesta(x, y, w) {
+    // (x, y): il mezzo della suola sull'ultima riga; w: quanto e' larga
+    if (!ERBA.on || !prato) return;
+    const h = w >> 1, yc = y - 1;
+    for (const [ax, ay] of [[0, 0], [-h, 0], [h, 0], [0, 1]]) if (!erbaQui(x + ax, yc + ay)) return;
+    // l'impronta: tre righe sotto la suola, quella di mezzo un pixel piu' larga per parte
+    const px = [];
+    for (let j = -1; j <= 1; j++) {
+      const a = j === 0 ? h + 1 : h;
+      for (let i = -a; i <= a; i++) {
+        const qx = x + i, qy = yc + j;
+        if (!erbaQui(qx, qy)) continue;
+        const g = gradino(qx, qy);
+        if (g > 0) px.push([qx, qy, g, j === 0 && Math.abs(i) < h]);         // il gradino dell'erba; il mezzo
+      }
+    }
+    ERBA.impronte.push({ t: 0, px });
+    ERBA.pestate++;
+    // i ciuffetti ai due lati del piede
+    for (const lato of [-1, 1]) ERBA.ciuffi.push({ x: x + lato * (h + 1), y, lato, t: 0 });
+    // le foglioline: dai due lati del piede, buttate un poco indietro, fino all'altezza delle ginocchia (davanti agli
+    // stivali scuri si vedono bene); due grandi, le altre piccole
+    const [dx, dy] = VERSO_XY[lei.verso] || [0, 0];
+    const n = 3 + (casoErba() < 0.5 ? 1 : 0), primo = casoErba() < 0.5 ? -1 : 1;
+    for (let k = 0; k < n; k++) {
+      const lato = k < 2 ? (k === 0 ? primo : -primo) : (casoErba() < 0.5 ? -1 : 1);
+      const fx = x + lato * (h + 1 + Math.floor(casoErba() * 2)), fy = yc - 1 + Math.floor(casoErba() * 3);
+      ERBA.foglie.push({
+        x: fx, y: fy, z: 0, t: 0, giro: lato, forma: k < 2 ? 0 : 1, fase: 2 * Math.floor(casoErba() * 2),
+        vx: lato * (12 + casoErba() * 18) - dx * 14, vy: (casoErba() - 0.5) * 6 - dy * 10,
+        vz: 70 + casoErba() * 30,
+      });
+    }
+  }
+  function avanzaErba(dt) {
+    for (const f of ERBA.foglie) {
+      f.t += dt; f.x += f.vx * dt; f.y += f.vy * dt;
+      f.vz -= SALTO * dt; f.z += f.vz * dt;
+    }
+    ERBA.foglie = ERBA.foglie.filter((f) => f.z > 0 || f.t < 0.05);      // ricadute nell'erba: sparite
+    for (const m of ERBA.impronte) m.t += dt;
+    ERBA.impronte = ERBA.impronte.filter((m) => m.t < IMPRONTA[2]);
+    for (const c of ERBA.ciuffi) c.t += dt;
+    ERBA.ciuffi = ERBA.ciuffi.filter((c) => c.t < 0.18);
+  }
+  function impronte(g, cx, cy) {
+    // l'erba schiacciata: appena pestata il mezzo e' due gradini piu' scuro e il giro uno; poi tutta un gradino; poi
+    // si rialza dai bordi e resta solo il mezzo; poi niente. Dietro di lei resta per un momento la fila dei passi,
+    // dal piu' fresco al piu' vecchio
+    for (const m of ERBA.impronte) {
+      const fresca = m.t < IMPRONTA[0], tutta = m.t < IMPRONTA[1];
+      for (const [x, y, gr, mezzo] of m.px) {
+        if (!tutta && !mezzo) continue;
+        g.fillStyle = RAMPA_RGB[Math.max(0, gr - (fresca && mezzo ? 2 : 1))];
+        g.fillRect(x - cx, y - cy, 1, 1);
+      }
+    }
+  }
+  function foglia(g, f, cx, cy) {
+    const x = Math.round(f.x) - cx, y = Math.round(f.y - f.z) - cy;
+    const posa = POSE[f.forma][(f.fase + Math.floor(f.t / 0.07)) % 4], w = f.forma === 0 ? 3 : 1;
+    for (const [a, b, c] of posa) {
+      g.fillStyle = RAMPA_RGB[TONI_FOGLIA[c]];
+      g.fillRect(x + (f.giro > 0 ? a : w - a), y + b - 1, 1, 1);
+    }
+  }
+  function ciuffo(g, c, cx, cy) {
+    const posa = CIUFFO[Math.min(CIUFFO.length - 1, Math.floor(c.t / 0.06))];
+    for (const [a, b, k] of posa) {
+      g.fillStyle = RAMPA_RGB[TONI_CIUFFO[k]];
+      g.fillRect(c.x - cx + (c.lato < 0 ? a : -a), c.y - cy + b, 1, 1);
+    }
   }
 
   // ---------------------------------------------------------------- disegno
@@ -1173,6 +1356,7 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
       const P = IM.pozza;
       g.drawImage(P.img, fotogramma(P) * P.w, 0, P.w, P.h, LX0 + P.x - cx, LY0 + P.y - cy, P.w, P.h);
     }
+    if (ERBA.on) impronte(g, cx, cy);
     const luci = LUCI.on && IM.nuvole;
     if (luci) macchieDiSole(g, cx, cy);
     // i pezzi che stanno in piedi e Lei, in ordine di piede: chi ha il piede piu' in basso e' davanti
@@ -1189,7 +1373,12 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
         lista.push([p[2], 0, i, () => g.drawImage(im, x0 - cx, y0 - cy)]);
       }
     });
+    camera = [cx, cy];
     lista.push([ly, 1, 0, () => disegnaLei(g, lx - cx, ly - cy)]);
+    if (ERBA.on) {
+      for (const c of ERBA.ciuffi) lista.push([c.y, 2, 0, () => ciuffo(g, c, cx, cy)]);
+      for (const f of ERBA.foglie) lista.push([f.y, 2, 0, () => foglia(g, f, cx, cy)]);
+    }
     lista.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
     for (const voce of lista) voce[3]();
     if (luci) nuvole(g, cx, cy);
@@ -1217,14 +1406,15 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     if (t !== scritto) { stato.innerHTML = t; scritto = t; }
   }
 
-  let prima = performance.now();
+  let prima = performance.now(), inPausa = false, camera = [0, 0];
   function giro(ora) {
     const dt = Math.min(0.05, Math.max(0, (ora - prima) / 1000));
     prima = ora;
-    if (pronto) {
+    if (pronto && !inPausa) {
       aggiorna(dt);
       avanzaAcqua(dt);
       if (LUCI.on) LUCI.t += dt;
+      avanzaErba(dt);
       disegna();
       scriviStato();
     }
@@ -1237,6 +1427,14 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   caricaTutto().then((im) => {
     IM = im;
     preparaMacchie();
+    if (QS.has("prova")) {
+      // per le prove: il tempo fermo (pausa) e che va avanti a passi esatti (avanti, in millisecondi)
+      window.provaErba = { ERBA, LUCI, lei, erbaQui, inNuvola, pausa: (b) => { inPausa = b; }, camera: () => [camera[0], camera[1], sc],
+        avanti: (ms) => {
+          for (let t = 0; t < ms - 1e-6; t += 1000 / 60) { aggiorna(1 / 60); avanzaAcqua(1 / 60); LUCI.t += 1 / 60; avanzaErba(1 / 60); }
+          disegna();
+        } };
+    }
     pronto = true;
     carico.hidden = true;
     misura();

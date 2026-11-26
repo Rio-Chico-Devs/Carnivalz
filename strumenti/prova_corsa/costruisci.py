@@ -12,6 +12,8 @@ import numpy as np
 from PIL import Image
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+sys.path.insert(0, os.path.join(REPO, 'strumenti', 'livelli'))
+from prato import TINTE                                     # noqa: E402  (i colori del prato della mappa)
 MODELLO, USCITA, ACQUA = sys.argv[1:4]
 LEI = os.path.join(REPO, 'strumenti/protagonisti/lei_chibi')
 LIV = os.path.join(REPO, 'art/livelli')
@@ -37,6 +39,7 @@ dati = {
     },
     'mappa': uri(os.path.join(LIV, pianta['mappa'])),
     'passi': uri(os.path.join(LIV, pianta['passi'])),
+    'prato': uri(os.path.join(LIV, pianta['prato'])),
     'immagini': {f: uri(os.path.join(LIV, f)) for f in sorted(set(p[0] for p in pezzi))},
     'pezzi': [[p[0], int(p[1]), int(p[2]), int(p[3]), int(p[4])] for p in pezzi],
     'limiti': pianta['limiti'],
@@ -75,9 +78,33 @@ acqua['dati'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati.png'))
 acqua['frazioni'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati_frazioni.png'))
 acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna_tavolozza.png'))   # coi colori nuovi
 dati['acqua'] = acqua
-# le luci e le ombre che si muovono: le tessere delle nuvole (strumenti/livelli/luci.py) e il vento, in pixel al secondo
-dati['luci'] = {'ombra': uri(os.path.join(LIV, 'terreni', 'nuvole_ombra.png')),
-                'sole': uri(os.path.join(LIV, 'terreni', 'nuvole_sole.png')), 'vento': [14, 5]}
+# le ombre delle nuvole che passano: la tessera (strumenti/livelli/luci.py) e il vento, in pixel al secondo
+dati['luci'] = {'ombra': uri(os.path.join(LIV, 'terreni', 'nuvole_ombra.png')), 'vento': [14, 5]}
+
+
+# l'erba ai passi: quando un piede tocca terra nella corsa. E' il fotogramma in cui la suola arriva sull'ultima riga
+# (la 80) e nel fotogramma prima li' non c'era niente (il piede era in aria) o c'era l'altro piede (nessuna colonna in
+# comune). Per ognuno: il fotogramma, la colonna di mezzo della suola dal punto per terra (colonna 20) e la larghezza
+def appoggi(nome, n, w=40):
+    a = np.asarray(Image.open(os.path.join(LEI, nome + '.png')).convert('RGBA'))[..., 3] > 0
+    assert a.shape == (81, n * w), nome
+    suola = [a[80, i * w:(i + 1) * w] for i in range(n)]
+    out = []
+    for i in range(n):
+        if suola[i].any() and not (suola[i] & suola[i - 1]).any():
+            c = np.nonzero(suola[i])[0]
+            out.append([i, int((c.min() + c.max()) // 2) - w // 2, int(c.max() - c.min() + 1)])
+    assert len(out) == 2, (nome, out)          # un appoggio per piede a ogni giro
+    return out
+
+
+dati['appoggi'] = {'fronte': appoggi('davanti_corsa', 12), 'spalle': appoggi('dietro_corsa', 9),
+                   'lato': appoggi('lato_corsa', 12), 'latoSx': appoggi('lato_sinistro_corsa', 12)}
+# i colori del prato della mappa (ruscello_radenna.PRATO): la rampa dal piu' scuro al piu' chiaro e i fiori
+_P = TINTE['A']
+dati['erba'] = {'rampa': [_P[k] for k in ('profondo', 'scuro', 'medio', 'base', 'luce')],
+                'fiori': [_P['petalo'], _P['cuore']]}
+print('appoggi', dati['appoggi'])
 with open(os.path.join(ACQUA, 'pezzi', 'pezzi_anim.json'), encoding='utf-8') as f:
     anim = json.load(f)
 dati['animati'] = {}
