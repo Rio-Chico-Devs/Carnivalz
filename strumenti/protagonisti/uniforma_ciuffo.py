@@ -24,7 +24,7 @@ if note.get('_ciuffo'):
     print('il ciuffo e\' gia\' stato ridotto'); sys.exit(0)
 
 
-FASCIA = (114, 38, 63)
+FASCIA = (126, 33, 64)
 
 
 def laccio(f):

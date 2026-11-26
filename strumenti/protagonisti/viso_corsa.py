@@ -5,7 +5,8 @@ riflesso verso l'esterno, pupilla e magenta verso il naso), le stesse ciglia e l
 naso della ferma: un pixel di luce all'altezza del fondo degli occhi e uno d'ombra sotto.
 Gli occhi restano attaccati ai capelli ai lati, come nella ferma: il viso della corsa e' largo un pixel in piu', e
 quel pixel va fra gli occhi. Il viso sta un po' piu' su o piu' giu' (e di un pixel a destra) secondo il fotogramma:
-POSTO dice dove, rispetto al fotogramma 0. Colori della corsa (pelle e occhi), la luce del naso come nella ferma.
+POSTO dice dove, rispetto al fotogramma 0. La pelle coi colori della corsa, la luce del naso come nella ferma; gli
+occhi coi colori della ferma (uniforma_colori.py: le pose hanno tutte i colori di fronte).
 Rifarlo non cambia niente (toglie gli occhi e rimette gli stessi).
 uso: viso_corsa.py davanti_corsa.png [anteprima.png]"""
 import sys
@@ -14,12 +15,12 @@ import numpy as np
 from PIL import Image
 
 NERO = (6, 7, 15)
-# i colori della ferma (le lettere) tradotti in quelli della corsa
+# i colori delle lettere: gli occhi come nella ferma, la pelle quella della corsa
 COL = {'l': NERO,
-       'A': (187, 144, 170),     # luce dell'iride
-       'B': (78, 34, 90),        # pupilla
-       '1': (125, 62, 135),      # magenta
-       '0': (245, 205, 226),     # riflesso
+       'A': (196, 166, 177),     # luce dell'iride
+       'B': (70, 30, 92),        # pupilla
+       '1': (124, 58, 128),      # magenta
+       '0': (251, 217, 213),     # riflesso
        'e': (179, 135, 104),     # pelle
        'c': (157, 121, 101),     # pelle in ombra
        'd': (133, 102, 90),      # pelle scura
@@ -46,8 +47,8 @@ SX, DX, NX, RIGA = 10, 23, 16, 35
 POSTO = [(0, 0), (0, 1), (0, 2), (0, 4), (0, 4), (0, 2), (0, 1), (0, 2), (1, 3), (1, 4), (1, 4), (0, 1)]
 # cosa si toglie dei vecchi occhi (diventa pelle): nelle ciglia il nero, nell'iride anche i colori degli occhi e i
 # chiari usati come bianco; i capelli scuri e le ombre della pelle ai lati restano
-OCCHI = {NERO, (78, 34, 90), (125, 62, 135), (187, 144, 170), (245, 205, 226),
-         (191, 172, 209), (206, 185, 223), (168, 148, 189)}
+OCCHI = {NERO, (70, 30, 92), (124, 58, 128), (196, 166, 177), (251, 217, 213),
+         (196, 185, 225), (228, 215, 241), (148, 136, 190)}
 VECCHI = [(RIGA, RIGA + 6, 10, 16), (RIGA, RIGA + 6, 22, 29)]     # righe e colonne dei vecchi occhi
 
 

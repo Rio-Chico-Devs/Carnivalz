@@ -15,7 +15,7 @@ from PIL import Image
 
 LEI = sys.argv[1]
 K = 1                        # il fotogramma della corsa da cui si prende la testa
-FASCIA = (114, 38, 63)
+FASCIA = (126, 33, 64)
 NOTTE = {(24, 20, 33): (6, 7, 15), (40, 37, 54): (22, 37, 52), (55, 50, 68): (49, 59, 70), (72, 63, 82): (69, 79, 85)}
 LATTICE = {(6, 7, 15), (22, 37, 52), (49, 59, 70), (69, 79, 85)}
 COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85)}
@@ -44,7 +44,7 @@ VICINA = ['.lllllll....',
 COSCE = ['.dceeeecd', '.dceeeecd', '.dceeeeed']
 PELLI = {'d': (127, 86, 89), 'c': (160, 114, 107), 'e': (185, 145, 108)}
 # la treccia: quella della corsa, che scende davanti al collo fino al petto (Bru: "hai rimosso le trecce?")
-CAPELLI_CORSA = {(86, 69, 107), (110, 91, 132), (124, 105, 147), (168, 148, 189), (191, 172, 209), (206, 185, 223)}
+CAPELLI_CORSA = {(87, 66, 125), (114, 91, 145), (123, 102, 156), (148, 136, 190), (196, 185, 225), (228, 215, 241)}
 
 
 def leggi(nome):
@@ -129,7 +129,7 @@ def sinistra(testa_sx, cima):
         out[y, 11, :3] = (6, 7, 15); out[y, 11, 3] = 255
     out[65:68, :12] = 0                             # anche la coscia vecchia davanti (x 10-11)
     # i buchi fra treccia e collo e fra pantaloncini e mano
-    for y, x, c in ((47, 14, (86, 69, 107)), (49, 15, PELLE_OMBRA), (50, 15, PELLE_OMBRA), (64, 14, (6, 7, 15))):
+    for y, x, c in ((47, 14, (87, 66, 125)), (49, 15, PELLE_OMBRA), (50, 15, PELLE_OMBRA), (64, 14, (6, 7, 15))):
         if out[y, x, 3] == 0:
             out[y, x, :3] = c; out[y, x, 3] = 255
     return out

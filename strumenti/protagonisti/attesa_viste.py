@@ -76,7 +76,7 @@ def righe(H, W, intervalli):
 
 # ---------------------------------------------------------------- le punte che si piegano
 LATTICE = {(6, 7, 15), (22, 37, 52), (49, 59, 70), (69, 79, 85)}
-FASCIA = (114, 38, 63)
+FASCIA = (126, 33, 64)
 
 
 def laccio(src):
