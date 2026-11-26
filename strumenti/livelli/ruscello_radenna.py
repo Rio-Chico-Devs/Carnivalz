@@ -41,6 +41,7 @@ sys.path.insert(0, QUI)
 sys.path.insert(0, os.path.join(QUI, '..'))
 import prato as _prato           # noqa: E402  il prato con la tecnica degli esempi di Bru (108)
 import tavolozza as _tav         # noqa: E402  le tavolozze col segreto degli esempi di Bru
+import piante as _piante         # noqa: E402  alberi, pini e cespugli a misura di lei (109, 110)
 LIV = os.path.join(QUI, '..', '..', 'art', 'livelli')
 TER = os.path.join(LIV, 'terreni')
 PEZ = os.path.join(LIV, 'pezzi')
@@ -658,9 +659,11 @@ def prepara_specchiati():
 
 def impronta(nome, w, h):
     # dove non si passa, attorno al piede: (mezza larghezza, mezza altezza) dell'ovale
+    if 'albero_alto' in nome or 'pino_alto' in nome:
+        return (11, 5)                                 # il tronco degli alberi grandi
     if 'albero' in nome or 'pino' in nome:
         return (9, 4)
-    if 'cespuglione' in nome:
+    if 'cespugli' in nome:
         return (int(w * 0.36), 7)
     for chiave, imp in (('colonna', (22, 7)), ('vasca_pietra', (42, 10)), ('vasche_gradini', (40, 12))):
         if chiave in nome:
@@ -672,30 +675,32 @@ def impronta(nome, w, h):
 
 # le cose in piedi, a gruppi e con un motivo: (nome, x, y del piede)
 ALBERI = [
-    # il bosco in alto a sinistra: pini, alberelli e cespuglioni, fitto nell'angolo
-    ('pino_2', 34, 96), ('pino_1', 84, 64), ('pino_3', 10, 170), ('albero_3', 160, 130), ('albero_2', 116, 186),
-    ('cespuglione_verde', 250, 72), ('pino_2_s', 320, 34), ('albero_4', 52, 238),
-    # il bordo in alto, a gruppetti, coi varchi della strada e del ruscello
-    ('pino_1', 402, 26), ('albero_1', 446, 42), ('cespuglione_verde_s', 490, 14),
-    ('pino_1_s', 704, 28), ('albero_3', 744, 46), ('albero_1', 820, 40), ('pino_3', 902, 22),
+    # Bru (26 novembre): le piante alla misura giusta rispetto a lei (alta 73): alberi ~3 volte lei, pini ~3,5,
+    # cespugli poco piu' di lei o a meta' (strumenti/livelli/piante.py). Sono grandi, quindi piu' rade: incorniciano
+    # i bordi, lasciano liberi la strada, il ponte, lo stagno e l'arrivo; si sbatte solo contro i tronchi.
+    # il boschetto in alto a sinistra (piedi abbastanza giu' che la chioma si veda tutta)
+    ('pino_alto_2', 40, 200), ('albero_alto_1', 160, 172), ('pino_alto_1', 262, 140), ('cespuglio_1', 112, 280),
+    # il bordo in alto, coi varchi della strada e del ruscello
+    ('albero_alto_3', 418, 150), ('pino_alto_3', 506, 122), ('albero_alto_2', 790, 172), ('pino_alto_1', 900, 150),
+    ('cespuglietto_1', 846, 196),
     # in alto a destra, oltre il ruscello
-    ('pino_1', 1132, 46), ('albero_2', 1160, 98), ('pino_3', 1198, 140), ('pino_2', 1252, 66),
-    ('cespuglione_verde_s', 1250, 250),
+    ('albero_alto_4', 1180, 182), ('pino_alto_2', 1252, 252), ('cespuglio_2', 1118, 232),
     # il bordo a destra
-    ('pino_3', 1264, 360), ('albero_4', 1238, 402), ('pino_1', 1268, 536), ('albero_1', 1236, 584),
-    # il bordo in basso, a gruppi, col varco della strada
-    ('pino_1_s', 20, 656), ('albero_1', 64, 712), ('albero_2', 120, 676), ('cespuglione_verde_s', 176, 718),
-    ('pino_2', 262, 708), ('pino_3', 300, 686),
-    ('albero_3', 424, 702), ('cespuglione_verde', 478, 716),
-    ('pino_2_s', 716, 718), ('albero_1', 760, 698),
-    ('albero_3', 880, 716), ('pino_3', 944, 704), ('albero_4', 978, 684),
-    ('cespuglione_verde', 1052, 716), ('pino_2_s', 1150, 714), ('albero_2', 1198, 670), ('pino_1', 1242, 642),
-    ('pino_2_s', 1266, 716),
+    ('pino_alto_3', 1254, 330), ('albero_alto_1', 1228, 474), ('pino_alto_1', 1256, 600),
+    # il bordo in basso: solo gli angoli, l'arrivo e la strada restano liberi
+    ('albero_alto_2', 44, 704), ('pino_alto_2', 150, 694), ('cespuglio_1', 256, 716),
+    ('cespuglietto_1', 900, 716), ('albero_alto_3', 1006, 706), ('pino_alto_3', 1110, 694),
+    ('albero_alto_4', 1206, 716),
     # il bordo a sinistra
-    ('pino_2', 14, 304), ('albero_4', 34, 352), ('cespuglione_verde', 22, 428), ('pino_1_s', 10, 470),
+    ('albero_alto_4', 32, 336), ('cespuglio_2', 24, 462),
     # l'albero solo, nel prato grande
-    ('albero_2', 962, 470),
+    ('albero_alto_2', 962, 470),
 ]
+# le piante nuove: (nome, che cosa, quanto alta, seme)
+PIANTE = [('albero_alto_1', 'albero', 205, 3), ('albero_alto_2', 'albero', 222, 11), ('albero_alto_3', 'albero', 236, 17),
+          ('albero_alto_4', 'albero', 214, 23), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
+          ('pino_alto_3', 'pino', 276, 13), ('cespuglio_1', 'cespuglio', 80, 5), ('cespuglio_2', 'cespuglio', 68, 19),
+          ('cespuglietto_1', 'cespuglio', 50, 8)]
 COSE = [
     # la piazza antica: due colonne in diagonale, la vasca di pietra accanto
     ('colonna_rovina', 600, 452), ('colonna_rovina_s', 702, 576), ('vasca_pietra', 794, 522),
@@ -720,7 +725,7 @@ LUCI = [(0, 420, 120), (2, 444, 136), (3, 404, 146), (1, 880, 60), (3, 900, 74),
 
 
 FUSI = 'pezzi/ruscello/fusi/'                 # i pezzi di questa mappa col contorno fuso (da art/livelli/)
-NATURA = ('pino', 'albero', 'cespuglione', 'masso', 'sasso')
+NATURA = ('pino', 'albero', 'cespugli', 'masso', 'sasso')
 SCURO = np.array(PRATO['profondo'], float)      # l'ombra viola del prato, per il contorno di fuori
 ALFA_CONTORNO = 0.6
 
@@ -758,6 +763,13 @@ def fondi(a, natura):
     return a
 
 
+def prepara_piante():
+    # le piante nuove (strumenti/livelli/piante.py), coi semi fissi: sempre le stesse
+    for (n, che, alto, seme) in PIANTE:
+        a = getattr(_piante, che)(alto, seme)
+        _salva(a.astype(float), os.path.join(NUOVI, n + '.png'))
+
+
 def _fatto_di(n):
     # di che cosa e' fatto un pezzo: nei cespugli e negli alberi i verdi spenti e i gialli sono foglie, nei pini
     # aghi; nei sassi e nelle rovine i verdi sono muschio e il resto pietra
@@ -776,7 +788,9 @@ def prepara_fusi():
     for n in sorted(set(n for (n, x, y) in ALBERI + COSE)):
         f, piede, misura = pezzo(n)
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA'))
-        a = _tav.ricolora(a, sostituisci=_fatto_di(n)).astype(float)
+        if n not in {p[0] for p in PIANTE}:
+            a = _tav.ricolora(a, sostituisci=_fatto_di(n))
+        a = a.astype(float)
         _salva(fondi(a, any(k in n for k in NATURA)), os.path.join(LIV, FUSI + os.path.basename(f)))
 
 
@@ -890,7 +904,7 @@ def ombre(out, G):
     fatt = np.ones((H, W))
     for (n, f, fx, fy, piede, imp) in _impiedi():
         w = Image.open(os.path.join(LIV, f)).size[0]
-        if 'albero' in n or 'cespuglione' in n or 'pino' in n:
+        if 'albero' in n or 'cespugli' in n or 'pino' in n:
             rx = 0.56 * w; ry = 0.24 * w; cx, cy = fx + 5, fy - 3
             for y in range(int(cy - ry - 1), int(cy + ry + 2)):
                 for x in range(int(cx - rx - 1), int(cx + rx + 2)):
@@ -903,6 +917,8 @@ def ombre(out, G):
                                 giu[y, x] += 1
                             fatt[y, x] *= 0.8 if dentro else 0.9
         rx = max(5.0, 0.32 * w); ry = max(2.5, rx * 0.32); cx, cy = fx + 3, fy - 1
+        if 'albero_alto' in n or 'pino_alto' in n:
+            rx, ry = 13.0, 4.5                         # l'ombra dove il tronco tocca terra
         for y in range(int(cy - ry - 1), int(cy + ry + 2)):
             for x in range(int(cx - rx - 1), int(cx + rx + 2)):
                 if 0 <= y < H and 0 <= x < W and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
@@ -1000,6 +1016,7 @@ GIRO = [[612, 700], [650, 610], [650, 505], [650, 420], [672, 356], [700, 300], 
 def main():
     prepara_pianura()
     prepara_specchiati()
+    prepara_piante()
     prepara_fusi()
     t, F = pianta()
     terreno, G = disegna(t, F)
