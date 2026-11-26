@@ -69,6 +69,40 @@ for k in range(6):
     sposta(out, ciocche_attacco, c)
     sposta(out, corpo, b)
     fot.append(out)
+# il cerchio d'oro della fascia resta fermo (Bru: "nell'idle animation del front il cerchietto dorato non dovrebbe
+# muoversi"; prima saliva con la testa e nel quinto fotogramma il suo bordo di sopra, che sta nell'attacco del laccio,
+# restava su un pixel e lo allungava). Il cerchio e' l'oro, il suo bordo di marroni e quello che c'e' dentro; in tutti
+# i fotogrammi e' come nel primo, e cosi' la riga appena sopra, dove il cerchio sollevato lascerebbe il suo bordo
+ORO = {(97, 60, 20), (202, 153, 78), (250, 214, 129)}
+BORDO = {(130, 85, 80), (156, 116, 82)}           # i due marroni del bordo del cerchio
+
+
+def cerchio(img):
+    piena = img[..., 3] > 0
+    muro = np.zeros(piena.shape, bool)
+    for c in ORO | BORDO:
+        muro |= np.all(img[..., :3] == c, axis=-1) & piena
+    # dentro: quello che non si raggiunge dai bordi del foglio senza passare dal cerchio
+    h, w = muro.shape
+    fuori = np.zeros_like(muro)
+    pila = [(y, x) for y in range(h) for x in (0, w - 1)] + [(y, x) for x in range(w) for y in (0, h - 1)]
+    pila = [(y, x) for y, x in pila if not muro[y, x]]
+    for y, x in pila:
+        fuori[y, x] = True
+    while pila:
+        y, x = pila.pop()
+        for yy, xx in ((y, x + 1), (y + 1, x), (y, x - 1), (y - 1, x)):
+            if 0 <= yy < h and 0 <= xx < w and not muro[yy, xx] and not fuori[yy, xx]:
+                fuori[yy, xx] = True
+                pila.append((yy, xx))
+    return ~fuori
+
+
+fermo = np.zeros((H + MA, W), bool)
+fermo[MA:] = cerchio(src)
+fermo[:-1] |= fermo[1:].copy()                    # e la riga sopra
+for out in fot[1:]:
+    out[fermo] = fot[0][fermo]
 striscia = np.concatenate(fot, axis=1)
 Image.fromarray(striscia, 'RGBA').save(sys.argv[2])
 # anteprima: GIF ingrandita 6 volte su fondo chiaro, coi tempi della GIF di Bru
