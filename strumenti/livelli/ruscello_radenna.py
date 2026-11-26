@@ -663,6 +663,10 @@ def pezzo(nome):
         return 'pezzi/' + _CAT[nome]['file'], tuple(_CAT[nome]['piede']), tuple(_CAT[nome]['misura'])
     f = os.path.join(NUOVI, nome + '.png')
     a = np.asarray(Image.open(f).convert('RGBA'))[..., 3] > 0
+    if os.path.exists(os.path.join(NUOVI, nome + '.json')):
+        with open(os.path.join(NUOVI, nome + '.json')) as fj:
+            piede = tuple(json.load(fj)['piede'])
+        return 'pezzi/ruscello/' + nome + '.png', piede, (a.shape[1], a.shape[0])
     ys, xs = np.nonzero(a)
     giu = ys >= ys.max() - 3
     return 'pezzi/ruscello/' + nome + '.png', (int(round(xs[giu].mean())), int(ys.max())), (a.shape[1], a.shape[0])
@@ -677,8 +681,10 @@ def prepara_specchiati():
 
 def impronta(nome, w, h):
     # dove non si passa, attorno al piede: (mezza larghezza, mezza altezza) dell'ovale
-    if 'albero_alto' in nome or 'pino_alto' in nome:
-        return (11, 5)                                 # il tronco degli alberi grandi
+    if 'albero_alto' in nome:
+        return (18, 6)                                 # il tronco degli alberi esotici, con l'attacco delle radici
+    if 'pino_alto' in nome:
+        return (11, 5)                                 # il tronco dei pini
     if 'albero' in nome or 'pino' in nome:
         return (9, 4)
     if 'cespugli' in nome:
@@ -715,8 +721,10 @@ ALBERI = [
     ('albero_alto_2', 962, 470),
 ]
 # le piante nuove: (nome, che cosa, quanto alta, seme)
-PIANTE = [('albero_alto_1', 'albero', 205, 3), ('albero_alto_2', 'albero', 222, 11), ('albero_alto_3', 'albero', 236, 17),
-          ('albero_alto_4', 'albero', 214, 23), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
+# Bru: gli alberi tondi sembravano "un mucchio di palle"; ora sono alberi esotici (radici a contrafforte, chioma a
+# strati, liane e muschio): piante.albero_esotico
+PIANTE = [('albero_alto_1', 'albero_esotico', 205, 3), ('albero_alto_2', 'albero_esotico', 222, 11),
+          ('albero_alto_3', 'albero_esotico', 236, 17), ('albero_alto_4', 'albero_esotico', 214, 23), ('pino_alto_1', 'pino', 242, 2), ('pino_alto_2', 'pino', 262, 7),
           ('pino_alto_3', 'pino', 276, 13), ('cespuglio_1', 'cespuglio', 80, 5), ('cespuglio_2', 'cespuglio', 68, 19),
           ('cespuglietto_1', 'cespuglio', 50, 8)]
 COSE = [
@@ -784,7 +792,16 @@ def fondi(a, natura):
 def prepara_piante():
     # le piante nuove (strumenti/livelli/piante.py), coi semi fissi: sempre le stesse
     for (n, che, alto, seme) in PIANTE:
-        a = getattr(_piante, che)(alto, seme)
+        f = getattr(_piante, che)
+        if che == 'albero_esotico':
+            # l'albero sa dov'e' il suo piede (il mezzo del tronco a terra: le radici e le felci vanno piu' in la')
+            a, piede = f(alto, seme, con_piede=True)
+            with open(os.path.join(NUOVI, n + '.json'), 'w') as fj:
+                json.dump({'piede': list(piede)}, fj)
+        else:
+            a = f(alto, seme)
+            if os.path.exists(os.path.join(NUOVI, n + '.json')):
+                os.remove(os.path.join(NUOVI, n + '.json'))
         _salva(a.astype(float), os.path.join(NUOVI, n + '.png'))
 
 
@@ -935,7 +952,9 @@ def ombre(out, G):
                                 giu[y, x] += 1
                             fatt[y, x] *= 0.8 if dentro else 0.9
         rx = max(5.0, 0.32 * w); ry = max(2.5, rx * 0.32); cx, cy = fx + 3, fy - 1
-        if 'albero_alto' in n or 'pino_alto' in n:
+        if 'albero_alto' in n:
+            rx, ry = max(13.0, 0.13 * w), 6.0          # l'ombra sotto le radici a contrafforte
+        elif 'pino_alto' in n:
             rx, ry = 13.0, 4.5                         # l'ombra dove il tronco tocca terra
         for y in range(int(cy - ry - 1), int(cy + ry + 2)):
             for x in range(int(cx - rx - 1), int(cx + rx + 2)):
