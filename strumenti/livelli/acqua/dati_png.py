@@ -39,7 +39,8 @@ for (fx, fy, rx, ry) in A.sassi:
     i = int(np.clip(A.Uimg[int(fy), int(fx)], 0, N - 1))
     sassi.append([float(fx), float(fy), round(float(rx), 3), round(float(ry), 3), i])
 info = {
-    'AQ': A.AQ.astype(int).tolist(),
+    # i colori dell'acqua per la pagina: le tavolozze nuove (la tessera della pagina e' gia' ricolorata con questi)
+    'AQ': (d['AQ_NUOVA'] if 'AQ_NUOVA' in d else A.AQ).astype(int).tolist(),
     'lin': [round(float(v), 2) for v in A.lin.reshape(-1)],
     'wl': [round(float(v), 2) for v in A.wl],
     'sassi': sassi,

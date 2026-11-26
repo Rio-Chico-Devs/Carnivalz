@@ -73,7 +73,7 @@ with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f
 acqua.pop('conti', None)
 acqua['dati'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati.png'))
 acqua['frazioni'] = uri(os.path.join(ACQUA, 'dati', 'acqua_dati_frazioni.png'))
-acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna.png'))
+acqua['tessera'] = uri(os.path.join(LIV, 'terreni', 'acqua_radenna_tavolozza.png'))   # coi colori nuovi
 dati['acqua'] = acqua
 with open(os.path.join(ACQUA, 'pezzi', 'pezzi_anim.json'), encoding='utf-8') as f:
     anim = json.load(f)

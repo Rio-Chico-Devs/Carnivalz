@@ -20,6 +20,11 @@
 # funghi sono di altri biomi (Bru, 24 novembre): qui non ci sono. Il contorno di fuori dei pezzi e' fuso nel terreno
 # (fondi): scuro e mezzo trasparente, e alberi, cespugli e sassi hanno la base piantata nell'erba.
 #
+# Bru (26 novembre): il prato e i colori con la tecnica e le tavolozze dei suoi esempi (108-110). Il prato e' quello
+# di strumenti/livelli/prato.py; alla fine tutto (mappa, pezzi, acqua) va sulle rampe di strumenti/tavolozza.py
+# (ombre che girano verso il viola, luci verso il giallo, un'ombra comune per tutti i materiali); le ombre sul prato
+# scendono di gradini lungo la sua rampa; il bagliore turchese sull'erba non c'e' piu'.
+#
 # Scrive art/livelli/ruscello.png (il terreno, con le cose piatte), ruscello_pezzi.json (le cose in piedi, che il
 # gioco mette insieme a lei in ordine di piede), ruscello_passi.png (dove si cammina) e ruscello.json; e i pezzi
 # nuovi in art/livelli/pezzi/ruscello/, i terreni in art/livelli/terreni/.
@@ -32,6 +37,10 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 QUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, QUI)
+sys.path.insert(0, os.path.join(QUI, '..'))
+import prato as _prato           # noqa: E402  il prato con la tecnica degli esempi di Bru (108)
+import tavolozza as _tav         # noqa: E402  le tavolozze col segreto degli esempi di Bru
 LIV = os.path.join(QUI, '..', '..', 'art', 'livelli')
 TER = os.path.join(LIV, 'terreni')
 PEZ = os.path.join(LIV, 'pezzi')
@@ -46,6 +55,14 @@ P = np.array([(30, 40, 33), (44, 71, 50), (66, 84, 69), (84, 103, 85), (108, 122
 AQ = np.array([(1, 119, 127), (2, 133, 136), (2, 156, 149), (1, 182, 168), (2, 213, 192), (2, 231, 204),
                (18, 242, 218), (79, 253, 237), (117, 255, 252), (210, 255, 250)], float)
 FONDO = -10          # l'acqua del ruscello: 10 pixel sotto il prato
+# Bru (26 novembre): "usa sempre palette del genere" (gli esempi 108-110). I disegni e le tessere di Bru si leggono
+# ancora coi colori di prima (VERDI, P, AQ: servono a riconoscerli); alla fine la mappa, i pezzi e l'acqua passano
+# alle rampe nuove (strumenti/tavolozza.py): stesso indice per l'acqua e la pietra, la luce di ogni colore per il
+# resto. Il prato e' quello nuovo (strumenti/livelli/prato.py), nei colori degli esempi.
+PRATO = _prato.TINTE['A']
+PRATO_RAMPA = np.array([PRATO['profondo'], PRATO['scuro'], PRATO['medio'], PRATO['base'], PRATO['luce']], float)
+AQ_NUOVA = np.array(_tav.rampa((86, 176, 196), 10, 0.46, 0.96, 1.4, 0.35), float)
+P_NUOVA = np.array(_tav.rampa((150, 152, 146), 8, 0.30, 0.84, 1.4, 0.45), float)
 
 
 # ================================================================ dal foglio di Bru, ai pixel veri
@@ -482,20 +499,14 @@ def pianta():
 # ================================================================ i colori
 
 class Erba:
-    # i quattro quadrati d'erba di Bru mescolati a caso, e sopra le macchie larghe della pianura (piu' scure,
-    # piu' chiare) come nel suo disegno
+    # il prato con la tecnica degli esempi di Bru (108): base, macchie a nuvola, foglioline, luci e fiori
+    # (strumenti/livelli/prato.py), nei colori degli esempi; prima erano i quattro quadrati d'erba di Bru
     def __init__(self, hg, seme):
-        rng = np.random.default_rng(seme)
-        tiles = [np.asarray(Image.open(os.path.join(TER, 'erba_radenna%s.png' % s)).convert('RGB')).astype(float)
-                 for s in ('', '_2', '_3', '_4')]
-        self.k = np.stack([((VERDI[None, None] - a[..., None, :]) ** 2).sum(-1).argmin(-1) for a in tiles])
-        self.mappa = rng.integers(4, size=(hg // 64 + 2, W // 64 + 2))
-        m = liscio(hg, W, 120, seme + 1) * 0.6 + liscio(hg, W, 41, seme + 2) * 0.4
-        self.macchia = np.array([-2, 0, 1, 2])[np.digitize(m, np.quantile(m, [0.22, 0.55, 0.8]))]
+        passi, _ = _prato.prato(hg, W, seme=seme + 20, tav=PRATO)
+        self.img = passi[3].astype(float)
 
     def colori(self, X, G):
-        k = self.k[self.mappa[G // 64, X // 64], G % 64, X % 64]
-        return VERDI[np.clip(k + self.macchia[G, X], 0, 10)]
+        return self.img[np.clip(G, 0, self.img.shape[0] - 1), X]
 
 
 def _verde(t):
@@ -710,7 +721,7 @@ LUCI = [(0, 420, 120), (2, 444, 136), (3, 404, 146), (1, 880, 60), (3, 900, 74),
 
 FUSI = 'pezzi/ruscello/fusi/'                 # i pezzi di questa mappa col contorno fuso (da art/livelli/)
 NATURA = ('pino', 'albero', 'cespuglione', 'masso', 'sasso')
-SCURO = np.array([6.0, 24.0, 16.0])             # l'ombra del prato di Radenna, per il contorno di fuori
+SCURO = np.array(PRATO['profondo'], float)      # l'ombra viola del prato, per il contorno di fuori
 ALFA_CONTORNO = 0.6
 
 
@@ -747,11 +758,25 @@ def fondi(a, natura):
     return a
 
 
+def _fatto_di(n):
+    # di che cosa e' fatto un pezzo: nei cespugli e negli alberi i verdi spenti e i gialli sono foglie, nei pini
+    # aghi; nei sassi e nelle rovine i verdi sono muschio e il resto pietra
+    if 'pino' in n:
+        return {k: 'pino' for k in ('pietra', 'muschio', 'chioma', 'acqua', 'oro')}
+    if 'cespuglione' in n or 'albero' in n:
+        return {k: 'chioma' for k in ('pietra', 'muschio', 'acqua', 'oro')}
+    if 'masso' in n or 'sasso' in n or 'colonna' in n:
+        return {'chioma': 'muschio', 'acqua': 'pietra', 'tronco': 'pietra', 'oro': 'muschio'}
+    return {}
+
+
 def prepara_fusi():
     # le copie fuse dei pezzi in piedi di questa mappa (gli originali restano per le altre mappe)
+    # prima di fondere il contorno, i colori del pezzo vanno sulle rampe nuove, sapendo di che cosa e' fatto
     for n in sorted(set(n for (n, x, y) in ALBERI + COSE)):
         f, piede, misura = pezzo(n)
-        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA'))
+        a = _tav.ricolora(a, sostituisci=_fatto_di(n)).astype(float)
         _salva(fondi(a, any(k in n for k in NATURA)), os.path.join(LIV, FUSI + os.path.basename(f)))
 
 
@@ -828,6 +853,12 @@ def _sorgenti():
 
 
 def luce_turchese(out, G):
+    # Con le tavolozze nuove (piatte, a gradini) il bagliore turchese a retino sull'erba non c'e' piu': il prato ha le
+    # sue luci. Resta qui sotto per le mappe vecchie.
+    return out
+
+
+def _luce_turchese_vecchia(out, G):
     tipo, Mb = G['tipo'], G['m']
     acque = (Mb == ACQUA)
     L = _sfoca(acque.astype(float), 7) * 0.9
@@ -850,8 +881,13 @@ def luce_turchese(out, G):
 def ombre(out, G):
     # l'ombra ovale di ogni cosa in piedi (luce da in alto a sinistra: va un poco a destra); sotto le chiome il
     # prato e' all'ombra, una macchia larga a due gradini col retino
+    # Con le tavolozze nuove l'ombra sul prato non moltiplica i colori: scende di gradini lungo la rampa del prato
+    # (chiaro -> medio -> scuro -> profondo), come negli esempi; sul resto (strada, sponde) scurisce e poi
+    # riadatta() la riporta sulla rampa del suo materiale
     tipo, Mb = G['tipo'], G['m']
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
+    giu = np.zeros((H, W), int)
+    fatt = np.ones((H, W))
     for (n, f, fx, fy, piede, imp) in _impiedi():
         w = Image.open(os.path.join(LIV, f)).size[0]
         if 'albero' in n or 'cespuglione' in n or 'pino' in n:
@@ -861,15 +897,69 @@ def ombre(out, G):
                     if 0 <= y < H and 0 <= x < W and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
                         e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
                         if e <= 1:
-                            out[y, x] *= 0.8 if e + bayer[y % 4, x % 4] * 0.3 < 0.55 else 0.9
+                            dentro = e + bayer[y % 4, x % 4] * 0.3 < 0.55
+                            # sotto la chioma: un gradino; sul bordo un gradino a scacchi
+                            if dentro or (x + y) % 2 == 0:
+                                giu[y, x] += 1
+                            fatt[y, x] *= 0.8 if dentro else 0.9
         rx = max(5.0, 0.32 * w); ry = max(2.5, rx * 0.32); cx, cy = fx + 3, fy - 1
         for y in range(int(cy - ry - 1), int(cy + ry + 2)):
             for x in range(int(cx - rx - 1), int(cx + rx + 2)):
                 if 0 <= y < H and 0 <= x < W and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
                     e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
                     if e <= 1:
-                        out[y, x] *= 0.62 if e < 0.55 else 0.78
+                        giu[y, x] += 2 if e < 0.55 else 1          # l'ombra dove la cosa tocca terra
+                        fatt[y, x] *= 0.62 if e < 0.55 else 0.78
+    # sul prato: il colore scende di 'giu' gradini (i fiori all'ombra contano come la luce del prato)
+    q = np.rint(out).astype(int)
+    pos = np.full((H, W), -1)
+    for i, c in enumerate(PRATO_RAMPA.astype(int)):
+        pos[np.all(q == c, axis=-1)] = i
+    for k in ('petalo', 'cuore'):
+        pos[np.all(q == np.array(PRATO[k]), axis=-1)] = 4
+    sul_prato = (pos >= 0) & (giu > 0)
+    out[sul_prato] = PRATO_RAMPA[np.maximum(0, pos[sul_prato] - np.minimum(giu[sul_prato], 3))]
+    resto = ~(pos >= 0) & (fatt < 1)
+    out[resto] *= fatt[resto][:, None]
     return out
+
+
+def riadatta(out):
+    # le tavolozze nuove su tutta la mappa: il prato e' gia' nuovo; l'acqua e la pietra disegnate coi colori a indice
+    # passano alle rampe nuove allo stesso indice; il resto (strada, ciottoli, piazza, rovine, vasche, ninfee, i
+    # contorni fusi) va sulla rampa del suo materiale, tenendo le sue luci e le sue ombre
+    q = np.rint(np.clip(out, 0, 255)).astype(int)
+    cols = np.unique(q.reshape(-1, 3), axis=0)
+    fissi = {tuple(c) for c in PRATO.values()}
+    mappa, altri = {}, []
+    aq = {tuple(int(v) for v in c): AQ_NUOVA[i] for i, c in enumerate(AQ)}
+    pp = {tuple(int(v) for v in c): P_NUOVA[i] for i, c in enumerate(P)}
+    for c in cols:
+        t = tuple(int(v) for v in c)
+        if t in fissi:
+            continue
+        if t in aq:
+            mappa[t] = aq[t]
+        elif t in pp:
+            mappa[t] = pp[t]
+        else:
+            altri.append(t)
+    if altri:
+        mappa.update(_tav.ricolora_colori(altri))
+    fl = q.reshape(-1, 3)
+    chiavi = fl[:, 0] * 65536 + fl[:, 1] * 256 + fl[:, 2]
+    nuovo = fl.astype(float).copy()
+    for t, c in mappa.items():
+        nuovo[chiavi == t[0] * 65536 + t[1] * 256 + t[2]] = c
+    return nuovo.reshape(out.shape)
+
+
+def tessera_acqua():
+    # la tessera dell'acqua per l'animazione della pagina: ogni colore va all'indice di AQ piu' vicino (come fa la
+    # pagina) e prende il colore nuovo a quell'indice
+    t = np.asarray(Image.open(os.path.join(TER, 'acqua_radenna.png')).convert('RGB')).astype(float)
+    k = ((AQ[None, None] - t[..., None, :]) ** 2).sum(-1).argmin(-1)
+    _salva(AQ_NUOVA[k], os.path.join(TER, 'acqua_radenna_tavolozza.png'))
 
 
 def anteprima(terreno):
@@ -916,6 +1006,8 @@ def main():
     terreno = decora(terreno, G)
     terreno = luce_turchese(terreno, G)
     terreno = ombre(terreno, G)
+    terreno = riadatta(terreno)
+    tessera_acqua()
     _salva(terreno, os.path.join(LIV, 'ruscello.png'))
     _salva(passi(G).astype(float), os.path.join(LIV, 'ruscello_passi.png'))
     with open(os.path.join(LIV, 'ruscello_pezzi.json'), 'w') as f:

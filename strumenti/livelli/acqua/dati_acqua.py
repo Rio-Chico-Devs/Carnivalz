@@ -13,7 +13,7 @@ import ruscello_radenna as R
 t0 = time.time()
 t, F = R.pianta()
 img, G = R.disegna(t, F)
-fin = R.ombre(R.luce_turchese(R.decora(img.copy(), G), G), G)
+fin = R.riadatta(R.ombre(R.luce_turchese(R.decora(img.copy(), G), G), G))
 fin8 = np.clip(fin, 0, 255).astype(np.uint8)
 mappa = np.asarray(Image.open(os.path.join(REPO, 'art/livelli/ruscello.png')).convert('RGB'))
 print('rifatta in %.0f s; pixel diversi dalla mappa: %d' % (time.time() - t0, int((fin8 != mappa).any(2).sum())))
@@ -76,7 +76,8 @@ for (n, fx, fy) in R.SASSI_ACQUA:
                 sassi[yy, xx] = True
 np.savez_compressed(OUT, mappa=mappa, fin=fin8, acq=acq, classe=classe, du=du, dd=dd, dl=dl, dr=dr,
                     U=Us, V=Vs, D=Ds, Wd=Ws, ninfee=ninfee, sassi=sassi, schiuma=schiuma,
-                    sassi_info=np.array(sassi_info), lin=lin, u=u, wl=F['wl'], AQ=R.AQ)
+                    sassi_info=np.array(sassi_info), lin=lin, u=u, wl=F['wl'], AQ=R.AQ,
+                    AQ_NUOVA=R.AQ_NUOVA)
 print('acqua', int(acq.sum()), 'interno', int((classe >= 0).sum() - (classe >= 10).sum()), 'bordi', int((classe >= 10).sum()),
       'ninfee', int(ninfee.sum()), 'sassi', int(sassi.sum()), 'schiuma', int((schiuma > 0).sum()),
       'D max sull acqua', float(np.nanmax(np.where(acq, Ds, 0))), 'senza D', int((acq & ~np.isfinite(Ds)).sum()))
