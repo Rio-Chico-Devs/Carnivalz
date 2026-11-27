@@ -8,19 +8,23 @@ che si vedono nei buchi; il tronco con le venature chiare dal lato della luce. I
 quelli di lei (niente ingrandimenti a blocchi): una pianta grande ha piu' lobi e piu' ciuffi, non foglie piu' grosse.
 Colori: quelli degli esempi di Bru (la stessa famiglia del prato).
 Le foglie dei cespugli e delle chiome (Bru, 27 novembre: "miglioriamo gli arbusti e le foglie delle piante", con gli
-esempi 116-118 "da seguire rigorosamente"): i verdi e i valori di quegli esempi (CHIOMA), fasce di luce nette (chiaro in
-alto a sinistra, medio, scuro in basso a destra, il piu' scuro in fondo e nelle fessure fra un lobo e l'altro), i
-passaggi fatti di foglie che pendono, le tacche a V nella luce, pochi colpi di luce gialla, il contorno (scuro dalla
-parte dell'ombra, piu' chiaro dalla parte della luce) e il bordo a ciuffi (_fogliame, _contorno).
+esempi 116-118; poi: "non blendano bene con l'ambiente, studia online tecniche"): il metodo dei pixel artist per le
+piante che devono stare nel prato (il ciuffo-tipo ripetuto di Slynyrd, le rampe condivise col terreno, il contorno
+selettivo invece della linea scura, niente pixel soli): prima la luce generale (chiaro in alto a sinistra, scuro in
+basso a destra e nelle fessure fra un lobo e l'altro), poi un solo ciuffo-tipo ripetuto su file sfalsate, ognuno coi
+suoi tre toni (luce, corpo, ombra) presi dalla luce generale, e i ciuffi di un lobo restano nel suo lobo; i colori sono
+la rampa 'chioma' della tavolozza del gioco, con gli scuri del prato (_fogliame, _contorno, _contorno_chioma).
 
 modulo: albero(alto, seme), pino(alto, seme), cespuglio(alto, seme) -> RGBA uint8
 uso: piante.py cartella_lei_chibi cartella_pezzi uscita.png   (la fila: lei, le piante nuove, le vecchie)"""
 import numpy as np
 
-# le foglie, dallo scuro al chiaro, coi valori e i verdi degli esempi di Bru per cespugli e chiome (116-118): il
-# contorno indaco della mappa, lo scuro verde petrolio, il medio verde pieno, la luce verde-giallo viva e il colpo di
-# luce gialla (prima: i colori del 110, coi chiari troppo vicini e lo scuro viola)
-CHIOMA = [(47, 41, 67), (44, 84, 78), (52, 126, 88), (78, 164, 76), (122, 199, 74), (180, 226, 104)]
+# le foglie, dallo scuro al chiaro: il contorno indaco della mappa e la rampa 'chioma' della tavolozza del gioco
+# (strumenti/tavolozza.py), che ha gli scuri del prato, passi di luce regolari e verdi meno saturi del prato: le piante
+# stanno nel prato invece di sembrare incollate (Bru: "non blendano bene con l'ambiente"; prima una rampa piu' satura,
+# presa dagli esempi 116-118, che col prato non c'entrava)
+CHIOMA = [(47, 41, 67), (55, 60, 82), (63, 104, 106), (73, 141, 108), (117, 170, 103), (161, 195, 118),
+          (199, 220, 138)]
 # i colori degli esempi di Bru (110): il tronco
 TRONCO = [(69, 62, 116), (110, 64, 100), (130, 66, 93), (172, 105, 88)]
 # i pini: la rampa degli aghi (strumenti/tavolozza.py, 'pino'), piu' fredda, con gli stessi scuri
@@ -111,6 +115,7 @@ def _chioma(img, cerchi, rampa, rng, tono_base, sfondo_scuro=True):
         v = pad[1 + dy:1 + dy + h, 1 + dx:1 + dx + w]
         davanti |= (v > lobo) & (lobo >= 0)
     tono[davanti] -= 2.0
+    _chioma.lobi = lobo
     return sagoma, tono
 
 
@@ -153,95 +158,90 @@ def _colora(img, sagoma, tono, rampa, rng, minimo=1):
     return liv
 
 
-# i segni del fogliame (esempi 116-118): le tacche scure a V e a trattino (il vuoto fra due ciuffi), i ciuffetti
-# chiari che pendono, i colpi di luce
-TACCHE = [['X.X', '.X.'], ['X.', '.X'], ['.X', 'X.'], ['X..X', '.XX.']]
-CIUFFETTI = [['X', 'X'], ['XX', '.X'], ['XX', 'X.'], ['.X.', 'XXX', '.X.'], ['XX', 'XX', '.X']]
-COLPI = [['X'], ['XX'], ['X', 'X'], ['.X', 'X.']]
+# il ciuffo-tipo del fogliame (il metodo "modulare" dei pixel artist: un solo ciuffo di foglie, ripetuto con forma,
+# misura e passo costanti, in tre toni secondo la luce): 'L' il bordo in luce (in alto a sinistra), 'M' il corpo,
+# 'D' l'ombra (in basso a destra); in cima le punte delle foglie
+CIUFFI = [['...L..L.L..', '..LLLLLLLL.', '.LLMLMMMLM.', 'LLMMMMMMMMD', 'LMMMLMMMMDD', '.MMMMMMMDDD', '.MMMMMMDDD.',
+           '..MMDDDDD..', '....DDD....'],
+          ['..L.LL....', '.LLLLLLLL.', 'LLMLMMMMMD', 'LMMMMMLMMD', '.MMMMMMMDD', '.MMMMMDDD.', '..MMDDDD..',
+           '...DDD....'],
+          ['....L..LL...', '..LLLLLLLLL.', '.LLMMLMMMMMD', 'LLMMMMMMMMDD', 'LMMMMMMLMMDD', '.MMMMMMMMDDD',
+           '..MMMMMDDDD.', '...MMDDDD...', '.....DD.....']]
+# i ciuffi piccoli, per riempire i lobi piccoli dove i grandi non cadono
+CIUFFINI = [['..L..L..', '.LLLLLL.', 'LLMMMMMM', 'LMMMMMMD', '.MMMMMDD', '..MMDDD.', '...DD...'],
+            ['.L.LL..', 'LLLLLL.', 'LMMMMMD', 'LMMMMMD', '.MMMDD.', '..DDD..']]
 
 
-def _fogliame(img, m, tono, rng, rampa=CHIOMA, minimo=1, tacche=(22, 30), chiari=30, colpi=70):
-    """Il fogliame come negli esempi di Bru (116-118, il tutorial delle palle e delle cupole di foglie): il tono
-    continuo a fasce nette (la luce in alto a sinistra: chiaro, medio, scuro, il piu' scuro in fondo e nelle fessure);
-    ogni passaggio da una fascia chiara a quella piu' scura sotto e' una frangia di foglie che pendono (larghe un pixel,
-    lunghe da uno a quattro, qualcuna larga due in cima) col vuoto scuro che sale fra l'una e l'altra, e appena sotto
-    qualche ciuffetto staccato del tono chiaro: la luce scende nell'ombra a foglie, non a linea. Dentro le fasce le
-    tacche scure a V (il vuoto fra due ciuffi) e nelle fasce scure qualche ciuffetto chiaro; i colpi di luce gialla
-    solo nella luce piu' piena. Le foglie hanno la misura dei pixel di lei: una pianta grande ha piu' segni, non segni
-    piu' grossi. Ritorna i livelli."""
+def _fogliame(img, m, tono, rng, rampa=CHIOMA, minimo=1, passo=(8, 6), lobi=None):
+    """Il fogliame a ciuffi, come negli esempi di Bru (116-118) e come fanno i pixel artist per le piante che devono
+    stare nel prato: prima la luce generale (il tono continuo: chiaro in alto a sinistra, scuro in basso a destra e nelle
+    fessure), poi un solo ciuffo-tipo ripetuto su file sfalsate (passo costante, un pixel di caso), dal dietro al
+    davanti, ognuno coi suoi tre toni (luce, corpo, ombra) scelti dalla luce generale dove sta; fra un ciuffo e l'altro
+    il fondo, un gradino piu' scuro. Niente pixel soli (fanno rumore): solo ciuffi interi. I ciuffi sul bordo escono
+    un poco: il bordo e' fatto di ciuffi. Con 'lobi' (il lobo che si vede in ogni pixel) un ciuffo resta nel suo lobo,
+    cosi' le fessure in ombra fra un lobo e l'altro restano. Ritorna i livelli (-1 fuori)."""
     h, w = m.shape
     n = len(rampa)
-    liv = np.clip(np.floor(tono + 0.5), minimo, n - 2).astype(int)
-    liv[~m] = -1
-    out = liv.copy()
-
-    def segna(forma, x0, y0, k, deve=None):
-        for j, r in enumerate(forma):
-            for i, ch in enumerate(r):
-                y, x = y0 + j, x0 + i
-                if ch == 'X' and 0 <= y < h and 0 <= x < w and m[y, x] and (deve is None or liv[y, x] == deve):
-                    out[y, x] = k
-    # le frange, colonna per colonna; e sotto ogni frangia, ogni tanto, un ciuffetto staccato del tono chiaro
-    for x in range(w):
-        for y in range(h - 1):
-            a, b = liv[y, x], liv[y + 1, x]
-            if a < 0 or b < 0 or a <= b:
-                continue
-            r = rng.random()
-            lung = 0 if r < 0.15 else (1 if r < 0.4 else (2 if r < 0.7 else (3 if r < 0.9 else 4)))
-            if lung == 0:
-                if y >= 1 and liv[y - 1, x] == a and rng.random() < 0.65:
-                    out[y, x] = b
-                continue
-            for k in range(1, lung + 1):
-                if y + k < h and m[y + k, x] and liv[y + k, x] == b:
-                    out[y + k, x] = a
-            if lung >= 2 and rng.random() < 0.35:
-                xx = x + (1 if rng.random() < 0.5 else -1)
-                if 0 <= xx < w and m[y + 1, xx] and liv[y + 1, xx] == b:
-                    out[y + 1, xx] = a
-            if rng.random() < 0.10:
-                yy = y + lung + int(rng.integers(2, 5))
-                segna(CIUFFETTI[int(rng.integers(len(CIUFFETTI)))], x - 1, yy, a, deve=b)
-    # dentro le fasce, lontano dai confini: tacche scure, ciuffetti chiari nelle fasce scure, colpi di luce
-    pad = np.pad(liv, 2, constant_values=-1)
-    lontano = m.copy()
+    pad = np.pad(m, 2)
+    largo = np.zeros((h, w), bool)
     for dy in range(-2, 3):
         for dx in range(-2, 3):
-            lontano &= pad[2 + dy:2 + dy + h, 2 + dx:2 + dx + w] == liv
-    ys, xs = np.nonzero(lontano)
-    for i in rng.permutation(len(ys)):
-        y, x = ys[i], xs[i]
-        k = liv[y, x]
-        r = rng.random()
-        if k >= n - 2:                                   # la luce: tacche rade e i colpi di luce
-            if r < 1.0 / tacche[0]:
-                segna(TACCHE[int(rng.integers(len(TACCHE)))], x - 1, y, k - 1, deve=k)
-            elif r < 1.0 / tacche[0] + 1.0 / colpi and tono[y, x] > n - 2 + 0.15:
-                segna(COLPI[int(rng.integers(len(COLPI)))], x, y, n - 1, deve=k)
-        elif k > minimo:                                 # il medio: tacche e qualche ciuffetto chiaro
-            if r < 1.0 / tacche[1]:
-                segna(TACCHE[int(rng.integers(len(TACCHE)))], x - 1, y, k - 1, deve=k)
-            elif r < 1.0 / tacche[1] + 1.0 / chiari:
-                segna(CIUFFETTI[int(rng.integers(len(CIUFFETTI)))], x, y, k + 1, deve=k)
-        elif r < 1.0 / chiari:                           # lo scuro: ciuffetti chiari
-            segna(CIUFFETTI[int(rng.integers(len(CIUFFETTI)))], x, y, k + 1, deve=k)
+            largo |= pad[2 + dy:2 + dy + h, 2 + dx:2 + dx + w]
+    out = np.full((h, w), -1)
+    fondo = np.clip(np.floor(tono + 0.5) - 1, minimo, n - 3).astype(int)
+    out[m] = fondo[m]
+    centri = []
+    for j, y in enumerate(range(-4, h + 4, passo[1])):
+        spost = (passo[0] // 2) * (j % 2)
+        for x in range(-4 + spost, w + 4, passo[0]):
+            centri.append((y + int(rng.integers(-1, 2)), x + int(rng.integers(-2, 3))))
+    coperto = np.zeros((h, w), bool)
+
+    def timbra(cy, cx, forme):
+        k = int(np.clip(np.floor(tono[cy, cx] + 0.5), minimo + 1, n - 2))
+        toni = {'L': min(k + 1, n - 2) if not (k == n - 2 and rng.random() < 0.35) else n - 1, 'M': k,
+                'D': max(minimo, k - 1)}
+        forma = forme[int(rng.integers(len(forme)))]
+        hh, ww = len(forma), len(forma[0])
+        for j, riga in enumerate(forma):
+            for i, ch in enumerate(riga):
+                if ch == '.':
+                    continue
+                y, x = cy - hh // 2 + j, cx - ww // 2 + i
+                if 0 <= y < h and 0 <= x < w and largo[y, x]:
+                    if lobi is not None and m[y, x] and lobi[y, x] != lobi[cy, cx]:
+                        continue
+                    out[y, x] = toni[ch]
+                    coperto[y, x] = True
+    for cy, cx in sorted(centri):
+        if 0 <= cy < h and 0 <= cx < w and m[cy, cx]:
+            timbra(cy, cx, CIUFFI)
+    # dove nessun ciuffo e' caduto (un lobo piccolo, un angolo): ciuffi piccoli, dall'alto in basso
+    for cy in range(0, h, 3):
+        for cx in range(0, w, 3):
+            if m[cy, cx] and not coperto[cy, cx]:
+                timbra(cy, cx, CIUFFINI)
     for k in range(minimo, n):
-        img[(out == k) & m] = rampa[k]
+        img[out == k] = rampa[k]
     return out
 
 
-def _contorno(img, m, rampa=CHIOMA):
-    """il contorno di un pixel dentro la sagoma, come negli esempi: piu' scuro dove guarda l'ombra (in basso e a destra),
-    due gradini piu' chiaro dove guarda la luce (in alto e a sinistra), come nell'esempio 118"""
-    h, w = m.shape
+def _contorno(img, liv, rampa=CHIOMA):
+    """il contorno selettivo, come si fa per le cose dell'ambiente: niente linea scura tutto attorno; i pixel del bordo
+    diventano un gradino piu' scuri del loro colore dove guardano la luce (in alto e a sinistra), due dove guardano
+    l'ombra (in basso e a destra). Ritorna la sagoma"""
+    m = liv >= 0
     pad = np.pad(m, 1)
     su, giu, sx, dx = ~pad[:-2, 1:-1], ~pad[2:, 1:-1], ~pad[1:-1, :-2], ~pad[1:-1, 2:]
     bordo = m & (su | giu | sx | dx)
-    luce = bordo & (su | sx) & ~giu & ~dx
-    img[bordo] = rampa[0]
-    img[luce] = rampa[2]
-    return bordo
+    ombra = bordo & (giu | dx)
+    luce = bordo & ~ombra
+    nuovo = liv.copy()
+    nuovo[luce] = np.maximum(1, liv[luce] - 1)
+    nuovo[ombra] = np.maximum(0, liv[ombra] - 2)
+    for k in range(len(rampa)):
+        img[bordo & (nuovo == k)] = rampa[k]
+    return m
 
 
 def _ripulisci(img, dove):
@@ -426,13 +426,14 @@ def cespuglio(alto=80, seme=1):
     sagoma &= np.mgrid[0:h, 0:w][0] <= base
     tono[sagoma & (tono < 0)] = 2.6
     chioma = np.zeros_like(img)
-    _fogliame(chioma, sagoma, tono, rng)
+    liv = _fogliame(chioma, sagoma, tono, rng, lobi=_chioma.lobi)
+    liv[np.mgrid[0:h, 0:w][0] > base] = -1
     for x in range(w):                                       # il fondo, dove tocca il prato, nell'ombra
-        ys = np.nonzero(sagoma[:, x])[0]
+        ys = np.nonzero(liv[:, x] >= 0)[0]
         if len(ys):
-            chioma[max(ys.min(), ys.max() - rng.integers(1, 3)):ys.max() + 1, x] = CHIOMA[1]
-    _ripulisci(chioma, sagoma)
-    _contorno(chioma, sagoma)
+            liv[max(ys.min(), ys.max() - int(rng.integers(1, 3))):ys.max() + 1, x] = 1
+            chioma[liv[:, x] == 1, x] = CHIOMA[1]
+    sagoma = _contorno(chioma, liv)
     out = np.zeros((h, w, 4), np.uint8)
     out[..., :3] = chioma; out[..., 3] = sagoma * 255
     return _taglia(out)
@@ -679,21 +680,16 @@ def _gruppo(T, mx, my, rx, ryt, ryb, tono0, rng):
     vt = np.clip((yy - y0 - cima[None, :]) / np.maximum(1, fondo - cima)[None, :], 0, 1)
     tono = tono0 - 3.1 * vt ** 0.8 - 0.5 * dx
     n = len(CHIOMA)
-    # il fogliame degli esempi di Bru (116-118, la cupola del tutorial): fasce nette, frange di foglie che pendono,
-    # tacche a V, i colpi di luce in cima
+    # il fogliame a ciuffi (la cupola: chiara sopra, scura sotto); la sagoma del gruppo e' quella dei ciuffi
     blocco = T.img[y0:y1, x0:x1]
     sub = np.zeros_like(blocco)
     liv = _fogliame(sub, m, tono, rng)
+    m = liv >= 0
     blocco[m] = sub[m]
     T.op[y0:y1, x0:x1] |= m
     dove = np.zeros((T.h, T.w), bool)
     dove[y0:y1, x0:x1] = m
-    # i ciuffi di foglie che spuntano dal bordo di sopra, nel tono della cima
-    for i in range(x1 - x0):
-        if m[:, i].any() and rng.random() < 0.42:
-            j = cima[i]
-            forma = FOGLIE_SU[rng.integers(len(FOGLIE_SU))]
-            T.timbra(forma, x0 + i - 1, y0 + j - len(forma), CHIOMA[min(n - 2, max(1, liv[j, i]))])
+    fondo = np.where(m.any(0), m.shape[0] - 1 - m[::-1].argmax(0), 0)
     # sotto: l'indaco del fondo e le foglie che pendono, lunghe e corte, con la punta che gira
     for i in range(x1 - x0):
         if not m[:, i].any():
@@ -711,17 +707,19 @@ def _gruppo(T, mx, my, rx, ryt, ryb, tono0, rng):
 
 
 def _contorno_chioma(T, chioma):
-    """il contorno della chioma come negli esempi: i pixel della chioma che toccano il vuoto (non il tronco o i rami)
-    diventano il piu' scuro dove guardano l'ombra, due gradini piu' chiaro dove guardano la luce"""
+    """il contorno selettivo della chioma (come _contorno): i pixel della chioma che toccano il vuoto (non il tronco o i
+    rami) diventano un gradino piu' scuri dove guardano la luce, due dove guardano l'ombra"""
     sagoma = chioma & T.op
-    sub = T.img.copy()
     pad = np.pad(T.op, 1)
     su, giu, sx, dx = ~pad[:-2, 1:-1], ~pad[2:, 1:-1], ~pad[1:-1, :-2], ~pad[1:-1, 2:]
     bordo = sagoma & (su | giu | sx | dx)
-    luce = bordo & (su | sx) & ~giu & ~dx
-    sub[bordo] = CHIOMA[0]
-    sub[luce] = CHIOMA[2]
-    T.img[bordo] = sub[bordo]
+    indice = {tuple(c): i for i, c in enumerate(CHIOMA)}
+    for y, x in zip(*np.nonzero(bordo)):
+        i = indice.get(tuple(int(v) for v in T.img[y, x]))
+        if i is None:
+            continue
+        passi = 2 if (giu[y, x] or dx[y, x]) else 1
+        T.img[y, x] = CHIOMA[max(0 if passi == 2 else 1, i - passi)]
 
 
 def _felce(T, x, y, larga, rng):
