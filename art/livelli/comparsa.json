@@ -1,5 +1,5 @@
 {
- "_nota": "Il prato dove il proiettore lascia Lei, fatto da strumenti/livelli/arrivo.py: dove appare l'erba e' posata a cerchi come un cerchio nel grano, ma torta come se lo spazio si fosse distorto; a nord la radura della Guida.",
+ "_nota": "Il prato dove il proiettore lascia Lei, fatto da strumenti/livelli/arrivo.py: attorno al punto dove appare il prato e' torto, come se lo spazio li' si fosse avvitato; a nord la radura della Guida.",
  "nome": "Il prato dell'arrivo",
  "mappa": "comparsa.png",
  "scala": 1,
@@ -25,7 +25,7 @@
  ],
  "stanze": [
   {
-   "nome": "Il cerchio storto",
+   "nome": "Dove appare Lei",
    "rett": [
     500,
     340,

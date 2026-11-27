@@ -138,10 +138,9 @@ dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': 
 # pagina qui, al posto di quelli del ruscello; e dove non c'e' acqua, i comandi dell'acqua nascosti
 TESTI = {
     'comparsa': {'titolo': "L'arrivo nelle pianure",
-                 'sotto': "Lei appare qui, dove la lascia il proiettore: sotto i suoi piedi il prato e' piegato a "
-                          "cerchi come un cerchio nel grano, ma storto, come se lo spazio si fosse torto (gli anelli "
-                          "d'erba posata ondeggiano, i raggi sono diventati spirali, i cerchietti virgole, le macchie "
-                          "del prato attorno si avvolgono). A nord la radura vuota dove Lei si ferma e la Guida le "
+                 'sotto': "Lei appare qui, dove la lascia il proiettore: attorno ai suoi piedi il prato e' torto, "
+                          "come se lo spazio li' si fosse avvitato (le macchie dell'erba girano a spirale e si "
+                          "stringono verso di lei). A nord la radura vuota dove Lei si ferma e la Guida le "
                           "spiega la mappa, poi il pasto del goblin e, su per la strada di mattoni, il ruscello di "
                           "Radenna: in cima a ogni zona si passa alla successiva, in fondo si torna indietro. Come "
                           "altrove: le nuvole e le macchie di sole, i fiori e il prato al vento, l'erba che si muove "
