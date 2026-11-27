@@ -37,13 +37,14 @@ def uri(percorso):
 # 440-840, strumenti/livelli/arrivo.py); fra il pasto e il ruscello le due strade di mattoni si attaccano: quella del
 # pasto lascia la mappa in alto dove quella del ruscello entra in basso, alla stessa x (pasto_goblin.py, STRADA_X0).
 # Dopo il ruscello la strada sale all'albero (e poi al masso, al bivio...: una scena dopo l'altra).
+# La radura della Guida e' a griglia (griglia.py): ci si entra solo dai suoi corridoi, quindi l'entrata ha la x fissa.
 # 'rett' e' dove sono i piedi quando si esce
 COLLEGAMENTI = {
-    'comparsa': [{'rett': [440, 0, 840, 92], 'zona': 'guida', 'entrata': [None, 616], 'verso': [0, -1]}],
+    'comparsa': [{'rett': [440, 0, 840, 92], 'zona': 'guida', 'entrata': [600, 616], 'verso': [0, -1]}],
     'guida': [{'rett': [440, 0, 840, 92], 'zona': 'pasto', 'entrata': [None, 774], 'verso': [0, -1]},
               {'rett': [440, 630, 840, 640], 'zona': 'comparsa', 'entrata': [None, 100], 'verso': [0, 1]}],
     'pasto': [{'rett': [570, 0, 650, 92], 'zona': 'ruscello', 'entrata': [None, 700], 'verso': [0, -1]},
-              {'rett': [440, 790, 840, 800], 'zona': 'guida', 'entrata': [None, 100], 'verso': [0, 1]}],
+              {'rett': [440, 790, 840, 800], 'zona': 'guida', 'entrata': [520, 100], 'verso': [0, 1]}],
     'ruscello': [{'rett': [570, 709, 650, 720], 'zona': 'pasto', 'entrata': [None, 104], 'verso': [0, 1]},
                  {'rett': [560, 0, 680, 10], 'zona': 'albero', 'entrata': [None, 696], 'verso': [0, -1]}],
     # le scene dopo il ruscello (strumenti/livelli/scene_pianure.py): la strada continua da una all'altra

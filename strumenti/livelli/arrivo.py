@@ -15,6 +15,9 @@
 #   A nord si esce verso la radura della Guida.
 # - 'guida': uno spazio vuoto. Bru: "dove il personaggio si ferma a discutere con l'AI che gli spiega le basi della
 #   mappa". Una radura di prato coi fiori, gli alberi solo attorno; a nord il pasto del goblin, a sud la comparsa.
+#   E' la prima versione, rimasta per confronto: la radura che si usa ora e' quella ordinata a griglia
+#   (strumenti/livelli/griglia.py, che scrive gli stessi file). Questo script rifa' la guida solo se la si chiede:
+#   arrivo.py [cartella_anteprime] guida.
 #
 # Le tre zone si attaccano in una fascia larga in mezzo (x 440-840): le mappe sono larghe uguali (1280), quindi Lei
 # passa dall'una all'altra tenendo la sua x (strumenti/prova_corsa/costruisci.py, COLLEGAMENTI).
@@ -226,5 +229,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 2 and sys.argv[1] == '--warp':
         prova_warp(sys.argv[2])
     else:
-        for n in ZONE:
-            fai_zona(n, sys.argv[1] if len(sys.argv) > 1 else None)
+        # di solito solo il prato dell'arrivo: la radura della Guida e' quella a griglia (griglia.py)
+        cartella = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] not in ZONE else None
+        for n in [a for a in sys.argv[1:] if a in ZONE] or ['comparsa']:
+            fai_zona(n, cartella)
