@@ -5,15 +5,15 @@
    "pezzi/ruscello/fusi/albero_alto_dritto_3.png",
    512,
    118,
-   119,
-   218
+   120,
+   220
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
    418,
    150,
-   135,
-   242
+   136,
+   245
   ],
   [
    "pezzi/ruscello/fusi/masso_muschio_3.png",
@@ -27,14 +27,14 @@
    160,
    172,
    122,
-   228
+   227
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
    790,
    172,
    122,
-   228
+   227
   ],
   [
    "pezzi/ruscello/fusi/sassolino_2.png",
@@ -47,14 +47,14 @@
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
    1180,
    182,
-   135,
-   242
+   136,
+   245
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
    846,
    196,
-   44,
+   38,
    52
   ],
   [
@@ -75,7 +75,7 @@
    "pezzi/ruscello/fusi/cespuglio_2.png",
    1118,
    232,
-   52,
+   54,
    70
   ],
   [
@@ -103,14 +103,14 @@
    "pezzi/ruscello/fusi/cespuglio_1.png",
    112,
    280,
-   61,
+   65,
    82
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_3.png",
    1262,
    318,
-   139,
+   137,
    239
   ],
   [
@@ -124,8 +124,8 @@
    "pezzi/ruscello/fusi/albero_alto_4.png",
    32,
    336,
-   123,
-   218
+   120,
+   220
   ],
   [
    "pezzi/ruscello/fusi/masso_muschio_1.png",
@@ -152,7 +152,7 @@
    "pezzi/ruscello/fusi/cespuglio_2.png",
    24,
    462,
-   52,
+   54,
    70
   ],
   [
@@ -160,14 +160,14 @@
    962,
    470,
    121,
-   228
+   237
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_1.png",
    1228,
    474,
-   103,
-   211
+   104,
+   217
   ],
   [
    "pezzi/ruscello/fusi/sassolino_1.png",
@@ -230,35 +230,35 @@
    44,
    704,
    121,
-   228
+   237
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_3.png",
    1006,
    706,
-   139,
+   137,
    239
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_1.png",
    256,
    716,
-   61,
+   65,
    82
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
    900,
    716,
-   44,
+   38,
    52
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_4.png",
    1206,
    716,
-   123,
-   218
+   120,
+   220
   ]
  ]
 }

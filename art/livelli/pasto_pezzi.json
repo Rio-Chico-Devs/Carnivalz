@@ -5,56 +5,56 @@
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
    470,
    118,
-   135,
-   242
+   136,
+   245
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_3.png",
    752,
    128,
-   119,
-   218
+   120,
+   220
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
    1002,
    150,
    122,
-   228
+   227
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
    92,
    176,
    122,
-   228
+   227
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
    1214,
    178,
-   135,
-   242
+   136,
+   245
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_1.png",
    920,
    248,
-   61,
+   65,
    82
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
    286,
    300,
-   44,
+   38,
    52
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_2.png",
    1046,
    330,
-   52,
+   54,
    70
   ],
   [
@@ -75,7 +75,7 @@
    "pezzi/ruscello/fusi/albero_alto_3.png",
    1236,
    420,
-   139,
+   137,
    239
   ],
   [
@@ -97,21 +97,21 @@
    346,
    448,
    121,
-   228
+   237
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_2.png",
    64,
    470,
    121,
-   228
+   237
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_4.png",
    968,
    470,
-   123,
-   218
+   120,
+   220
   ],
   [
    "pezzi/pasto/fusi/sasso_2.png",
@@ -131,7 +131,7 @@
    "pezzi/ruscello/fusi/cespuglio_1.png",
    240,
    560,
-   61,
+   65,
    82
   ],
   [
@@ -152,22 +152,22 @@
    "pezzi/ruscello/fusi/cespuglietto_1.png",
    806,
    618,
-   44,
+   38,
    52
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_2.png",
    470,
    640,
-   52,
+   54,
    70
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_1.png",
    1188,
    652,
-   103,
-   211
+   104,
+   217
   ],
   [
    "pezzi/pasto/fusi/masso_basso_4.png",
@@ -180,8 +180,8 @@
    "pezzi/ruscello/fusi/albero_alto_4.png",
    118,
    702,
-   123,
-   218
+   120,
+   220
   ],
   [
    "pezzi/pasto/fusi/sassolino_2.png",
@@ -194,22 +194,22 @@
    "pezzi/ruscello/fusi/albero_alto_1.png",
    384,
    790,
-   103,
-   211
+   104,
+   217
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_3.png",
    880,
    796,
-   139,
+   137,
    239
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_4.png",
    1100,
    798,
-   123,
-   218
+   120,
+   220
   ]
  ]
 }
