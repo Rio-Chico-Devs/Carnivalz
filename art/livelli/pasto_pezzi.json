@@ -44,67 +44,11 @@
    82
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_1.png",
-   604,
-   296,
-   13,
-   19
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   686,
-   298,
-   16,
-   22
-  ],
-  [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
    286,
    300,
    44,
    52
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   578,
-   300,
-   17,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_basso_4.png",
-   708,
-   302,
-   15,
-   15
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   735,
-   310,
-   16,
-   22
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   549,
-   312,
-   16,
-   22
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_3.png",
-   524,
-   321,
-   14,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_1.png",
-   761,
-   322,
-   13,
-   19
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_2.png",
@@ -114,53 +58,11 @@
    70
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   503,
-   337,
-   17,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   778,
-   339,
-   16,
-   22
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_1.png",
-   797,
-   355,
-   13,
-   19
-  ],
-  [
-   "pezzi/pasto/fusi/masso_basso_4.png",
-   484,
-   359,
-   15,
-   15
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   808,
-   379,
-   16,
-   22
-  ],
-  [
    "pezzi/pasto/fusi/sasso_5.png",
    180,
    380,
    9,
    15
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   468,
-   386,
-   17,
-   20
   ],
   [
    "pezzi/pasto/fusi/sassolino_3.png",
@@ -170,20 +72,6 @@
    11
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   813,
-   401,
-   16,
-   22
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   469,
-   411,
-   16,
-   22
-  ],
-  [
    "pezzi/ruscello/fusi/albero_alto_3.png",
    1236,
    420,
@@ -191,17 +79,10 @@
    239
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_3.png",
-   804,
-   427,
-   14,
-   20
-  ],
-  [
    "pezzi/pasto/preda.png",
-   630,
+   635,
    427,
-   37,
+   31,
    35
   ],
   [
@@ -212,39 +93,11 @@
    62
   ],
   [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   475,
-   435,
-   16,
-   22
-  ],
-  [
    "pezzi/ruscello/fusi/albero_alto_2.png",
    346,
    448,
    121,
    228
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   793,
-   449,
-   16,
-   22
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_5.png",
-   493,
-   454,
-   13,
-   21
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_8.png",
-   771,
-   469,
-   16,
-   22
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_2.png",
@@ -259,55 +112,6 @@
    470,
    123,
    218
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_1.png",
-   516,
-   472,
-   13,
-   19
-  ],
-  [
-   "pezzi/pasto/fusi/masso_basso_4.png",
-   745,
-   483,
-   15,
-   15
-  ],
-  [
-   "pezzi/pasto/fusi/masso_6.png",
-   537,
-   486,
-   13,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_1.png",
-   719,
-   493,
-   13,
-   19
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_3.png",
-   562,
-   493,
-   14,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_6.png",
-   588,
-   499,
-   13,
-   20
-  ],
-  [
-   "pezzi/pasto/fusi/masso_muschio_9.png",
-   692,
-   501,
-   17,
-   20
   ],
   [
    "pezzi/pasto/fusi/sasso_2.png",

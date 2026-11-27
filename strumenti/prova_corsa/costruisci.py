@@ -130,13 +130,12 @@ dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': 
 # pagina qui, al posto di quelli del ruscello; e dove non c'e' acqua, i comandi dell'acqua nascosti
 TESTI = {
     'pasto': {'titolo': 'Il pasto del goblin',
-              'sotto': "Lei arriva dal prato, da sud, ed entra nel recinto di massi: la metà di qua è prato, "
-                       "quella di là è lastricata coi mattoni della pianura aperta, rotti verso sud. Al centro il "
-                       "goblin, di spalle, divora a morsi furiosi la preda che ha appena ucciso, un cinghiale. Dal "
-                       "varco di nord la strada di mattoni sale alla pianura aperta: in cima la scena passa al "
-                       "ruscello di Radenna, e dalla strada in fondo al ruscello si torna qui. Come al ruscello: le "
-                       "nuvole e le macchie di sole, i fiori al vento, l'erba che si muove ai passi (sui mattoni "
-                       "no); se Lei resta ferma si annoia.",
+              'sotto': "Lei arriva dal prato, da sud. In mezzo alla radura il goblin, di spalle, divora a morsi "
+                       "furiosi la preda che ha appena ucciso, un cinghiale, sui resti della piazza antica mangiati "
+                       "dall'erba. Dietro di lui la strada di mattoni sale a nord verso la pianura aperta: in cima la "
+                       "scena passa al ruscello di Radenna, e dalla strada in fondo al ruscello si torna qui. Come al "
+                       "ruscello: le nuvole e le macchie di sole, i fiori al vento, l'erba che si muove ai passi (sui "
+                       "mattoni e sulle lastre no); se Lei resta ferma si annoia.",
               'aria': "Il pasto del goblin: clicca e usa le frecce per far correre Lei",
               'carico': "Carico la radura del goblin…"},
 }

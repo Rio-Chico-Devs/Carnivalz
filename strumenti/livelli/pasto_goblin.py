@@ -4,19 +4,18 @@
 #
 #   python3 strumenti/livelli/pasto_goblin.py [anteprima.png]      (serve numpy e Pillow)
 #
-# Una radura dentro un recinto di massi, nel prato; al centro il goblin (strumenti/nemici/goblin_tipico), di spalle,
-# curvo sulla preda che ha appena ucciso (un cinghiale steso sul fianco) e la divora (Bru: "e' intento a mangiare
-# furiosamente, non c'e' bisogno di un fuoco o di ossa in giro, non e' che lui ha un accampamento, si e' trovato li',
-# ha ucciso una preda e la sta mangiando"). Bru: il pavimento "meta' di
-# mattoni come la scena successiva e la meta' da dove si arriva senza sentiero, solo radura". Quindi la meta' di nord
-# del recinto e' lastricata coi mattoni della pianura aperta (la tappa dopo: la strada del ruscello, stesso kit di
-# Bru, stessi colori), col cordolo lungo il giro e rotta verso sud; la meta' di sud, da dove arriva Lei (dalla
-# capsula), e' prato, senza sentiero. Dal varco di nord la strada di mattoni va alla pianura aperta: lascia la mappa
-# in alto dove la strada del ruscello entra in basso (stessa x, stessa direzione, stesso punto del motivo), cosi' le
-# due scene si attaccano. Attorno il prato coi fiori al vento e gli alberi esotici, come al ruscello (stessi pezzi,
-# stesso prato, stesse regole delle tavolozze di Bru).
+# Una radura nel prato; al centro il goblin (strumenti/nemici/goblin_tipico), di spalle, curvo sulla preda che ha
+# appena ucciso (un cinghiale steso sul fianco) e la divora (Bru: "e' intento a mangiare furiosamente, non c'e' bisogno
+# di un fuoco o di ossa in giro, non e' che lui ha un accampamento, si e' trovato li', ha ucciso una preda e la sta
+# mangiando"). Niente recinto di sassi (Bru: "non deve sembrare un'arena"). Il pavimento come la scena dopo (il ruscello,
+# la pianura aperta): la strada di mattoni arriva da nord e finisce in un pezzo della piazza antica, le stesse lastre
+# coi colori della mappa del ruscello (piazza_tavolozza.py), mezze mangiate dall'erba, coi ciuffi nelle fughe e sopra
+# (Bru: "un po' di erba sopra le mattonelle per blendare bene"); la meta' di sud, da dove arriva Lei (dalla capsula), e'
+# prato, senza sentiero. In cima la strada lascia la mappa dove la strada del ruscello entra in basso (stessa x, stessa
+# direzione, stesso punto del motivo), cosi' le due scene si attaccano. Attorno il prato coi fiori al vento e gli alberi
+# esotici, come al ruscello (stessi pezzi, stesso prato, stesse regole delle tavolozze di Bru).
 #
-# Scrive art/livelli/pasto.png (il terreno con le cose piatte: mattoni e ombre), pasto_pezzi.json (le cose
+# Scrive art/livelli/pasto.png (il terreno con le cose piatte: strada, lastre, ombre), pasto_pezzi.json (le cose
 # in piedi), pasto_passi.png (dove si cammina), pasto_prato.png (dove i passi pestano l'erba), pasto_fiori.json,
 # pasto.json; i pezzi nuovi in art/livelli/pezzi/pasto/ (il goblin che mangia e la preda, a fotogrammi).
 import json
@@ -41,16 +40,12 @@ NUOVI = os.path.join(LIV, 'pezzi', 'pasto')
 FUSI = 'pezzi/pasto/fusi/'
 GOBLIN = os.path.join(QUI, '..', 'nemici', 'goblin_tipico', 'goblin_mangia.png')    # goblin_mangia.py
 W, H = 1280, 800
-C = (640, 400)                          # il centro del recinto
-ANELLO = (172, 106)                     # il recinto di massi: i raggi dell'ellisse (vista di tre quarti)
-LASTRICO = (156, 94)                    # il lastricato: l'ellisse di cui resta la meta' di nord
-ROTTO = 434                             # la riga (mossa) dove il lastricato si rompe: sotto, verso chi arriva, prato
-VARCHI = [(90, 12), (270, 12)]          # i varchi nel recinto: angolo (0 a destra, 90 giu') e mezza ampiezza
-# la strada di mattoni verso la pianura aperta: parte dal lastricato, esce dal varco di nord e lascia la mappa in alto
+PIAZZA_C = (640, 372)                   # il mezzo del pezzo di piazza antica, davanti alla strada
+# la strada di mattoni verso la pianura aperta: parte dalla piazza antica, va a nord e lascia la mappa in alto
 # dove la strada del ruscello (la scena dopo) entra in basso: la' la colonna 0 del motivo e' a x 595 (il mezzo a 609,5)
 # e sull'ultima riga della mappa c'e' la riga 26 del motivo, che sale andando su; qui sulla prima riga ci va la 25.
 # L'ultimo tratto va un filo verso destra salendo, come la' (misurato su ruscello.png)
-STRADA = [(640, 352), (636, 290), (622, 200), (608, 120), (605, 60), (609.5, 0), (613, -35)]
+STRADA = [(640, 330), (636, 290), (622, 200), (608, 120), (605, 60), (609.5, 0), (613, -35)]
 STRADA_X0, STRADA_RIGA = 609.5, 25      # il mezzo della strada e la riga del motivo sulla prima riga della mappa
 PRATO = rr.PRATO
 OSSO = np.array(_tav.rampa((226, 214, 186), 4, 0.42, 0.95), float)
@@ -61,12 +56,10 @@ PIETRA = rr.P_NUOVA
 # nella mappa del ruscello, sui gradini 1-6 della rampa della pietra (riadatta(), controllato sulla mappa vera)
 KIT = [(44, 71, 50), (66, 84, 69), (84, 103, 85), (108, 122, 105), (120, 135, 117), (141, 155, 135)]
 MATTONI = PIETRA[1:7]
-CORDOLO = [0, 2, 5, 3, 1, 0]            # il cordolo dal bordo verso dentro, come nel kit (scuro, luce, solco)
-MOTIVO = 'diamanti'                        # dentro il lastricato: 'righe' (la spina della strada) o 'diamanti' (il nodo)
 
 # ---------------------------------------------------------------- dove stanno le cose
 GOBLIN_PIEDE = (640, 430)               # il goblin, al centro, di spalle a chi arriva da sud
-PREDA_PIEDE = (630, 427)                # la preda per terra davanti a lui (un po' a sinistra: si vede la testa)
+PREDA_PIEDE = (635, 427)                # la preda per terra davanti a lui (un po' a sinistra: si vede la testa)
 ALBERI = [
     # la cornice del bosco, fuori dal recinto: in alto (la chioma esce dalla mappa) gli esotici a tronco dritto
     ('albero_alto_dritto_1', 92, 176), ('albero_alto_dritto_2', 470, 118), ('albero_alto_dritto_3', 752, 128),
@@ -79,9 +72,6 @@ ALBERI = [
     ('cespuglio_1', 240, 560), ('cespuglio_2', 1046, 330), ('cespuglietto_1', 806, 618), ('cespuglio_2', 470, 640),
     ('cespuglietto_1', 286, 300), ('cespuglio_1', 920, 248),
 ]
-# i massi del recinto: uno ogni tanto lungo l'ellisse, fuori dai varchi, a caso fra questi
-MASSI = ['masso_muschio_1', 'masso_muschio_3', 'masso_muschio_8', 'masso_muschio_9', 'masso_basso_4', 'masso_3',
-         'masso_6', 'masso_muschio_8', 'masso_muschio_5', 'masso_muschio_9']
 SASSI = [('sasso_4', 760, 560), ('sassolino_2', 776, 566), ('sasso_2', 420, 520), ('sassolino_1', 1120, 520),
          ('sasso_5', 180, 380), ('sassolino_3', 196, 386), ('masso_basso_4', 1000, 690), ('sassolino_2', 560, 720)]
 PARTENZA = [612, 776]
@@ -137,11 +127,11 @@ def preda_lettere(scatto):
     misura del foglio d'esempio (2/3) e poi ingrandito come il goblin. 'scatto': 1 le zampe davanti, 2 quelle dietro
     sobbalzano quando il goblin strappa. Lettere: k contorno, S s f F pelo, v pancia, o O grugno e narice, w zanna e
     costola, h zoccolo, r R x carne"""
-    H, W = 24, 50
+    H, W = 24, 42
     yy, xx = np.mgrid[0:H, 0:W]
-    cx, cy, rx, ry = 29, 10.5, 15.5, 7.0                              # il corpo, tozzo
+    cx, cy, rx, ry = 25, 10.5, 11.5, 7.0                              # il corpo, tozzo e corto (Bru: era troppo lungo)
     corpo = ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 <= 1
-    corpo |= ((xx - 19) / 7.5) ** 2 + ((yy - 6.5) / 4.5) ** 2 <= 1    # la gobba sulle spalle
+    corpo |= ((xx - 18) / 6.5) ** 2 + ((yy - 6.5) / 4.5) ** 2 <= 1    # la gobba sulle spalle
     tx, ty, trx, try_ = 10.5, 12.0, 7.5, 6.0                          # la testa, grossa
     testa = ((xx - tx) / trx) ** 2 + ((yy - ty) / try_) ** 2 <= 1
     muso = ((xx - 3.0) / 2.6) ** 2 + ((yy - 14.0) / 2.8) ** 2 <= 1
@@ -152,7 +142,7 @@ def preda_lettere(scatto):
                 orecchio[y, x] = True
     zampe = np.zeros((H, W), bool)
     zoccoli = np.zeros((H, W), bool)
-    gambe = [((17, 16), (15, 21)), ((22, 17), (21, 22)), ((37, 16), (40, 21)), ((42, 15), (45, 20))]
+    gambe = [((16, 16), (14, 21)), ((20, 17), (19, 22)), ((30, 16), (32, 21)), ((34, 15), (37, 20))]
     for i, ((ax, ay), (bx, by)) in enumerate(gambe):
         if (scatto == 1 and i < 2) or (scatto == 2 and i >= 2):
             bx, by = bx + (-1 if i < 2 else 1), by - 1                # il calcio
@@ -163,11 +153,11 @@ def preda_lettere(scatto):
             if s > 0.78:
                 zoccoli |= m
     coda = np.zeros((H, W), bool)
-    for x, y in ((44, 9), (45, 8), (46, 7), (47, 6), (48, 5), (48, 6), (47, 5)):
+    for x, y in ((36, 9), (37, 8), (38, 7), (39, 6), (40, 5), (40, 6), (39, 5)):
         coda[y, x] = True
     pieno = corpo | testa | muso | orecchio | zampe | coda
     # le setole lungo la gobba e la schiena: la riga di sopra frastagliata
-    for x in range(13, 43, 2):
+    for x in range(13, 36, 2):
         y = int(np.nonzero(corpo[:, x])[0].min())
         if y > 0:
             pieno[y - 1, x] = True
@@ -192,7 +182,7 @@ def preda_lettere(scatto):
         luce = -0.45 * dx - 0.9 * dy
         if dy > 0.82:
             L[y, x] = 's'
-        elif dy > 0.32 and 15 <= x <= 43:
+        elif dy > 0.32 and 15 <= x <= 35:
             L[y, x] = 'v'
         elif luce > 0.42:
             L[y, x] = 'F'
@@ -202,11 +192,11 @@ def preda_lettere(scatto):
             L[y, x] = 's'
     L[1:3][pieno[1:3] & (L[1:3] != '.')] = 'S'                     # le setole scure in cima
     # la ferita sulla pancia, dove mangia: carne, la costola che si vede
-    ferita = ((xx - 30) / 4.6) ** 2 + ((yy - 14.0) / 2.3) ** 2 <= 1
+    ferita = ((xx - 24) / 4.0) ** 2 + ((yy - 14.0) / 2.3) ** 2 <= 1
     L[ferita & pieno] = 'r'
-    L[13, 27] = L[13, 28] = 'R'
-    L[15, 33] = L[15, 32] = 'x'
-    L[14, 29] = L[14, 31] = 'w'
+    L[13, 21] = L[13, 22] = 'R'
+    L[15, 27] = L[15, 26] = 'x'
+    L[14, 23] = L[14, 25] = 'w'
     # il grugno: la narice; la zanna che sale dalla mascella, dietro il grugno; l'occhio chiuso
     L[14, 1] = L[13, 1] = 'O'
     L[16, 7] = L[15, 7] = L[14, 6] = 'w'
@@ -254,7 +244,7 @@ def prepara_pezzi():
         with open(os.path.join(NUOVI, n + '.json'), 'w') as f:
             json.dump({'piede': [int(p[0]), int(p[1])]}, f)
     # i massi e i sassi del catalogo, coi colori nuovi e il contorno fuso (come al ruscello)
-    for n in sorted(set(MASSI + [s[0] for s in SASSI])):
+    for n in sorted(set(s[0] for s in SASSI)):
         f, piede, misura = rr.pezzo(n)
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA'))
         a = _tav.ricolora(a, sostituisci=rr._fatto_di(n)).astype(float)
@@ -269,34 +259,16 @@ def nuovo(n):
     return 'pezzi/pasto/' + n + '.png', piede, (w, h)
 
 
-def massi_del_recinto():
-    """un masso ogni 27 pixel circa lungo l'ellisse del recinto, fuori dai varchi; ogni tanto un sassolino in mezzo"""
-    rng = np.random.default_rng(23)
-    out = []
-    a = 0.0
-    while a < 360:
-        dentro_varco = any(abs(((a - c + 180) % 360) - 180) < m for c, m in VARCHI)
-        rad = np.radians(a)
-        x = C[0] + ANELLO[0] * np.cos(rad) + rng.uniform(-3, 3)
-        y = C[1] + ANELLO[1] * np.sin(rad) + rng.uniform(-2, 2)
-        if not dentro_varco:
-            out.append((MASSI[int(rng.integers(len(MASSI)))], int(round(x)), int(round(y))))
-        # il passo lungo l'ellisse: 27 pixel di strada (piu' gradi dove l'ellisse e' stretta)
-        dx, dy = -ANELLO[0] * np.sin(rad), ANELLO[1] * np.cos(rad)
-        a += np.degrees(27.0 / max(1.0, np.hypot(dx, dy)))
-    return out
-
-
 def impiedi():
     """(nome, file, x, y del piede nel mondo, piede nel disegno, impronta (mezza larghezza, mezza altezza))"""
     tutte = []
     for (n, x, y) in ALBERI:
         f, piede, (w, h) = rr.pezzo(n)
         tutte.append((n, 'pezzi/ruscello/fusi/' + os.path.basename(f), x, y, piede, rr.impronta(n, w, h)))
-    for (n, x, y) in massi_del_recinto() + SASSI:
+    for (n, x, y) in SASSI:
         f, piede, (w, h) = rr.pezzo(n)
         tutte.append((n, FUSI + os.path.basename(f), x, y, piede, rr.impronta(n, w, h)))
-    for n, (x, y), imp in (('preda', PREDA_PIEDE, (36, 9)), ('goblin', GOBLIN_PIEDE, (14, 5))):
+    for n, (x, y), imp in (('preda', PREDA_PIEDE, (28, 8)), ('goblin', GOBLIN_PIEDE, (14, 5))):
         f, piede, _ = nuovo(n)
         tutte.append((n, f, x, y, piede, imp))
     return tutte
@@ -317,127 +289,111 @@ def _kit(nome):
     return k
 
 
-def _pulisci(m, y0, y1, x0, x1, isole=10, buchi=6):
-    """nel riquadro: via i pezzetti di mattone piu' piccoli di 'isole' pixel e i buchi piu' piccoli di 'buchi'"""
-    sub = m[y0:y1, x0:x1].copy()
-    for valore, minimo in ((True, isole), (False, buchi)):
-        visti = np.zeros(sub.shape, bool)
-        h, w = sub.shape
-        for y, x in zip(*np.nonzero(sub == valore)):
-            if visti[y, x]:
-                continue
-            pezzo, pila = [], [(y, x)]
-            visti[y, x] = True
-            while pila:
-                cy, cx = pila.pop()
-                pezzo.append((cy, cx))
-                for yy, xx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
-                    if 0 <= yy < h and 0 <= xx < w and not visti[yy, xx] and sub[yy, xx] == valore:
-                        visti[yy, xx] = True
-                        pila.append((yy, xx))
-            if len(pezzo) < minimo:
-                for cy, cx in pezzo:
-                    sub[cy, cx] = not valore
-    m = m.copy()
-    m[y0:y1, x0:x1] = sub
-    return m
+def _pezzi(m):
+    """le parti connesse (4 vicini) della maschera, dalla piu' grande"""
+    H_, W_ = m.shape
+    visti = np.zeros_like(m)
+    out = []
+    for y, x in zip(*np.nonzero(m)):
+        if visti[y, x]:
+            continue
+        pezzo, pila = [], [(y, x)]
+        visti[y, x] = True
+        while pila:
+            cy, cx = pila.pop()
+            pezzo.append((cy, cx))
+            for yy, xx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
+                if 0 <= yy < H_ and 0 <= xx < W_ and m[yy, xx] and not visti[yy, xx]:
+                    visti[yy, xx] = True
+                    pila.append((yy, xx))
+        out.append(pezzo)
+    return sorted(out, key=len, reverse=True)
 
 
-def lastricato():
-    """i mattoni: la meta' di nord del recinto lastricata, mattonelle quadrate coi rombi del nodo del kit (MOTIVO),
-    il cordolo lungo il giro. Verso sud il lastricato e' rotto a mattonelle: sopra una linea mossa
-    sono intere (qualcuna manca), su quella linea sono spezzate, sotto non ci sono piu' (qualche coccio rimasto nel
-    prato), e vicino alla rottura l'erba cresce nelle fughe; sotto c'e' solo prato. La strada di mattoni esce dal
-    varco di nord (il motivo del kit piegato lungo la curva, come al ruscello) e in cima combacia con quella del
-    ruscello; dove entra nel lastricato i motivi non combaciano e l'erba copre la giuntura. Ritorna la maschera e
-    l'indice di MATTONI"""
+def pavimento():
+    """la strada di mattoni e il pezzo di piazza antica: la maschera, i colori, e le lastre sotto un ciuffo d'erba
+    (dove l'erba ci fa un'ombrina). La strada: il motivo intero del kit (anche i cordoli frastagliati: dove il motivo e'
+    vuoto c'e' il prato) piegato lungo la curva, come al ruscello; la riga del motivo e' spostata perche' in cima
+    combaci con la strada del ruscello. Le lastre: quelle della piazza antica del ruscello, coi suoi colori, senza i
+    sassolini attorno; la strada ci passa sotto (fra le lastre c'e' l'erba, non la strada). L'erba sopra le lastre: sul
+    bordo di fuori se le mangia (sfrangiata), due lastre d'angolo sono mezze coperte, qualche ciuffo nelle fughe e
+    sopra; dove la strada arriva alle lastre, ciuffi sulla giuntura"""
     yy, xx = np.mgrid[0:H, 0:W]
-    ang = np.arctan2((yy - C[1]) / LASTRICO[1], (xx - C[0]) / LASTRICO[0])
-    giro = rr.rumore1(400, 23, 7)[((ang + np.pi) / (2 * np.pi) * 359).astype(int)]
-    r = np.sqrt(((xx - C[0]) / LASTRICO[0]) ** 2 + ((yy - C[1]) / LASTRICO[1]) ** 2)
-    ellisse = r < 1 + (giro - 0.5) * 0.03
+    a = np.asarray(Image.open(os.path.join(LIV, 'terreni', 'piazza_radenna_tavolozza.png')).convert('RGBA')).astype(float)
+    piena = np.zeros(a.shape[:2], bool)
+    for y, x in _pezzi(a[..., 3] > 0)[0]:
+        piena[y, x] = True
+    ph, pw = piena.shape
+    x0, y0 = PIAZZA_C[0] - pw // 2, PIAZZA_C[1] - ph // 2
+    lastra = np.zeros((H, W), bool)
+    lastra[y0:y0 + ph, x0:x0 + pw] = piena
+    colori = np.zeros((H, W, 3))
+    colori[y0:y0 + ph, x0:x0 + pw] = a[..., :3]
+    impronta = rr._chiudi(lastra, 6)                     # la piazza con le sue fughe
+    dentro = rr._distanza(~impronta, 9)                  # quanti passi dal bordo, dentro la piazza
+    n1, n2 = _prato.liscio(H, W, 4, 4, 31), _prato.liscio(H, W, 3, 3, 37)
+    erba = ((dentro <= 2) & (n1 > 0.32)) | ((dentro <= 6) & (n1 > 0.62)) | ((dentro <= 9) & (n1 > 0.80))
+    erba |= n2 > 0.88                                     # i ciuffetti sopra le lastre e nelle fughe
+    for cx, cy, r in ((x0 + 22, y0 + 28, 21), (x0 + pw - 20, y0 + ph - 22, 17)):    # le due lastre mezze coperte
+        erba |= np.hypot(xx - cx, (yy - cy) * 1.15) + (n1 - 0.5) * 14 < r
+    # dove arriva la strada il bordo della lastra resta (la strada ci entra), con qualche ciuffo solo sulla giuntura
     lin, u = curva(STRADA)
     D, S, V = rr.campo(lin, u, 18, H, 0)
-    via = D < 14.5
-    tutto = ellisse | via                                # fin dove arriva il cordolo (sulla rottura no)
-    # le mattonelle (29 pixel, come i rombi del nodo): il mezzo di ognuna, un numero a caso per ognuna, e la riga
-    # della rottura che passa li'
-    T = 29
-    ty, tx = (yy - C[1]) // T, (xx - C[0]) // T
-    yc, xc = C[1] + ty * T + T / 2.0, C[0] + tx * T + T / 2.0
-    caso = (((ty + 50) * 7919 + (tx + 50) * 104729) % 1000) / 1000.0
-    caso2 = (((ty + 50) * 15485863 + (tx + 50) * 32452843) % 997) / 997.0
-    onda = rr.rumore1(W + T, 61, 11)
-    riga = ROTTO + (onda[np.clip(xc, 0, W - 1).astype(int)] - 0.5) * 30
-    intera = yc < riga - 9
-    sparita = yc > riga + 9
-    f = _prato.liscio(H, W, 5, 4, 13)
-    tiene = intera | (~intera & ~sparita & (yy < riga + (f - 0.5) * 16))
-    tiene &= ~(intera & (yc > riga - 9 - T) & (caso < 0.13))         # qualcuna manca, nella fila sopra la rottura
-    ox, oy = (caso2 - 0.5) * 12, (caso - 0.5) * 10                   # un coccio in qualche mattonella sparita
-    coccio = sparita & (yc < riga + 9 + 2 * T) & (caso2 > 0.72) & \
-        (((xx - xc - ox) / 7.0) ** 2 + ((yy - yc - oy) / 5.0) ** 2 + (f - 0.5) * 1.4 < 1)
-    fughe = ((yy - C[1]) % T == T - 1) | ((xx - C[0]) % T == T - 1)
-    erba_fughe = fughe & (yy > riga - 1.5 * T) & (_prato.liscio(H, W, 3, 3, 17) > 0.62)     # ciuffetti corti
-    # il cordolo non e' a mattonelle: si spezza dove passa la linea mossa, pixel per pixel
-    d = rr._distanza(~tutto, 7)
-    cordolo = ellisse & (d <= 6)
-    sul_cordolo = yy < ROTTO + (onda[xx] - 0.5) * 30 + (f - 0.5) * 16
-    mat = (ellisse & ~cordolo & (tiene | coccio) & ~erba_fughe) | (cordolo & sul_cordolo) | via
-    mat = _pulisci(mat, C[1] - LASTRICO[1] - 4, C[1] + LASTRICO[1] + 4, C[0] - LASTRICO[0] - 4,
-                   C[0] + LASTRICO[0] + 4)
+    erba &= ~((D < 17) & (dentro <= 9) & (yy < y0 + 40))
+    lastra &= ~erba
+    for pezzo in _pezzi(lastra)[1:]:                     # niente briciole di lastra in mezzo all'erba
+        if len(pezzo) < 14:
+            for y, x in pezzo:
+                lastra[y, x] = False
+    # l'ombrina dell'erba sulle lastre (la luce viene da in alto a sinistra): sotto e a destra di un ciuffo
+    sopra = np.zeros((H, W), bool)
+    sopra[1:] |= ~lastra[:-1]
+    sopra[1:, 1:] |= ~lastra[:-1, :-1]
+    ombrina = lastra & sopra & impronta
+    # la strada, fino alla piazza (sotto la piazza niente strada)
     st = _kit('strada_verticale.png')
-    idx = np.full((H, W), -1)
-    if MOTIVO == 'diamanti':
-        blocco = _kit('nodo.png')[6:35, 6:35]            # i rombi del nodo (la fuga scura sotto e a destra)
-        dentro = blocco[(yy - C[1]) % T, (xx - C[0]) % T]
-    else:
-        dentro = st[(yy - C[1]) % 55, 6 + (xx - C[0]) % 16]     # le righe a spina della strada, una accanto all'altra
-    idx[ellisse] = dentro[ellisse]
-    # la strada fuori dal lastricato: il motivo intero del kit (anche i cordoli, frastagliati: dove il motivo e'
-    # vuoto c'e' il prato) piegato lungo la curva, come al ruscello; la riga del motivo e' spostata perche' in cima
-    # combaci con la strada del ruscello
-    fuori = via & ~ellisse
     k0 = int(np.abs(lin[:, 1]).argmin())
     spost = (STRADA_RIGA - int(u[k0])) % 55
     col = np.clip((V + 14.5).astype(int), 0, 28)
     tex = st[(S.astype(int) + spost) % 55, col]
-    idx[fuori] = tex[fuori]
-    mat &= ~(fuori & (tex < 0))
-    for k in range(1, 7):
-        idx[mat & ellisse & (d == k)] = CORDOLO[k - 1]
-    # dove la strada entra nel lastricato i due motivi non combaciano: ci cresce l'erba sopra (Bru: "coprire i punti
-    # di giuntura con un po' di erba"), una striscia sfrangiata lungo il bordo dell'ellisse
-    vicino_bordo = np.abs(r - 1) * LASTRICO[1]
-    ciuffi = _prato.liscio(H, W, 3, 3, 23)
-    giunta = via & (((vicino_bordo < 2.2) & (ciuffi > 0.38)) | ((vicino_bordo < 4.5) & (ciuffi > 0.66)))
-    # e sugli angoli, dove i cordoli della strada incontrano quello del lastricato, un ciuffo un po' piu' grande
-    angoli = via & (vicino_bordo < 6) & (D > 8.5) & (ciuffi > 0.3)
-    mat &= ~(giunta | angoli)
-    # la rottura: i mattoni che toccano il prato (fuori dal cordolo) hanno lo spigolo scuro
-    vicini = np.ones((H, W), bool)
-    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-        vicini &= np.roll(np.roll(mat, dy, 0), dx, 1)
-    idx[mat & ~vicini & (d > 6) & ~fuori] = 1
-    idx[~mat] = -1
-    return mat, idx
+    fuori = rr._distanza(impronta, 6)                    # quanti passi dalla piazza, fuori
+    via = (D < 14.5) & ~impronta & (tex >= 0)
+    giunta = via & (((fuori <= 2) & (n2 > 0.50)) | ((fuori <= 4) & (n2 > 0.78)))
+    via &= ~giunta
+    mat = via | lastra
+    colori[via] = MATTONI[tex[via]]
+    return mat, colori, ombrina
+
+
+RAMPE = None
 
 
 def scendi(out, quanto, maschera=None):
-    """i pixel scendono di 'quanto' gradini (per pixel) lungo la rampa del loro materiale: il prato (tre al piu') o
-    la pietra dei mattoni (due al piu'); gli altri colori restano"""
-    q = np.rint(out).astype(int)
+    """i pixel scendono di 'quanto' gradini (per pixel) lungo la rampa del loro materiale: il prato (tre al piu'), la
+    pietra dei mattoni, e le rampe delle lastre della piazza (pietra, muschio, chioma, ombra; due al piu'); gli altri
+    colori restano"""
+    global RAMPE
+    if RAMPE is None:
+        tav = _tav.tavolozze()
+        RAMPE = {}
+        lista = [(rr.PRATO_RAMPA, 3), (PIETRA, 2)] + [(tav[k], 2) for k in ('pietra', 'muschio', 'chioma', 'ombra')]
+        for rampa, massimo in lista:
+            r = np.asarray(rampa, float)
+            for i, c in enumerate(r.astype(int)):
+                RAMPE.setdefault(tuple(int(v) for v in c), (r, i, massimo))
+        r = np.asarray(rr.PRATO_RAMPA, float)
+        for c in (PRATO['petalo'], PRATO['cuore']):        # i fiorellini del prato: come la luce
+            RAMPE.setdefault(tuple(c), (r, len(r) - 1, 3))
     quanto = np.broadcast_to(quanto, (H, W))
     if maschera is None:
         maschera = quanto > 0
-    for rampa, extra, massimo in ((rr.PRATO_RAMPA, (PRATO['petalo'], PRATO['cuore']), 3), (PIETRA, (), 2)):
-        pos = np.full((H, W), -1)
-        for i, c in enumerate(np.asarray(rampa).astype(int)):
-            pos[np.all(q == c, axis=-1)] = i
-        for c in extra:                                  # i fiorellini del prato: come la luce
-            pos[np.all(q == np.array(c), axis=-1)] = len(rampa) - 1
-        m = maschera & (pos >= 0) & (quanto > 0)
-        out[m] = np.asarray(rampa, float)[np.maximum(0, pos[m] - np.minimum(quanto[m], massimo))]
+    m = maschera & (quanto > 0)
+    q = np.rint(out).astype(int)
+    for y, x in zip(*np.nonzero(m)):
+        v = RAMPE.get((int(q[y, x, 0]), int(q[y, x, 1]), int(q[y, x, 2])))
+        if v is not None:
+            rampa, i, massimo = v
+            out[y, x] = rampa[max(0, i - min(int(quanto[y, x]), massimo))]
     return out
 
 
@@ -473,24 +429,12 @@ def ombre(out, tutte):
 
 
 def passi(tutte, bordi=True):
-    """dove si cammina: dappertutto, tranne il bordo della mappa e le impronte delle cose in piedi. Il recinto e' un
-    muro: fra un masso e il successivo (a meno di 45 pixel, cioe' non attraverso i varchi) una striscia di 4 pixel per
-    parte lungo la linea dei piedi, se no Lei passa fra le impronte dei massi ed esce dal recinto"""
+    """dove si cammina: dappertutto, tranne il bordo della mappa e le impronte delle cose in piedi"""
     ok = np.ones((H, W), bool)
     yy, xx = np.ogrid[:H, :W]
     for (n, f, fx, fy, piede, (rx, ry)) in tutte:
         if rx:
             ok &= ((xx - fx) / rx) ** 2 + ((yy - fy) / ry) ** 2 > 1
-    anello = [(x, y) for _, x, y in massi_del_recinto()]
-    for (x0, y0), (x1, y1) in zip(anello, anello[1:] + anello[:1]):
-        lung = np.hypot(x1 - x0, y1 - y0)
-        if lung >= 45:
-            continue
-        ya, yb, xa, xb = min(y0, y1) - 5, max(y0, y1) + 6, min(x0, x1) - 5, max(x0, x1) + 6
-        sy, sx = np.mgrid[ya:yb, xa:xb]
-        t = np.clip(((sx - x0) * (x1 - x0) + (sy - y0) * (y1 - y0)) / lung ** 2, 0, 1)
-        vicino = np.hypot(sx - (x0 + t * (x1 - x0)), sy - (y0 + t * (y1 - y0))) <= 4
-        ok[ya:yb, xa:xb] &= ~vicino
     # ai bordi della mappa Lei resta tutta dentro (e' alta 74 e larga 40): sopra fino a dove arriva la testa, ai lati
     # mezza larghezza
     if bordi:
@@ -508,12 +452,9 @@ def main():
     fiori_segni = []
     passi_prato, _ = _prato.prato(H, W, seme=58, tav=PRATO, fiori=fiori_segni)
     out = passi_prato[3].astype(float)
-    mat, idx = lastricato()
-    out[mat] = MATTONI[idx[mat]]
-    # i mattoni rotti sono un filo piu' alti del prato: sotto lo spigolo, sull'erba, un'ombrina di un gradino
-    sotto = np.zeros((H, W), bool)
-    sotto[1:] = mat[:-1] & ~mat[1:]
-    out = scendi(out, 1, sotto)
+    mat, colori, ombrina = pavimento()
+    out[mat] = colori[mat]
+    out = scendi(out, 1, ombrina)
     out, ombra = ombre(out, tutte)
     _salva(out, os.path.join(LIV, 'pasto.png'))
     cammino = passi(tutte)
@@ -559,8 +500,8 @@ def main():
         f.write('\n')
     pianta = {
         "_nota": "Il pasto del goblin, fatto da strumenti/livelli/pasto_goblin.py: la radura nel recinto di massi col "
-                 "goblin al centro, di spalle, che divora la preda; la meta' di nord lastricata coi mattoni della pianura, "
-                 "con la strada che esce verso la pianura, quella di sud (da dove si arriva) solo prato.",
+                 "goblin al centro, di spalle, che divora la preda; la strada di mattoni della pianura arriva da nord "
+                 "fino a un pezzo della piazza antica coperto d'erba; a sud, da dove si arriva, solo prato.",
         "nome": "Il pasto del goblin",
         "mappa": "pasto.png", "scala": 1, "pixel": 1, "ingrandimento": 2,
         "pezzi": "pasto_pezzi.json", "passi": "pasto_passi.png", "prato": "pasto_prato.png", "fiori": "pasto_fiori.json",
