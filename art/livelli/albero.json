@@ -1,5 +1,5 @@
 {
- "_nota": "La scena dell'albero, fatta da strumenti/livelli/scene_pianure.py: il grande albero accanto alla cascatella da cui nasce il ruscello, lo slime distratto dai coniglietti, l'entrata della caverna nascosta nella parete dietro l'albero; la strada va a nord verso il masso.",
+ "_nota": "La scena dell'albero, fatta da strumenti/livelli/scene_pianure.py: dal ponte la strada antica, mezza rotta, gira attorno allo spuntone e al tronco caduto; un sentiero si stacca verso il grande albero e la radura dello slime e torna sulla strada piu' su (un anello); la cascatella scende a due salti, il ruscello gira attorno alle radici, coi sassi per passare dall'altra parte; la grotta e' dietro un cespuglio fitto, ai piedi della parete dietro l'albero.",
  "nome": "L'albero",
  "mappa": "albero.png",
  "scala": 1,
@@ -14,6 +14,11 @@
    "file": "pezzi/pianure/cascatella_fotogrammi.png",
    "n": 6,
    "ms": 90
+  },
+  "pezzi/pianure/cascatella_alta.png": {
+   "file": "pezzi/pianure/cascatella_alta_fotogrammi.png",
+   "n": 6,
+   "ms": 100
   },
   "pezzi/pianure/slime.png": {
    "file": "pezzi/pianure/slime_fotogrammi.png",
@@ -35,11 +40,11 @@
   0,
   0,
   1280,
-  720
+  1080
  ],
  "partenza": [
   613,
-  690
+  1050
  ],
  "verso": [
   0,
@@ -47,30 +52,75 @@
  ],
  "stanze": [
   {
+   "nome": "Dal ponte",
+   "rett": [
+    520,
+    1000,
+    720,
+    1080
+   ]
+  },
+  {
+   "nome": "Lo spuntone",
+   "rett": [
+    520,
+    880,
+    860,
+    1000
+   ]
+  },
+  {
+   "nome": "La strada interrotta",
+   "rett": [
+    300,
+    500,
+    640,
+    620
+   ]
+  },
+  {
+   "nome": "La radura dello slime",
+   "rett": [
+    700,
+    600,
+    900,
+    760
+   ]
+  },
+  {
    "nome": "Il grande albero",
    "rett": [
-    660,
-    300,
-    1000,
-    520
+    740,
+    400,
+    1010,
+    580
    ]
   },
   {
    "nome": "La cascatella",
    "rett": [
     960,
-    260,
-    1100,
-    380
+    300,
+    1180,
+    470
    ]
   },
   {
-   "nome": "Dal ponte",
+   "nome": "Il ponte di radice",
    "rett": [
-    540,
+    1010,
+    500,
+    1160,
+    580
+   ]
+  },
+  {
+   "nome": "Oltre il ruscello",
+   "rett": [
+    1150,
     560,
-    700,
-    720
+    1280,
+    740
    ]
   },
   {
@@ -79,7 +129,7 @@
     440,
     0,
     600,
-    200
+    300
    ]
   },
   {
@@ -88,7 +138,7 @@
     0,
     0,
     1280,
-    720
+    1080
    ]
   }
  ]

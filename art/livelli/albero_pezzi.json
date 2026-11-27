@@ -2,205 +2,338 @@
  "_nota": "Scritto da strumenti/livelli/scene_pianure.py: non toccare a mano. Ogni pezzo e' [file (da art/livelli/), x, y del piede nel mondo, x, y del piede nel disegno].",
  "pezzi": [
   [
-   "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
-   830,
-   96,
-   122,
-   225
-  ],
-  [
    "pezzi/ruscello/fusi/albero_alto_dritto_3.png",
    300,
-   118,
+   128,
    122,
    218
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
-   96,
+   1180,
    150,
    122,
    225
   ],
   [
+   "pezzi/ruscello/fusi/albero_alto_dritto_1.png",
+   96,
+   170,
+   122,
+   225
+  ],
+  [
+   "pezzi/pianure/cascatella_alta.png",
+   1094,
+   215,
+   11,
+   37
+  ],
+  [
    "pezzi/ruscello/fusi/albero_alto_dritto_2.png",
-   1160,
-   150,
+   760,
+   240,
    136,
    243
   ],
   [
-   "pezzi/ruscello/fusi/cespuglietto_1.png",
-   940,
-   200,
-   42,
-   52
+   "pezzi/ruscello/fusi/cespuglio_1.png",
+   250,
+   340,
+   63,
+   82
   ],
   [
    "pezzi/ruscello/fusi/cespuglio_2.png",
-   704,
-   300,
+   716,
+   360,
    54,
    70
   ],
   [
    "pezzi/pianure/cascatella.png",
-   1010,
-   314,
+   1050,
+   374,
    14,
    45
   ],
   [
-   "pezzi/ruscello/fusi/cespuglio_1.png",
-   240,
-   330,
-   63,
-   82
-  ],
-  [
-   "pezzi/ruscello/fusi/cespuglio_2.png",
-   1210,
-   330,
-   54,
-   70
-  ],
-  [
-   "pezzi/pasto/fusi/sasso_4.png",
-   1084,
-   344,
-   9,
-   15
-  ],
-  [
-   "pezzi/pianure/albero_alto_gigante.png",
-   846,
-   372,
-   177,
-   347
+   "pezzi/pianure/cespuglione.png",
+   806,
+   412,
+   81,
+   106
   ],
   [
    "pezzi/ruscello/fusi/albero_alto_4.png",
-   54,
-   420,
+   52,
+   470,
    122,
    220
   ],
   [
-   "pezzi/pianure/coniglio_1.png",
-   806,
-   432,
-   7,
-   11
+   "pezzi/ruscello/fusi/cespuglio_2.png",
+   1236,
+   470,
+   54,
+   70
   ],
   [
-   "pezzi/pianure/coniglio_2.png",
-   836,
-   446,
-   7,
-   11
+   "pezzi/ruscello/fusi/cespuglietto_1.png",
+   640,
+   470,
+   42,
+   52
   ],
   [
    "pezzi/pasto/fusi/sasso_4.png",
-   420,
-   450,
+   410,
+   470,
    9,
    15
   ],
   [
    "pezzi/pasto/fusi/sassolino_2.png",
-   436,
-   456,
+   426,
+   476,
    7,
    10
   ],
   [
-   "pezzi/ruscello/fusi/albero_alto_3.png",
-   1236,
-   470,
-   135,
-   239
-  ],
-  [
-   "pezzi/pianure/slime.png",
-   742,
-   486,
-   19,
-   25
-  ],
-  [
-   "pezzi/pasto/fusi/masso_basso_4.png",
-   210,
+   "pezzi/pasto/fusi/sasso_4.png",
+   1150,
    520,
-   15,
-   15
-  ],
-  [
-   "pezzi/ruscello/fusi/cespuglio_2.png",
-   330,
-   560,
-   54,
-   70
-  ],
-  [
-   "pezzi/pasto/fusi/sasso_5.png",
-   1110,
-   560,
    9,
    15
   ],
   [
-   "pezzi/pasto/fusi/sassolino_1.png",
-   1124,
-   566,
-   5,
-   8
+   "pezzi/pianure/albero_alto_gigante.png",
+   880,
+   520,
+   220,
+   435
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglietto_1.png",
+   1180,
+   560,
+   42,
+   52
+  ],
+  [
+   "pezzi/pasto/fusi/masso_basso_4.png",
+   230,
+   560,
+   15,
+   15
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_1.png",
+   262,
+   572,
+   63,
+   82
+  ],
+  [
+   "pezzi/pianure/tronco_caduto.png",
+   470,
+   572,
+   201,
+   84
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_2.png",
+   1252,
+   600,
+   54,
+   70
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_2.png",
+   330,
+   600,
+   54,
+   70
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglietto_1.png",
+   296,
+   606,
+   42,
+   52
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_2.png",
+   224,
+   612,
+   54,
+   70
+  ],
+  [
+   "pezzi/pianure/coniglio_1.png",
+   812,
+   642,
+   7,
+   11
+  ],
+  [
+   "pezzi/pianure/coniglio_2.png",
+   842,
+   656,
+   7,
+   11
+  ],
+  [
+   "pezzi/pianure/ceppo_1.png",
+   1216,
+   664,
+   21,
+   47
+  ],
+  [
+   "pezzi/pianure/slime.png",
+   762,
+   692,
+   19,
+   25
   ],
   [
    "pezzi/pasto/fusi/sasso_2.png",
-   950,
-   600,
+   980,
+   700,
    8,
    12
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
-   700,
-   640,
+   1206,
+   728,
    42,
    52
   ],
   [
-   "pezzi/ruscello/fusi/cespuglio_1.png",
-   1236,
-   640,
-   63,
-   82
-  ],
-  [
    "pezzi/ruscello/fusi/albero_alto_2.png",
-   150,
-   700,
+   160,
+   760,
    122,
    235
   ],
   [
    "pezzi/ruscello/fusi/cespuglietto_1.png",
-   900,
-   700,
+   560,
+   760,
    42,
    52
   ],
   [
+   "pezzi/pasto/fusi/sasso_5.png",
+   1180,
+   760,
+   9,
+   15
+  ],
+  [
+   "pezzi/pasto/fusi/sassolino_1.png",
+   1194,
+   766,
+   5,
+   8
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_2.png",
+   860,
+   820,
+   54,
+   70
+  ],
+  [
+   "pezzi/ruscello/fusi/albero_alto_3.png",
+   1236,
+   880,
+   135,
+   239
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_1.png",
+   360,
+   880,
+   63,
+   82
+  ],
+  [
+   "pezzi/pasto/fusi/sasso_5.png",
+   760,
+   900,
+   9,
+   15
+  ],
+  [
+   "pezzi/pasto/fusi/sassolino_3.png",
+   776,
+   906,
+   6,
+   11
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglietto_1.png",
+   960,
+   920,
+   42,
+   52
+  ],
+  [
+   "pezzi/pasto/fusi/masso_basso_4.png",
+   640,
+   930,
+   15,
+   15
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_1.png",
+   700,
+   950,
+   63,
+   82
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglietto_1.png",
+   766,
+   958,
+   42,
+   52
+  ],
+  [
+   "pezzi/ruscello/fusi/albero_alto_3.png",
+   120,
+   1010,
+   135,
+   239
+  ],
+  [
+   "pezzi/ruscello/fusi/cespuglio_1.png",
+   1000,
+   1040,
+   63,
+   82
+  ],
+  [
    "pezzi/ruscello/fusi/albero_alto_1.png",
-   380,
-   712,
+   300,
+   1060,
    105,
    216
   ],
   [
+   "pezzi/ruscello/fusi/albero_alto_2.png",
+   840,
+   1060,
+   122,
+   235
+  ],
+  [
    "pezzi/ruscello/fusi/albero_alto_4.png",
-   1180,
-   712,
+   1170,
+   1070,
    122,
    220
   ]
