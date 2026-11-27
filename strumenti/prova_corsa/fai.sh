@@ -15,4 +15,4 @@ mkdir -p "$W/dati" "$W/pezzi"
 "$PY" "$ACQUA/dati_png.py" "$W/dati/acqua.npz" "$W/dati/acqua_dati.png" "$W/dati/acqua_info.json"
 "$PY" "$ACQUA/pezzi_anim.py" "$W/dati/acqua.npz" "$W/pezzi"
 "$PY" "$QUI/costruisci.py" "$QUI/modello.html" "$W/prova_corsa.html" "$W"
-"$PY" "$QUI/costruisci.py" "$QUI/modello.html" "$W/prova_pianure.html" "$W" comparsa guida pasto ruscello
+"$PY" "$QUI/costruisci.py" "$QUI/modello.html" "$W/prova_pianure.html" "$W" comparsa guida pasto ruscello albero

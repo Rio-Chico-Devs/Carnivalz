@@ -1,0 +1,95 @@
+{
+ "_nota": "La scena dell'albero, fatta da strumenti/livelli/scene_pianure.py: il grande albero accanto alla cascatella da cui nasce il ruscello, lo slime distratto dai coniglietti, l'entrata della caverna nascosta nella parete dietro l'albero; la strada va a nord verso il masso.",
+ "nome": "L'albero",
+ "mappa": "albero.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "pezzi": "albero_pezzi.json",
+ "passi": "albero_passi.png",
+ "prato": "albero_prato.png",
+ "fiori": "albero_fiori.json",
+ "animati": {
+  "pezzi/pianure/cascatella.png": {
+   "file": "pezzi/pianure/cascatella_fotogrammi.png",
+   "n": 6,
+   "ms": 90
+  },
+  "pezzi/pianure/slime.png": {
+   "file": "pezzi/pianure/slime_fotogrammi.png",
+   "n": 4,
+   "ms": 190
+  },
+  "pezzi/pianure/coniglio_1.png": {
+   "file": "pezzi/pianure/coniglio_1_fotogrammi.png",
+   "n": 2,
+   "ms": 520
+  },
+  "pezzi/pianure/coniglio_2.png": {
+   "file": "pezzi/pianure/coniglio_2_fotogrammi.png",
+   "n": 2,
+   "ms": 680
+  }
+ },
+ "limiti": [
+  0,
+  0,
+  1280,
+  720
+ ],
+ "partenza": [
+  613,
+  690
+ ],
+ "verso": [
+  0,
+  -1
+ ],
+ "stanze": [
+  {
+   "nome": "Il grande albero",
+   "rett": [
+    660,
+    300,
+    1000,
+    520
+   ]
+  },
+  {
+   "nome": "La cascatella",
+   "rett": [
+    960,
+    260,
+    1100,
+    380
+   ]
+  },
+  {
+   "nome": "Dal ponte",
+   "rett": [
+    540,
+    560,
+    700,
+    720
+   ]
+  },
+  {
+   "nome": "Verso il masso",
+   "rett": [
+    440,
+    0,
+    600,
+    200
+   ]
+  },
+  {
+   "nome": "L'albero",
+   "rett": [
+    0,
+    0,
+    1280,
+    720
+   ]
+  }
+ ]
+}
