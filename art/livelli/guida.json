@@ -1,0 +1,64 @@
+{
+ "_nota": "La radura della Guida, fatta da strumenti/livelli/arrivo.py: uno spazio vuoto dove Lei si ferma e la Guida le spiega la mappa; a nord il pasto del goblin, a sud il prato dell'arrivo.",
+ "nome": "La radura della Guida",
+ "mappa": "guida.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "pezzi": "guida_pezzi.json",
+ "passi": "guida_passi.png",
+ "prato": "guida_prato.png",
+ "fiori": "guida_fiori.json",
+ "limiti": [
+  0,
+  0,
+  1280,
+  640
+ ],
+ "partenza": [
+  640,
+  600
+ ],
+ "verso": [
+  0,
+  -1
+ ],
+ "stanze": [
+  {
+   "nome": "La Guida: le basi della mappa",
+   "rett": [
+    480,
+    210,
+    800,
+    450
+   ]
+  },
+  {
+   "nome": "Verso il pasto del goblin",
+   "rett": [
+    440,
+    0,
+    840,
+    180
+   ]
+  },
+  {
+   "nome": "Dal prato dell'arrivo",
+   "rett": [
+    440,
+    520,
+    840,
+    640
+   ]
+  },
+  {
+   "nome": "La radura",
+   "rett": [
+    0,
+    0,
+    1280,
+    640
+   ]
+  }
+ ]
+}

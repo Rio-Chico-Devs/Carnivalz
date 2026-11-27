@@ -4,7 +4,8 @@ data URI). L'acqua che si muove c'e' solo al ruscello; le altre zone possono ave
 sempre (il goblin che mangia). Con piu' zone, la prima e' quella dove si comincia; le uscite portano solo alle zone
 che sono nella pagina.
 
-uso: costruisci.py modello.html uscita.html cartella_acqua [zona ...]     (zone: ruscello, se mancano; o pasto)
+uso: costruisci.py modello.html uscita.html cartella_acqua [zona ...]     (zone: ruscello, se mancano; o comparsa,
+     guida, pasto)
 """
 import base64
 import html
@@ -30,11 +31,18 @@ def uri(percorso):
         return 'data:image/png;base64,' + base64.b64encode(f.read()).decode('ascii')
 
 
-# dove si esce da una zona e dove si entra nell'altra. Le due strade di mattoni si attaccano: quella del pasto lascia
-# la mappa in alto dove quella del ruscello entra in basso, alla stessa x (pasto_goblin.py, STRADA_X0), quindi Lei
-# tiene la sua x ('entrata' con x null) e cambia solo la y. 'rett' e' dove sono i piedi quando si esce
+# dove si esce da una zona e dove si entra nell'altra. Le mappe sono larghe uguali (1280) e si attaccano in fila da
+# sud a nord: il prato dell'arrivo (dove appare Lei), la radura della Guida, il pasto del goblin, il ruscello; Lei
+# tiene la sua x ('entrata' con x null) e cambia solo la y. Fra le prime tre si passa nella fascia di mezzo (x
+# 440-840, strumenti/livelli/arrivo.py); fra il pasto e il ruscello le due strade di mattoni si attaccano: quella del
+# pasto lascia la mappa in alto dove quella del ruscello entra in basso, alla stessa x (pasto_goblin.py, STRADA_X0).
+# 'rett' e' dove sono i piedi quando si esce
 COLLEGAMENTI = {
-    'pasto': [{'rett': [570, 0, 650, 92], 'zona': 'ruscello', 'entrata': [None, 700], 'verso': [0, -1]}],
+    'comparsa': [{'rett': [440, 0, 840, 92], 'zona': 'guida', 'entrata': [None, 616], 'verso': [0, -1]}],
+    'guida': [{'rett': [440, 0, 840, 92], 'zona': 'pasto', 'entrata': [None, 774], 'verso': [0, -1]},
+              {'rett': [440, 630, 840, 640], 'zona': 'comparsa', 'entrata': [None, 100], 'verso': [0, 1]}],
+    'pasto': [{'rett': [570, 0, 650, 92], 'zona': 'ruscello', 'entrata': [None, 700], 'verso': [0, -1]},
+              {'rett': [440, 790, 840, 800], 'zona': 'guida', 'entrata': [None, 100], 'verso': [0, 1]}],
     'ruscello': [{'rett': [570, 709, 650, 720], 'zona': 'pasto', 'entrata': [None, 104], 'verso': [0, 1]}],
 }
 
@@ -129,6 +137,23 @@ dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': 
 # i testi della pagina per le zone che non sono il ruscello (quelli del ruscello sono gia' nella pagina): messi nella
 # pagina qui, al posto di quelli del ruscello; e dove non c'e' acqua, i comandi dell'acqua nascosti
 TESTI = {
+    'comparsa': {'titolo': "L'arrivo nelle pianure",
+                 'sotto': "Lei appare qui, dove la lascia il proiettore: sotto i suoi piedi il prato e' piegato a "
+                          "cerchi come un cerchio nel grano, ma storto, come se lo spazio si fosse torto (gli anelli "
+                          "d'erba posata ondeggiano, i raggi sono diventati spirali, i cerchietti virgole, le macchie "
+                          "del prato attorno si avvolgono). A nord la radura vuota dove Lei si ferma e la Guida le "
+                          "spiega la mappa, poi il pasto del goblin e, su per la strada di mattoni, il ruscello di "
+                          "Radenna: in cima a ogni zona si passa alla successiva, in fondo si torna indietro. Come "
+                          "altrove: le nuvole e le macchie di sole, i fiori e il prato al vento, l'erba che si muove "
+                          "ai passi; se Lei resta ferma si annoia.",
+                 'aria': "L'arrivo nelle pianure: clicca e usa le frecce per far correre Lei",
+                 'carico': "Carico il prato dell'arrivo…"},
+    'guida': {'titolo': 'La radura della Guida',
+              'sotto': "Uno spazio vuoto, una radura di prato con gli alberi solo attorno: qui Lei si ferma e la "
+                       "Guida, dal data pad, le spiega le basi della mappa. A nord il pasto del goblin, a sud il prato "
+                       "dove Lei e' apparsa.",
+              'aria': "La radura della Guida: clicca e usa le frecce per far correre Lei",
+              'carico': "Carico la radura…"},
     'pasto': {'titolo': 'Il pasto del goblin',
               'sotto': "Lei arriva dal prato, da sud. In mezzo alla radura il goblin, di spalle, divora a morsi "
                        "furiosi la preda che ha appena ucciso, un cinghiale, sui resti della piazza antica mangiati "

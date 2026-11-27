@@ -1,0 +1,55 @@
+{
+ "_nota": "Il prato dove il proiettore lascia Lei, fatto da strumenti/livelli/arrivo.py: dove appare l'erba e' posata a cerchi come un cerchio nel grano, ma torta come se lo spazio si fosse distorto; a nord la radura della Guida.",
+ "nome": "Il prato dell'arrivo",
+ "mappa": "comparsa.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "pezzi": "comparsa_pezzi.json",
+ "passi": "comparsa_passi.png",
+ "prato": "comparsa_prato.png",
+ "fiori": "comparsa_fiori.json",
+ "limiti": [
+  0,
+  0,
+  1280,
+  720
+ ],
+ "partenza": [
+  640,
+  440
+ ],
+ "verso": [
+  0,
+  1
+ ],
+ "stanze": [
+  {
+   "nome": "Il cerchio storto",
+   "rett": [
+    500,
+    340,
+    780,
+    540
+   ]
+  },
+  {
+   "nome": "Verso la radura",
+   "rett": [
+    440,
+    0,
+    840,
+    200
+   ]
+  },
+  {
+   "nome": "Il prato dell'arrivo",
+   "rett": [
+    0,
+    0,
+    1280,
+    720
+   ]
+  }
+ ]
+}

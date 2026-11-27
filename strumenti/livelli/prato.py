@@ -78,7 +78,9 @@ def distanza(m, fino):
     return d
 
 
-def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42, fiori=None):
+def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42, fiori=None, deforma=None):
+    """'deforma': se c'e', una funzione che riceve il campo delle macchie e ne rende uno nuovo (le macchie storte, piu'
+    scure in un posto...): le foglie, le luci e i fiori poi si fanno sul campo nuovo, dritti come dappertutto"""
     rng = np.random.default_rng(seme)
     T = {k: np.array(v, np.uint8) for k, v in tav.items()}
     passi = []
@@ -87,6 +89,8 @@ def prato(h, w, seme=1, tav=TINTE['A'], scuro=0.42, fiori=None):
     passi.append(img.copy())
     # 2. le macchie: due livelli di scuro sul rumore allungato; 'scuro' e' quanta parte del prato e' in ombra
     F = liscio(h, w, 64, 14, seme) * 0.6 + liscio(h, w, 24, 7, seme + 1) * 0.4
+    if deforma is not None:
+        F = deforma(F)
     t1, t2 = np.quantile(F, [1 - scuro, 1 - scuro * 0.36])
     liv = (F >= t1).astype(int) + (F >= t2).astype(int)
     col = [T['base'], T['medio'], T['scuro']]

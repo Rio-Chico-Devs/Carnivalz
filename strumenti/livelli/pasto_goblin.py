@@ -10,8 +10,8 @@
 # mangiando"). Niente recinto di sassi (Bru: "non deve sembrare un'arena"). Il pavimento come la scena dopo (il ruscello,
 # la pianura aperta): la strada di mattoni arriva da nord e finisce in un pezzo della piazza antica, le stesse lastre
 # coi colori della mappa del ruscello (piazza_tavolozza.py), mezze mangiate dall'erba, coi ciuffi nelle fughe e sopra
-# (Bru: "un po' di erba sopra le mattonelle per blendare bene"); la meta' di sud, da dove arriva Lei (dalla capsula), e'
-# prato, senza sentiero. In cima la strada lascia la mappa dove la strada del ruscello entra in basso (stessa x, stessa
+# (Bru: "un po' di erba sopra le mattonelle per blendare bene"); la meta' di sud, da dove arriva Lei (dalla radura della
+# Guida, arrivo.py), e' prato, senza sentiero. In cima la strada lascia la mappa dove la strada del ruscello entra in basso (stessa x, stessa
 # direzione, stesso punto del motivo), cosi' le due scene si attaccano. Attorno il prato coi fiori al vento e gli alberi
 # esotici, come al ruscello (stessi pezzi, stesso prato, stesse regole delle tavolozze di Bru).
 #
@@ -77,7 +77,7 @@ SASSI = [('sasso_4', 760, 560), ('sassolino_2', 776, 566), ('sasso_2', 420, 520)
 PARTENZA = [612, 776]
 STANZE = [
     {"nome": "Il pasto del goblin", "rett": [470, 290, 810, 510]},
-    {"nome": "L'arrivo", "rett": [500, 510, 760, 800]},
+    {"nome": "Dalla radura", "rett": [500, 510, 760, 800]},
     {"nome": "Verso la pianura", "rett": [560, 0, 720, 290]},
     {"nome": "Il prato", "rett": [0, 0, W, H]},
 ]
@@ -384,7 +384,7 @@ def scendi(out, quanto, maschera=None):
         r = np.asarray(rr.PRATO_RAMPA, float)
         for c in (PRATO['petalo'], PRATO['cuore']):        # i fiorellini del prato: come la luce
             RAMPE.setdefault(tuple(c), (r, len(r) - 1, 3))
-    quanto = np.broadcast_to(quanto, (H, W))
+    quanto = np.broadcast_to(quanto, out.shape[:2])      # la misura della mappa (anche di altre zone)
     if maschera is None:
         maschera = quanto > 0
     m = maschera & (quanto > 0)
@@ -401,6 +401,7 @@ def ombre(out, tutte):
     """le ombre delle cose in piedi: sul prato scendono di gradini lungo la sua rampa (come al ruscello), sui mattoni
     lungo quella della pietra"""
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
+    H, W = out.shape[:2]                                  # la misura della mappa (anche di altre zone)
     giu = np.zeros((H, W), int)
     for (n, f, fx, fy, piede, imp) in tutte:
         w = Image.open(os.path.join(LIV, f)).size[0]
@@ -428,8 +429,10 @@ def ombre(out, tutte):
     return scendi(out, giu), giu > 0
 
 
-def passi(tutte, bordi=True):
-    """dove si cammina: dappertutto, tranne il bordo della mappa e le impronte delle cose in piedi"""
+def passi(tutte, bordi=True, misura=None):
+    """dove si cammina: dappertutto, tranne il bordo della mappa e le impronte delle cose in piedi ('misura': (alto,
+    largo) della mappa, se non e' questa)"""
+    H, W = misura or (globals()['H'], globals()['W'])
     ok = np.ones((H, W), bool)
     yy, xx = np.ogrid[:H, :W]
     for (n, f, fx, fy, piede, (rx, ry)) in tutte:
