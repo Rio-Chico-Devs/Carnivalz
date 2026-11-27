@@ -1,5 +1,5 @@
 {
- "_nota": "La radura della Guida ordinata a griglia (strumenti/livelli/griglia.py): blocchi di bosco, la radura in mezzo dove parla la Guida, lo stagno col salice, il cartello, la nicchia dietro il cespuglione.",
+ "_nota": "La radura della Guida, fatta da strumenti/livelli/arrivo.py: uno spazio vuoto dove Lei si ferma e la Guida le spiega la mappa; a nord il pasto del goblin, a sud il prato dell'arrivo.",
  "nome": "La radura della Guida",
  "mappa": "guida.png",
  "scala": 1,
@@ -16,8 +16,8 @@
   640
  ],
  "partenza": [
-  600,
-  610
+  640,
+  600
  ],
  "verso": [
   0,
@@ -28,44 +28,26 @@
    "nome": "La Guida: le basi della mappa",
    "rett": [
     480,
-    240,
+    210,
     800,
-    400
-   ]
-  },
-  {
-   "nome": "Lo stagno col salice",
-   "rett": [
-    160,
-    200,
-    400,
-    340
+    450
    ]
   },
   {
    "nome": "Verso il pasto del goblin",
    "rett": [
-    400,
+    440,
     0,
-    560,
-    240
-   ]
-  },
-  {
-   "nome": "Dietro il cespuglio",
-   "rett": [
-    880,
-    120,
-    1040,
-    290
+    840,
+    180
    ]
   },
   {
    "nome": "Dal prato dell'arrivo",
    "rett": [
-    560,
     440,
-    640,
+    520,
+    840,
     640
    ]
   },
