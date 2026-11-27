@@ -1,0 +1,6 @@
+Pezzi dai riferimenti di Bru (immagini di pixel art ingrandite, anche JPG): stessi disegni, coi colori del gioco.
+  1. riduci.py immagine.jpg passo ridotta.png     la misura vera (passo: quanti pixel dell'immagine per ogni pixel
+                                                  del disegno; per le 123-125 era 2.97), via la scacchiera grigia
+  2. ricolora.py repo ridotta.png cartella nomi    ogni oggetto separato, i toni sulle nostre rampe (chioma,
+                                                  tronco, pietra) con la luce piu' vicina, il contorno scuro
+I pezzi fatti cosi' stanno in art/livelli/pezzi/bru/.
